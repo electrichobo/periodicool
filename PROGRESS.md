@@ -46,8 +46,9 @@ Handoff notes between sessions. Read at the start, update at the end.
 - Default port 8383 (does not clash with the common *arr ports).
 - Env vars are prefixed `PERIODICOOL_` for paths and bind settings; `PUID`, `PGID`, `UMASK`, `TZ` keep their usual names.
 - Tag-triggered GHCR image workflow comes with the Dockerfile in step 9. CI for now: ruff and pytest on every push.
+- Dev dependency `httpx` swapped for `httpx2` (2026-10-16), which Starlette's TestClient now prefers; the deprecation warning is gone.
 - CODE_OF_CONDUCT contact points to the maintainer's GitHub profile, not an email address.
 
 ## Open questions
 
-- Starlette warns that `httpx` with its TestClient is deprecated in favor of `httpx2`. Harmless for now; swapping the dev dependency needs approval.
+- None.

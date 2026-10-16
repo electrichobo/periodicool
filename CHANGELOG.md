@@ -9,3 +9,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Project skeleton: FastAPI app, `/health` endpoint, SQLite with Alembic migrations, tests, lint and CI.
 - Release-name fixtures for the eight dev magazines, collected from Prowlarr category 7010 by `scripts/collect_fixtures.py`.
 - Release-name parser (`parse_release`) with confidence reasons, and strict title matching with region and language filters. Snapshot test over every fixture name.
+
+### Changed
+
+- Dev dependency `httpx` replaced by `httpx2` for FastAPI's TestClient.
