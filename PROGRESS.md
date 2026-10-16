@@ -10,7 +10,7 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 ## Next
 
-- Step 3: parser and tests against the fixtures. Expected outputs per fixture title need to be written by hand (or reviewed by Jared), since there is no ground truth.
+- Step 3: parser and tests against the fixtures. Expected outputs per fixture title need to be written by hand (or reviewed by the maintainer), since there is no ground truth.
 
 ## Fixture findings vs. CLAUDE.md expectations
 
