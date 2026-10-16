@@ -1,0 +1,124 @@
+{
+  "magazine": "AMAZONAS Magazine",
+  "query": "Amazonas",
+  "category": 7010,
+  "collected": "2026-10-16",
+  "releases": [
+    {
+      "title": "Amazonas-July.August.2013",
+      "size": 61962000,
+      "publish_date": "2013-06-19T00:28:12Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas-May.June.2013",
+      "size": 62278000,
+      "publish_date": "2013-05-05T23:43:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.Magazine-January.February.2013",
+      "size": 37851000,
+      "publish_date": "2013-04-08T05:49:02Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.Magazine-July.August.2013",
+      "size": 61954205,
+      "publish_date": "2025-07-14T04:04:58Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.Magazine-March.April.2013",
+      "size": 62867800,
+      "publish_date": "2025-07-07T14:54:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.Magazine-November.December.2013",
+      "size": 60560000,
+      "publish_date": "2013-10-15T08:53:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.Magazine-September.October.2013",
+      "size": 61721502,
+      "publish_date": "2025-07-08T07:27:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.TruePDF-July.August.2017",
+      "size": 23954217,
+      "publish_date": "2017-08-28T20:21:24Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.TruePDF-March.April.2017",
+      "size": 26747886,
+      "publish_date": "2017-08-28T20:21:40Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.TruePDF-May.June.2017",
+      "size": 24441556,
+      "publish_date": "2017-08-28T20:21:57Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.TruePDF-November.December.2017",
+      "size": 26489875,
+      "publish_date": "2017-09-26T23:21:24Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Amazonas.TruePDF-September.October.2017",
+      "size": 22188219,
+      "publish_date": "2017-08-28T20:22:32Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    }
+  ]
+}

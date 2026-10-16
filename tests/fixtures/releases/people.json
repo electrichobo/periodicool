@@ -1,0 +1,1852 @@
+{
+  "magazine": "People",
+  "query": "People",
+  "category": 7010,
+  "collected": "2026-10-16",
+  "releases": [
+    {
+      "title": "- [MAGAZINE].People.Australia-12.September.2016",
+      "size": 27620000,
+      "publish_date": "2025-06-14T20:13:02Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.Australia.TruePDF-12.September.2016",
+      "size": 27617000,
+      "publish_date": "2025-06-14T03:34:22Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.South.Africa-16.September.2016",
+      "size": 38920000,
+      "publish_date": "2025-06-15T21:27:38Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.South.Africa.TruePDF-16.September.2016",
+      "size": 38940000,
+      "publish_date": "2025-06-14T10:58:02Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.USA-12.September.2016",
+      "size": 47501000,
+      "publish_date": "2025-06-15T18:23:16Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.USA.TruePDF-12.September.2016",
+      "size": 47507000,
+      "publish_date": "2025-06-14T16:34:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.USA.TruePDF-19.September.2016",
+      "size": 61909000,
+      "publish_date": "2025-06-17T23:37:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].People.USA.Wellness.Special.TruePDF-2016",
+      "size": 30380000,
+      "publish_date": "2025-06-11T18:29:33Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].Real.People.TruePDF-15.September.2016",
+      "size": 23696000,
+      "publish_date": "2025-06-19T22:30:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.Peoples.Friend.TruePDF-10.September.2016",
+      "size": 36680000,
+      "publish_date": "2025-06-18T17:22:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[Gossip Magazine package for 07 Jun 2021 - Supplemental] [2 of 9] \"People - Vol. 95 No. 23 [07 Jun 2021] (TruePDF).pdf\" yEnc",
+      "size": 430193931,
+      "publish_date": "2021-05-29T02:54:09Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "[Gossip Magazine package for 14 Jun 2021] [14 of 29] \"People - Vol. 95 No. 24 [14 Jun 2021] (TruePDF).pdf\" yEnc",
+      "size": 207237397,
+      "publish_date": "2021-06-04T16:51:29Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "[Gossip Magazine package for 18 Dec 2023] [23 of 48] \"People - Vol. 99 No. 51 [18 Dec 2023] (TruePDF).jpg\" yEnc",
+      "size": 187813666,
+      "publish_date": "2023-12-13T02:51:29Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.Australia-15.August.2016",
+      "size": 26430000,
+      "publish_date": "2025-06-11T18:02:10Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.Australia.TruePDF-15.August.2016",
+      "size": 26430000,
+      "publish_date": "2025-06-15T05:46:39Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.Magazine.South.Africa.TruePDF-19.August.2016",
+      "size": 56058000,
+      "publish_date": "2025-06-19T09:03:11Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.Matters.TruePDF-August.2016",
+      "size": 31038000,
+      "publish_date": "2025-06-16T06:10:51Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.South.Africa.TruePDF-26.August.2016",
+      "size": 55508000,
+      "publish_date": "2025-06-14T05:12:27Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] People.USA.TruePDF-22.August.2016",
+      "size": 38422000,
+      "publish_date": "2025-06-18T22:23:23Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.Peoples.Friend.TruePDF-13.August.2016",
+      "size": 34178000,
+      "publish_date": "2025-06-17T19:01:49Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.Peoples.Friend.TruePDF-24.September.2016",
+      "size": 39480000,
+      "publish_date": "2025-06-11T09:41:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.Peoples.Friend.TruePDF-8.October.2016",
+      "size": 41712000,
+      "publish_date": "2025-06-15T12:32:15Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[People South Africa - Vol. 33 No. 51 & 52 [27 Dec 2019]] [2 of 8] \"People South Africa - Vol. 33 No. 51 & 52 [27 Dec 2019].pdf\" yEnc",
+      "size": 137143836,
+      "publish_date": "2019-12-13T14:49:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "[People.Magazine.South.Africa-7.June.2013] - People.Magazine.South.Africa-7.June.2013",
+      "size": 128266320,
+      "publish_date": "2026-06-16T13:01:21Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Country.Music.People-September.2023",
+      "size": 123979000,
+      "publish_date": "2023-10-23T01:16:33Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Diana.The.Peoples.Princess-August.2023",
+      "size": 118442000,
+      "publish_date": "2023-08-15T21:43:12Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Dotdash.Meridith-People.Friends.Friends.Forever.Laughs.Tears.And.The.Inside.Story.A.Matthew.Perry.Tribute.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 101590000,
+      "publish_date": "2023-11-28T16:46:11Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Horses.and.People.TruePDF-July.August.2019",
+      "size": 104899444,
+      "publish_date": "2019-07-22T03:50:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 91 No. 22 27 May 2019 1 of 9 People - Vol. 91 No. 22 27 May 2019.jpg",
+      "size": 118246779,
+      "publish_date": "2019-05-17T07:10:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 91 No. 23 03 Jun 2019 1 of 10 People - Vol. 91 No. 23 03 Jun 2019.jpg",
+      "size": 122613934,
+      "publish_date": "2019-05-24T07:21:51Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 91 No. 25 17 Jun 2019 1 of 10 People - Vol. 91 No. 25 17 Jun 2019.jpg",
+      "size": 131698152,
+      "publish_date": "2019-06-07T13:52:47Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 91 No. 26 24 Jun 2019 1 of 9 People - Vol. 91 No. 26 24 Jun 2019.jpg",
+      "size": 113115287,
+      "publish_date": "2019-06-14T14:20:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 92 No. 01 01 Jul 2019 1 of 9 People - Vol. 92 No. 01 01 Jul 2019.jpg",
+      "size": 198811418,
+      "publish_date": "2019-06-21T14:03:25Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 92 No. 02 08 Jul 2019 1 of 8 People - Vol. 92 No. 02 08 Jul 2019.jpg",
+      "size": 110766762,
+      "publish_date": "2019-06-29T15:20:13Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People - Vol. 92 No. 05 29 Jul 2019 1 of 8 People - Vol. 92 No. 05 29 Jul 2019.jpg",
+      "size": 107864041,
+      "publish_date": "2019-07-19T15:43:46Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People Bookazines - Farrah Special 2019 1 of 8 People Bookazines - Farrah Special 2019.jpg",
+      "size": 110289198,
+      "publish_date": "2019-06-15T13:42:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People USA 02 10 2025",
+      "size": 117570000,
+      "publish_date": "2025-02-09T23:52:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People-Taylor.Swift.Special.Edition.[2023]",
+      "size": 76418000,
+      "publish_date": "2023-08-28T17:01:09Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.and.Management.TruePDF-22.December.2017",
+      "size": 10445516,
+      "publish_date": "2017-12-29T10:56:58Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.September.26.TruePDF-10",
+      "size": 27501732,
+      "publish_date": "2025-06-17T12:51:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-01.January.2018",
+      "size": 33677676,
+      "publish_date": "2017-12-18T22:41:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-01.November.2017",
+      "size": 24357452,
+      "publish_date": "2017-11-06T21:12:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-08.April.2019",
+      "size": 44066278,
+      "publish_date": "2019-04-08T19:44:16Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-08.January.2018",
+      "size": 22704547,
+      "publish_date": "2018-01-09T23:01:29Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-12",
+      "size": 55670774,
+      "publish_date": "2025-06-14T03:34:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-15",
+      "size": 79913100,
+      "publish_date": "2025-06-15T05:46:39Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-20.November.2017",
+      "size": 24269222,
+      "publish_date": "2017-11-26T00:02:04Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-22.April.2019",
+      "size": 40114384,
+      "publish_date": "2019-04-22T22:20:31Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-25.March.2019",
+      "size": 41325552,
+      "publish_date": "2019-03-28T11:23:04Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-26",
+      "size": 27494794,
+      "publish_date": "2025-06-14T01:07:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Australia.TruePDF-29",
+      "size": 53303950,
+      "publish_date": "2025-06-14T01:44:14Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "PEOPLE.Barbie-June.2023",
+      "size": 210633000,
+      "publish_date": "2023-07-10T08:48:08Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.Bookazines.TruePDF-March.2019",
+      "size": 128038268,
+      "publish_date": "2019-03-29T21:05:09Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.en.Espaol.TruePDF-December.2017",
+      "size": 32954690,
+      "publish_date": "2017-11-03T21:01:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.en.Espaol.TruePDF-June.2019",
+      "size": 210675369,
+      "publish_date": "2019-05-03T20:20:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Magazine.South.Africa.TruePDF-16.August.2013",
+      "size": 40828828,
+      "publish_date": "2025-07-11T12:02:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Magazine.South.Africa.TruePDF-19",
+      "size": 56488044,
+      "publish_date": "2025-06-19T09:03:11Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Magazine.South.Africa.TruePDF-20.September.2013",
+      "size": 30913654,
+      "publish_date": "2025-07-07T11:19:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Matters.TruePDF-August",
+      "size": 93848355,
+      "publish_date": "2025-06-16T06:10:50Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.South.Africa.TruePDF-16",
+      "size": 78438518,
+      "publish_date": "2025-06-14T10:58:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.South.Africa.TruePDF-2",
+      "size": 117514155,
+      "publish_date": "2025-06-16T15:16:27Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.South.Africa.TruePDF-26",
+      "size": 167832978,
+      "publish_date": "2025-06-14T05:12:27Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.South.Africa.TruePDF-30",
+      "size": 43032677,
+      "publish_date": "2025-06-20T13:15:51Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.Special.Edition-07.July.2023",
+      "size": 98115000,
+      "publish_date": "2023-07-10T08:48:46Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.Special.Edition.39.80s.Trivia.Quiz-29.September.2023",
+      "size": 95781000,
+      "publish_date": "2023-10-09T14:05:05Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.Special.Edition.3F.Yearbook.2023.[2024]",
+      "size": 89073000,
+      "publish_date": "2024-01-09T00:20:53Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.Specials-Yearbook.2023.[2023]",
+      "size": 71731000,
+      "publish_date": "2023-12-06T16:25:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.StyleWatch.TruePDF-December.2014",
+      "size": 59535800,
+      "publish_date": "2025-07-14T04:04:53Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.StyleWatch.TruePDF-September.2014",
+      "size": 91092741,
+      "publish_date": "2025-07-10T01:29:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-10.July.2023",
+      "size": 162405000,
+      "publish_date": "2023-07-07T12:57:19Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-11.September.2023",
+      "size": 91902000,
+      "publish_date": "2023-09-09T21:25:44Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-14.August.2023",
+      "size": 85600000,
+      "publish_date": "2023-08-10T15:52:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-16.October.2023",
+      "size": 84862000,
+      "publish_date": "2023-10-13T16:23:51Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-17.July.2023",
+      "size": 163325000,
+      "publish_date": "2023-07-10T08:49:08Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-2.October.2023",
+      "size": 84746000,
+      "publish_date": "2023-09-27T12:14:15Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-21.August.2023",
+      "size": 88543000,
+      "publish_date": "2023-08-23T12:26:53Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-24.July.2023",
+      "size": 165535000,
+      "publish_date": "2023-07-20T20:25:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-28.August.2023",
+      "size": 86562000,
+      "publish_date": "2023-08-27T19:05:20Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-30.October.2023",
+      "size": 85920000,
+      "publish_date": "2023-10-30T16:20:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA-9.October.2023",
+      "size": 86024000,
+      "publish_date": "2023-10-09T14:24:16Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-01.January.2018",
+      "size": 33074160,
+      "publish_date": "2017-12-22T06:51:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-01.November.2017",
+      "size": 22876358,
+      "publish_date": "2017-11-21T19:41:10Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-03.December.2017",
+      "size": 40990276,
+      "publish_date": "2017-11-23T07:47:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-04.December.2017",
+      "size": 30984242,
+      "publish_date": "2017-11-23T11:10:33Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-06.May.2019",
+      "size": 185053808,
+      "publish_date": "2019-04-26T22:58:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-06.November.2017",
+      "size": 38422305,
+      "publish_date": "2017-10-27T21:22:13Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-08.April.2019",
+      "size": 137530954,
+      "publish_date": "2019-03-29T21:06:28Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-08.January.2018",
+      "size": 31114121,
+      "publish_date": "2017-12-29T06:58:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-1.December.2017",
+      "size": 39133933,
+      "publish_date": "2017-11-22T21:23:54Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-10.December.2017",
+      "size": 22230453,
+      "publish_date": "2017-12-01T19:42:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-11.December.2017",
+      "size": 43121576,
+      "publish_date": "2017-12-03T18:12:15Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-12",
+      "size": 95742208,
+      "publish_date": "2025-06-14T16:34:18Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-13.May.2019",
+      "size": 129412155,
+      "publish_date": "2019-05-03T20:18:16Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-13.November.2017",
+      "size": 47385912,
+      "publish_date": "2017-11-03T07:15:25Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-15.January.2018",
+      "size": 45838372,
+      "publish_date": "2018-01-05T09:55:35Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-18.December.2017",
+      "size": 59591066,
+      "publish_date": "2017-12-08T20:57:43Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-19",
+      "size": 124794076,
+      "publish_date": "2025-06-17T23:37:54Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-22",
+      "size": 122145600,
+      "publish_date": "2025-06-16T07:13:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-22.April.2019",
+      "size": 117893376,
+      "publish_date": "2019-04-12T22:06:48Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-25.December.2017",
+      "size": 33577475,
+      "publish_date": "2017-12-16T18:58:46Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-26",
+      "size": 41673143,
+      "publish_date": "2025-06-11T03:23:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-27.November.2017",
+      "size": 63702057,
+      "publish_date": "2017-11-21T18:38:47Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-29",
+      "size": 126125484,
+      "publish_date": "2025-06-16T00:45:58Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-29.April.2019",
+      "size": 111798201,
+      "publish_date": "2019-04-29T22:48:44Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-3",
+      "size": 40011302,
+      "publish_date": "2025-06-17T10:31:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-3.December.2017",
+      "size": 40983596,
+      "publish_date": "2017-11-23T18:51:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-5",
+      "size": 130401594,
+      "publish_date": "2025-06-15T22:23:10Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-6.May.2019",
+      "size": 31845091,
+      "publish_date": "2019-04-28T22:10:36Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.TruePDF-6.November.2017",
+      "size": 38421434,
+      "publish_date": "2017-10-30T12:57:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "People.USA.Wellness.Special.TruePDF-2016",
+      "size": 30221981,
+      "publish_date": "2025-06-11T18:29:33Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "POPCORN - Das Teen People Magazin No 03-2014",
+      "size": 51168010,
+      "publish_date": "2025-07-11T17:38:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "POPCORN-Das.Teen.People.Magazin.No.03-2014",
+      "size": 50770000,
+      "publish_date": "2025-07-11T17:38:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Issue 22 06 Jun 2019 1 of 7 Real People - Issue 22 06 Jun 2019.jpg",
+      "size": 30394776,
+      "publish_date": "2019-06-14T14:26:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Issue 23 13 Jun 2019 1 of 7 Real People - Issue 23 13 Jun 2019.jpg",
+      "size": 30303663,
+      "publish_date": "2019-06-14T14:27:08Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Issue 24 20 Jun 2019 1 of 7 Real People - Issue 24 20 Jun 2019.jpg",
+      "size": 31527983,
+      "publish_date": "2019-06-14T14:27:36Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Issue 26 04 Jul 2019 1 of 7 Real People - Issue 26 04 Jul 2019.jpg",
+      "size": 30491902,
+      "publish_date": "2019-06-28T03:17:01Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Issue 27 11 Jul 2109 1 of 7 Real People - Issue 27 11 Jul 2109.jpg",
+      "size": 29943860,
+      "publish_date": "2019-07-05T17:16:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real People - Number 29 25 Jul 2019 1 of 7 Real People - Number 29 25 Jul 2019.jpg",
+      "size": 30376682,
+      "publish_date": "2019-07-18T15:54:11Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-02.May.2019",
+      "size": 33920494,
+      "publish_date": "2019-04-25T21:01:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-03.January.2018",
+      "size": 25842848,
+      "publish_date": "2018-01-04T08:02:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-04.April.2019",
+      "size": 30623166,
+      "publish_date": "2019-03-28T19:31:16Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-05.January.2018",
+      "size": 26757907,
+      "publish_date": "2018-01-11T02:38:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-07.December.2017",
+      "size": 35156276,
+      "publish_date": "2017-11-28T15:17:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-09.November.2017",
+      "size": 29997289,
+      "publish_date": "2017-11-02T04:54:14Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-15",
+      "size": 47764494,
+      "publish_date": "2025-06-19T22:30:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-18.December.2014",
+      "size": 68027501,
+      "publish_date": "2025-07-11T21:57:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-23.November.2017",
+      "size": 21687730,
+      "publish_date": "2017-11-28T14:49:09Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-25.April.2019",
+      "size": 30779695,
+      "publish_date": "2019-04-19T21:48:51Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-29.August.2013",
+      "size": 20235787,
+      "publish_date": "2025-07-11T08:30:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Real.People.TruePDF-8",
+      "size": 72481749,
+      "publish_date": "2025-06-11T06:50:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.07.09]",
+      "size": 134951000,
+      "publish_date": "2023-07-09T16:35:37Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.07.16]",
+      "size": 135425000,
+      "publish_date": "2023-07-16T23:46:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.07.23]",
+      "size": 136988000,
+      "publish_date": "2023-07-23T15:20:16Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.07.30]",
+      "size": 127819000,
+      "publish_date": "2023-07-30T17:07:12Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.08.13]",
+      "size": 151961000,
+      "publish_date": "2023-08-14T14:40:51Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.08.27]",
+      "size": 151158000,
+      "publish_date": "2023-08-28T15:41:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.09.03]",
+      "size": 150817000,
+      "publish_date": "2023-09-04T16:16:35Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.09.10]",
+      "size": 133670000,
+      "publish_date": "2023-09-11T15:37:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.10.01]",
+      "size": 135032000,
+      "publish_date": "2023-10-02T16:39:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.10.08]",
+      "size": 136700000,
+      "publish_date": "2023-10-09T14:05:27Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.10.15]",
+      "size": 135865000,
+      "publish_date": "2023-10-19T00:51:56Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.10.29]",
+      "size": 140180000,
+      "publish_date": "2023-10-31T00:34:49Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.11.05]",
+      "size": 136986000,
+      "publish_date": "2023-11-06T15:17:04Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.11.12]",
+      "size": 137228000,
+      "publish_date": "2023-11-17T12:02:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.11.19]",
+      "size": 134436000,
+      "publish_date": "2023-11-21T10:33:41Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.11.26]",
+      "size": 138248000,
+      "publish_date": "2023-11-28T13:37:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.12.03]",
+      "size": 134279000,
+      "publish_date": "2023-12-04T07:17:37Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.12.10]",
+      "size": 137845000,
+      "publish_date": "2023-12-10T15:55:41Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.12.17]",
+      "size": 176841000,
+      "publish_date": "2023-12-18T09:49:31Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Sunday.People.[2023.12.24]",
+      "size": 139577000,
+      "publish_date": "2023-12-28T14:10:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.2010.01.10.Retail.Ebook-PDFWriters",
+      "size": 50352490,
+      "publish_date": "2025-06-08T23:26:40Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend-16.September.2023",
+      "size": 86968000,
+      "publish_date": "2023-10-04T03:37:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend-21.October.2023",
+      "size": 105897000,
+      "publish_date": "2023-10-19T01:19:28Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend-23.September.2023",
+      "size": 91119000,
+      "publish_date": "2023-10-05T03:01:58Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend-7.October.2023",
+      "size": 92046000,
+      "publish_date": "2023-10-15T06:26:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend.Issue.7994-9.September.2023",
+      "size": 98892000,
+      "publish_date": "2023-10-04T03:37:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend.Issue.7997-30.September.2023",
+      "size": 84413000,
+      "publish_date": "2023-10-02T16:29:26Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend.Issue.7999-14.October.2023",
+      "size": 86816000,
+      "publish_date": "2023-10-13T00:15:05Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.People.s.Friend.Special.Issue.249-30.September.2023",
+      "size": 93684000,
+      "publish_date": "2023-10-07T00:17:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-03.July.2023",
+      "size": 11091000,
+      "publish_date": "2023-07-12T07:26:00Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-10.July.2023",
+      "size": 11465000,
+      "publish_date": "2023-07-09T17:42:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-12.August.2023",
+      "size": 91210000,
+      "publish_date": "2023-08-12T18:25:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-17.July.2023",
+      "size": 13004000,
+      "publish_date": "2023-07-21T09:47:59Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-2.August.2023",
+      "size": 102564000,
+      "publish_date": "2023-08-10T21:32:19Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-24.July.2023",
+      "size": 11166000,
+      "publish_date": "2023-07-29T20:00:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-26.August.2023",
+      "size": 86976000,
+      "publish_date": "2023-08-21T11:34:42Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-28.October.2023",
+      "size": 86821000,
+      "publish_date": "2023-10-28T20:52:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-30.August.2023",
+      "size": 91627000,
+      "publish_date": "2023-09-06T15:25:43Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-31.July.2023",
+      "size": 12442000,
+      "publish_date": "2023-08-11T15:42:14Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend-9.August.2023",
+      "size": 101921000,
+      "publish_date": "2023-08-13T14:09:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Issue.7991-19.August.2023",
+      "size": 83455000,
+      "publish_date": "2023-08-15T23:31:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-06.July.2023",
+      "size": 117938000,
+      "publish_date": "2023-07-09T17:21:06Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-12.October.2023",
+      "size": 111594000,
+      "publish_date": "2023-10-18T23:57:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-14.September.2023",
+      "size": 118703000,
+      "publish_date": "2023-10-02T16:29:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-17.August.2023",
+      "size": 112614000,
+      "publish_date": "2023-08-25T11:49:38Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-20.July.2023",
+      "size": 116790000,
+      "publish_date": "2023-07-29T09:13:21Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-28.September.2023",
+      "size": 112849000,
+      "publish_date": "2023-10-04T03:37:21Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-3.August.2023",
+      "size": 112810000,
+      "publish_date": "2023-08-12T07:49:25Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Pocket.Novel-31.August.2023",
+      "size": 118515000,
+      "publish_date": "2023-09-09T21:54:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Special-30.June.2023",
+      "size": 32424000,
+      "publish_date": "2023-07-09T17:21:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Special.Issue.247-16.August.2023",
+      "size": 100601000,
+      "publish_date": "2023-08-15T23:32:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Peoples.Friend.Special.Issue.248-9.September.2023",
+      "size": 92732000,
+      "publish_date": "2023-10-08T00:44:11Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "TIME.Magazine.USA.Special.Edition.People.We.Lost.2025.2025.HYBRID.MAGAZINE",
+      "size": 39398000,
+      "publish_date": "2026-02-24T06:35:23Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "TIME.Magazine.USA.Special.Edition.Pope.Francis.The.Peoples.Pope.2025.HYBRID.MAGAZINE",
+      "size": 67748000,
+      "publish_date": "2026-02-24T06:35:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "magazine": "Linux Magazine",
+  "query": "Linux Pro Magazine",
+  "category": 7010,
+  "collected": "2026-10-16",
+  "releases": [
+    {
+      "title": "Linux.Magazin.06.2015.German.Retail.Magazine.PROPER.Ebook-PARADOX",
+      "size": 82608000,
+      "publish_date": "2015-12-06T10:41:01Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.235.2026.iTALiAN.HYBRiD.MAGAZiNE",
+      "size": 52553000,
+      "publish_date": "2026-02-07T18:50:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.236.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 76658542,
+      "publish_date": "2026-05-22T10:27:34Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.237.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 76785481,
+      "publish_date": "2026-06-13T00:25:09Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.238.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 76145599,
+      "publish_date": "2026-08-13T07:57:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE",
+      "size": 56816000,
+      "publish_date": "2026-10-15T11:19:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 77823679,
+      "publish_date": "2026-10-13T09:03:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Linux.User.11.2015.German.Retail.Magazine.PROPER.READ",
+      "size": 47221000,
+      "publish_date": "2015-12-06T10:42:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.01.2022.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 88911000,
+      "publish_date": "2023-01-02T14:11:09Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.02.2022.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 116321000,
+      "publish_date": "2023-01-02T14:07:38Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    }
+  ]
+}

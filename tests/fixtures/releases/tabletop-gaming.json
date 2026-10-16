@@ -1,0 +1,829 @@
+{
+  "magazine": "Tabletop Gaming Magazine",
+  "query": "Tabletop Gaming",
+  "category": 7010,
+  "collected": "2026-10-16",
+  "releases": [
+    {
+      "title": "Tabletop.Gaming-25.November.2022",
+      "size": 238953000,
+      "publish_date": "2022-12-01T14:07:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-26.November.2021",
+      "size": 243690000,
+      "publish_date": "2021-12-13T22:33:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-April.2022",
+      "size": 103230000,
+      "publish_date": "2022-04-04T21:22:11Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-April.2023",
+      "size": 61663000,
+      "publish_date": "2023-03-28T19:46:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-August.2021",
+      "size": 124436000,
+      "publish_date": "2021-07-26T20:14:44Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-February.2022",
+      "size": 113865000,
+      "publish_date": "2022-02-08T21:32:47Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-February.2023",
+      "size": 64623000,
+      "publish_date": "2023-01-31T07:40:31Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-January.2022",
+      "size": 114325000,
+      "publish_date": "2022-01-06T19:09:40Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-January.2023",
+      "size": 61137000,
+      "publish_date": "2022-12-28T18:22:09Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-July.2021",
+      "size": 119269000,
+      "publish_date": "2021-07-01T20:22:19Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-July.2023",
+      "size": 57528000,
+      "publish_date": "2023-06-29T17:41:46Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-June.2023",
+      "size": 59973000,
+      "publish_date": "2023-06-02T01:14:42Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-March.2022",
+      "size": 106021000,
+      "publish_date": "2022-03-04T20:56:45Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-March.2023",
+      "size": 59078000,
+      "publish_date": "2023-03-02T19:23:33Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-May.2022",
+      "size": 75432000,
+      "publish_date": "2022-05-01T20:49:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-May.2023",
+      "size": 59251000,
+      "publish_date": "2023-05-03T16:01:12Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-November.2021",
+      "size": 115424000,
+      "publish_date": "2021-10-31T13:19:26Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-October.2021",
+      "size": 105552000,
+      "publish_date": "2021-10-05T18:19:59Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-October.2022",
+      "size": 118530000,
+      "publish_date": "2022-09-30T21:02:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-September.2021",
+      "size": 115121000,
+      "publish_date": "2021-09-02T21:15:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming-September.2022",
+      "size": 118632000,
+      "publish_date": "2022-09-01T16:36:39Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.08.09.TruePDF-2017",
+      "size": 44752459,
+      "publish_date": "2017-08-04T11:51:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.10.TruePDF-June.July.2017",
+      "size": 47893490,
+      "publish_date": "2017-06-01T03:05:36Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.11.TruePDF-August.September.2017",
+      "size": 46094561,
+      "publish_date": "2017-08-03T08:02:06Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.2.TruePDF-Autumn.2015",
+      "size": 41626973,
+      "publish_date": "2016-12-01T08:38:38Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.3.TruePDF-Winter.2015",
+      "size": 44636845,
+      "publish_date": "2016-12-01T08:39:20Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.4.TruePDF-Spring.2016",
+      "size": 40292617,
+      "publish_date": "2016-12-01T08:39:39Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.5.TruePDF-Summer.2016",
+      "size": 77188718,
+      "publish_date": "2016-12-01T08:40:11Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.51-February.2021",
+      "size": 703000,
+      "publish_date": "2021-03-14T01:47:56Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.57-August.2021",
+      "size": 39721000,
+      "publish_date": "2021-08-07T22:39:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.58-September.2021",
+      "size": 41665000,
+      "publish_date": "2021-09-04T19:25:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.6.TruePDF-Autumn.2016",
+      "size": 38051568,
+      "publish_date": "2016-12-01T08:40:39Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.60-November.2021",
+      "size": 75414000,
+      "publish_date": "2021-11-01T09:01:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.61-December.2021",
+      "size": 64932000,
+      "publish_date": "2021-12-11T08:08:28Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.62-January.2022",
+      "size": 45482000,
+      "publish_date": "2022-01-07T21:04:06Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.63-February.2022",
+      "size": 39472000,
+      "publish_date": "2022-02-08T21:32:54Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.64-March.2022",
+      "size": 61004000,
+      "publish_date": "2022-03-04T20:56:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.65-April.2022",
+      "size": 39438000,
+      "publish_date": "2022-04-04T21:22:19Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.68-July.2022",
+      "size": 37778000,
+      "publish_date": "2022-07-09T19:06:46Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.70-September.2022",
+      "size": 48273000,
+      "publish_date": "2022-08-31T07:07:10Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.71-October.2022",
+      "size": 40645000,
+      "publish_date": "2022-09-30T22:04:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.81-August.2023",
+      "size": 54713000,
+      "publish_date": "2023-08-06T18:28:21Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.82-September.2023",
+      "size": 57273000,
+      "publish_date": "2023-08-30T19:56:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.83-October.2023",
+      "size": 55567000,
+      "publish_date": "2023-09-27T10:02:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.87.2024-02",
+      "size": 55373000,
+      "publish_date": "2024-02-11T00:59:05Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.Issue.9.TruePDF-April.May.2017",
+      "size": 43914865,
+      "publish_date": "2017-04-06T01:47:53Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.104.2025.HYBRID.MAGAZINE",
+      "size": 97483000,
+      "publish_date": "2025-07-01T01:45:56Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.105.2025.HYBRID.MAGAZINE",
+      "size": 110593000,
+      "publish_date": "2025-07-25T08:31:41Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.106.2025.HYBRID.MAGAZINE",
+      "size": 104804000,
+      "publish_date": "2025-08-23T10:23:21Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.114.2026.HYBRID.MAGAZINE",
+      "size": 113744000,
+      "publish_date": "2026-05-04T07:15:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.114.2026.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 122981142,
+      "publish_date": "2026-04-25T02:16:15Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.115.2026.HYBRiD.MAGAZiNE",
+      "size": 87749000,
+      "publish_date": "2026-06-06T23:30:13Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.115.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 100890765,
+      "publish_date": "2026-05-25T08:28:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.116.2026.HYBRID.MAGAZINE",
+      "size": 120731000,
+      "publish_date": "2026-07-06T09:30:59Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.116.2026.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 129733915,
+      "publish_date": "2026-06-27T06:44:51Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.117.2026.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 85217755,
+      "publish_date": "2026-07-26T10:23:32Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.118.2026.RETAIL.MAGAZINE.eBook-21A1",
+      "size": 51334105,
+      "publish_date": "2026-08-29T11:05:05Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.119.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 99908240,
+      "publish_date": "2026-10-07T06:33:28Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.52.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 105618000,
+      "publish_date": "2021-03-31T12:06:09Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.54.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 106755000,
+      "publish_date": "2021-08-03T10:35:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.55.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 106296000,
+      "publish_date": "2021-08-03T10:31:44Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.56.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 107674000,
+      "publish_date": "2021-08-03T10:30:35Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.57.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 110704000,
+      "publish_date": "2021-08-03T10:32:44Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.74.2022.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 117170000,
+      "publish_date": "2022-12-31T10:47:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.75.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 118996000,
+      "publish_date": "2023-01-27T07:06:10Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.76.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 115773000,
+      "publish_date": "2023-03-06T06:24:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.77.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 119613000,
+      "publish_date": "2023-03-24T14:25:05Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.82.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 127425000,
+      "publish_date": "2023-08-25T22:40:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.84.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 118946000,
+      "publish_date": "2023-10-28T05:40:05Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.85.2023.HYBRID.MAGAZINE.eBook-21A1",
+      "size": 262809000,
+      "publish_date": "2023-11-27T20:56:43Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.No.99.2025.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 85386632,
+      "publish_date": "2025-01-24T17:25:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-April.2019",
+      "size": 37534259,
+      "publish_date": "2019-03-28T11:53:57Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-August.September.2017",
+      "size": 46084226,
+      "publish_date": "2017-08-03T08:28:19Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-December.2016",
+      "size": 43591429,
+      "publish_date": "2016-12-01T08:42:10Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-December.2017",
+      "size": 39243607,
+      "publish_date": "2017-11-30T03:41:08Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-Issue.1.2015",
+      "size": 48205906,
+      "publish_date": "2016-12-01T08:42:15Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-Issue.2.2015",
+      "size": 41625786,
+      "publish_date": "2016-12-01T16:41:40Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-January.2018",
+      "size": 48450563,
+      "publish_date": "2017-12-29T07:51:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Tabletop.Gaming.TruePDF-October.November.2017",
+      "size": 47487194,
+      "publish_date": "2017-10-05T07:11:09Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    }
+  ]
+}
