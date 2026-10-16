@@ -19,6 +19,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         settings.config_dir.mkdir(parents=True, exist_ok=True)
         db.upgrade(settings.db_url)
         app.state.engine = db.make_engine(settings.db_url)
+        app.state.sessions = db.make_session_factory(app.state.engine)
         try:
             yield
         finally:

@@ -6,6 +6,7 @@ The app runs migrations on startup through `periodicool.db.upgrade`. For the CLI
 
 from alembic import context
 
+import periodicool.models  # noqa: F401  (registers tables on Base.metadata)
 from periodicool.config import load_settings
 from periodicool.db import Base, make_engine
 

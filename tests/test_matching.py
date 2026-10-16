@@ -77,13 +77,13 @@ REJECT = [
 
 @pytest.mark.parametrize(("spec", "name"), ACCEPT)
 def test_accept(spec, name):
-    result = match_title(parse_release(name), spec)
+    result = match_title(parse_release(name), spec.title_spec())
     assert result.accepted, result.reason
 
 
 @pytest.mark.parametrize(("spec", "name", "reason"), REJECT)
 def test_reject(spec, name, reason):
-    result = match_title(parse_release(name), spec)
+    result = match_title(parse_release(name), spec.title_spec())
     assert not result.accepted
     assert reason in result.reason
 

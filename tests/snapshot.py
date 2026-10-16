@@ -23,7 +23,7 @@ def summarize(name: str, slug: str) -> dict:
     fields["confidence"] = parsed.confidence
     if parsed.reasons:
         fields["reasons"] = list(parsed.reasons)
-    match = match_title(parsed, BY_FIXTURE[slug])
+    match = match_title(parsed, BY_FIXTURE[slug].title_spec())
     fields["match"] = match.accepted
     return fields
 

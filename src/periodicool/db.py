@@ -7,7 +7,7 @@ from pathlib import Path
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import Engine, create_engine, event
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
@@ -27,6 +27,10 @@ def make_engine(db_url: str) -> Engine:
         cur.close()
 
     return engine
+
+
+def make_session_factory(engine: Engine) -> sessionmaker[Session]:
+    return sessionmaker(engine, expire_on_commit=False)
 
 
 def alembic_config(db_url: str) -> Config:

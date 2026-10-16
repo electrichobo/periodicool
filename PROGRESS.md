@@ -10,9 +10,12 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **Step 3 (parser), 2026-10-16:** `periodicool/parser.py` (`parse_release`) and `periodicool/matching.py` (`TitleSpec`, `match_title`). The parser strips post junk (sizes, par2/rar parts, "1 of 7", quoted yEnc subjects, spam tags, HTML entities), then extracts dates (month names incl. German, month pairs, seasons, day-month-year, ISO, numeric), issue/volume/week numbers, double issues, packs, specials, region, language, TruePDF/format/quality/group. Anything ambiguous or left over adds a reason and makes it low confidence. Tests: about 40 hand-checked parses, 13 low-confidence cases, 40 accept/reject match cases, and a snapshot of all 774 fixture names (`tests/fixtures/parser_snapshot.json`, regenerate with `scripts/update_parser_snapshot.py` and review the diff). 547 names match their magazine; 516 of those are high confidence.
 
+- **Step 4 (data model), 2026-10-16:** migration `0002` adds `settings`, `format_profiles` (seeded "Any": pdf, epub, cbz, cbr, prefer TruePDF, upgrades off), `magazines` and `issues` (`src/periodicool/models.py`). `src/periodicool/schedule.py`: expected-issue generation per frequency from an anchor issue, generation range by monitor mode bounded by `schedule_start`, `sync_expected_issues` (insert-only, idempotent), computed "missing" status, and `identify` (parsed release to issue key with schedule checks). Dev magazine configs in `tests/dev_magazines.py` are now `Magazine` objects. 947 tests pass; fresh-DB smoke test OK.
+
 ## Next
 
-- Step 4: data model and expected-issue generation (plan mode: data model change).
+- Step 5: library scan, organize with dry-run preview, manual import queue (plan mode: moves files).
+- Duplicate-month handling for 13-per-year magazines: when two releases claim one month (Fortean Times' 13th issue), the second needs a key like `2022-08-2` decided at import time (step 5).
 
 ## Parser decisions and known gaps
 
@@ -21,9 +24,20 @@ Handoff notes between sessions. Read at the start, update at the end.
 - Specials may extend the title ("Fortean Times Paranormal Handbook") unless the spec turns that off (People, so "People Wellness Special" is not auto-accepted).
 - Region is read from inside the title ("People USA", "Linux Magazine USA"). A spec with a region rejects other regions and accepts names with none.
 - Day and month in all-numeric dates are only accepted when one part is over 12; otherwise low confidence ("People USA 02 10 2025").
-- Known gap: the Dutch "Linux Magazine #NN (YYYY)" carries no language marker and matches Linux Magazine. Expected-issue checks in step 4 or 6 (issue 1 to 6 in 2026 vs. the real issue 306+) should catch it.
-- Known gap: Make uses `No.98` for what is really volume 98. The parser reports what the name says; mapping issue numbers to volumes per numbering scheme belongs in step 4.
-- Tabletop Gaming names sometimes carry an on-sale day (`25.November.2022`) on a monthly; step 4 should treat day as optional for monthlies.
+- The Dutch "Linux Magazine #NN (YYYY)" still matches by title, but `identify` flags it: issue 4 does not fit 2024 (expected 278 to 289).
+- Make `No.98` is read as volume 98 by `identify` for volume-numbered magazines.
+- A day on a monthly (`Tabletop.Gaming-25.November.2022`) is kept as a note, not identity.
+
+## Schedule decisions (step 4)
+
+- Issue identity is `issues.key`, unique per magazine: `YYYY-MM` (monthly, bimonthly, quarterly, 13-per-year), `YYYY-MM-DD` (weekly), `YYYY-season`, `nNNN` (issue-numbered), `vNN` (volume-numbered), `special-YYYY-MM[-DD]`.
+- Numbers step from one anchor issue (`anchor_date` + `anchor_number`) in both directions. Nothing is generated before `schedule_start` (Tabletop Gaming: 2018, because it was seasonal and bimonthly before that).
+- Thirteen-per-year (Fortean Times) is keyed by cover month, generated monthly without numbers; numbers are stored when a name has one and checked loosely (13 a year from the anchor, within 2). Names with a number but no month go to review. Chosen with the maintainer over a 28-day cadence, which left 87 of 107 names unidentifiable.
+- Seasonal cover months are Mar/Jun/Sep/Dec (inferred); the season is the identity.
+- Weeklies: a name date up to 3 days from the schedule day snaps to it (on-sale vs. cover date); further away is flagged.
+- Monthly numbered magazines can take a number from the schedule for a date-only name; 13-per-year cannot.
+- "missing" is computed (`effective_status`): monitored, wanted, no file, past `cover_date + grace_days`. Stored statuses are wanted, grabbed, downloaded, imported, failed.
+- Monitor modes: new_only = current and next issue; from_year = Jan 1 of that year; all = from `schedule_start`. Always up to the next issue after today. Generation is capped at 3000 issues per call.
 
 ## Fixture findings vs. CLAUDE.md expectations
 
@@ -51,4 +65,4 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 ## Open questions
 
-- None.
+- Time zone for "today": background jobs (step 6) need it. On Windows `zoneinfo` needs the `tzdata` package; adding it needs approval. Step 4 functions take `today` as an argument.

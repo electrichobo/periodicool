@@ -28,3 +28,40 @@ def test_upgrade_is_idempotent(tmp_path):
 def test_single_head():
     script = ScriptDirectory.from_config(db.alembic_config("sqlite://"))
     assert len(script.get_heads()) == 1
+
+
+def test_models_match_migrations(tmp_path):
+    from alembic.autogenerate import compare_metadata
+    from alembic.migration import MigrationContext
+
+    import periodicool.models  # noqa: F401
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    db.upgrade(url)
+    engine = db.make_engine(url)
+    with engine.connect() as conn:
+        diff = compare_metadata(MigrationContext.configure(conn), db.Base.metadata)
+    engine.dispose()
+    assert diff == []
+
+
+def test_default_format_profile_seeded(tmp_path):
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        rows = conn.execute(text("SELECT name, formats FROM format_profiles")).all()
+    engine.dispose()
+    assert rows == [("Any", '["pdf", "epub", "cbz", "cbr"]')]
+
+
+def test_downgrade_and_upgrade_again(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    cfg = db.alembic_config(url)
+    db.upgrade(url)
+    command.downgrade(cfg, "0001")
+    assert _current_revision(url) == "0001"
+    db.upgrade(url)
+    assert _current_revision(url) == ScriptDirectory.from_config(cfg).get_current_head()
