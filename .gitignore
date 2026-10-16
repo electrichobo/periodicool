@@ -1,0 +1,39 @@
+# Secrets and personal notes
+.env
+.env.*
+!.env.example
+CLAUDE.local.md
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local runtime data (dev config dir, databases, test folders)
+/config/
+/library/
+/downloads/
+/import/
+/dev-data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

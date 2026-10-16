@@ -1,0 +1,44 @@
+name: Bug report
+description: Something is broken or behaves wrong.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remove API keys, hostnames and personal paths from anything you paste.
+  - type: input
+    id: version
+    attributes:
+      label: PeriodiCool version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How do you run it?
+      options:
+        - Docker / compose
+        - Unraid template
+        - From source
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: release
+    attributes:
+      label: Release or file names involved
+      description: For parsing problems, paste the exact release or file names.
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant lines from the log. Secrets are never logged, but check anyway.
+      render: text

@@ -1,0 +1,34 @@
+"""FastAPI application factory."""
+
+from __future__ import annotations
+
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from periodicool import __version__, db
+from periodicool.config import Settings, load_settings
+
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or load_settings()
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        settings.config_dir.mkdir(parents=True, exist_ok=True)
+        db.upgrade(settings.db_url)
+        app.state.engine = db.make_engine(settings.db_url)
+        try:
+            yield
+        finally:
+            app.state.engine.dispose()
+
+    app = FastAPI(title="PeriodiCool", version=__version__, lifespan=lifespan)
+    app.state.settings = settings
+
+    @app.get("/health")
+    def health() -> dict[str, str]:
+        return {"status": "ok", "version": __version__}
+
+    return app

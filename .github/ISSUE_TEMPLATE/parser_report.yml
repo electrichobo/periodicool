@@ -1,0 +1,26 @@
+name: Release name not parsed
+description: A release or file name was parsed wrong or flagged as low confidence.
+labels: [parser]
+body:
+  - type: input
+    id: magazine
+    attributes:
+      label: Magazine
+      placeholder: "Fortean Times"
+    validations:
+      required: true
+  - type: textarea
+    id: names
+    attributes:
+      label: Exact names
+      description: One per line, copied exactly.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: Which issue (date, number, edition) each name should map to.
+    validations:
+      required: true

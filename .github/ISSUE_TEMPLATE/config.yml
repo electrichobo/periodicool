@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Indexer or content requests
+    url: https://github.com/electrichobo/periodicool/blob/main/README.md#no-content-no-indexers
+    about: PeriodiCool ships no content and no indexers. Requests for either will be closed.
