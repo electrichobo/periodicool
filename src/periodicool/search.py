@@ -219,7 +219,9 @@ def _upsert(
 def _apply_evaluation(rel: Release, ev: Evaluation) -> None:
     rel.magazine_id = ev.magazine.id if ev.magazine else None
     rel.issue_key, rel.accepted = ev.issue_key, ev.accepted
-    rel.reasons, rel.rank = list(ev.reasons), list(ev.rank)
+    # Rejections, then notes that flag an accepted release (an estimated month).
+    rel.reasons = list(ev.reasons) + [f"note: {n}" for n in ev.notes]
+    rel.rank = list(ev.rank)
 
 
 def _evaluate(session, title, size, protocol, published, magazines, today, options):

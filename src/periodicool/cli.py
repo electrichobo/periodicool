@@ -245,6 +245,8 @@ def _print_candidates(result, out) -> None:
             if ev.accepted:
                 mark = "ACCEPT*" if i == 0 else "ACCEPT "
                 print(f"  {mark} {rel.title}  [{rel.indexer}]", file=out)
+                for note in ev.notes:
+                    print(f"            note: {note}", file=out)
             else:
                 print(f"  REJECT  {rel.title}  [{rel.indexer}]", file=out)
                 for reason in ev.reasons:
@@ -289,6 +291,8 @@ def cmd_rss(session, settings, args, out) -> int:
         print(f"  error: {err}", file=out)
     for rel in r.accepted:
         print(f"  ACCEPT  {rel.issue_key}  {rel.title}", file=out)
+        for reason in rel.reasons:
+            print(f"            {reason}", file=out)
     return 0
 
 

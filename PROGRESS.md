@@ -85,12 +85,12 @@ Handoff notes between sessions. Read at the start, update at the end.
 - No universal search cap (maintainer decision: match Sonarr/Radarr). Per-indexer query and grab limits live in Prowlarr; PeriodiCool reads them with today's usage, leaves out indexers at their limit or disabled by Prowlarr, and backs off on 429/503 (5 min doubling to 6 h). `search.daily_cap` exists but is unset.
 - One search per magazine (search term, then each alias) covers all its issues. Results are cached 6 h. Scheduled searches back off per magazine: 6 h doubling to 7 days, reset by a new accepted release. At most 5 magazines per Wanted run, each once.
 - `evaluate` keeps going after the first rejection so interactive search shows every reason.
+- Thirteen-per-year number-only names (`Fortean.Times.No.475.2026`): during release evaluation the month is estimated at 13 a year from the newest known issue with both a number and a month (or the anchor). Accepted only if the number is newer than every known issue number, the estimate falls in the year the name gives, and the month does not already hold a different issue. The estimate is stored as a `note:` entry in `releases.reasons` and shown in search output. Library organizing never estimates; such files go to the queue. Live: No.475 is accepted as 2026-10, No.474 (2026-09) is outside the new-only range.
 - Indexer usage counts RSS plus searches (errs on the safe side). Prowlarr's `indexerstats` returns nothing when start and end fall on one day, so only `startDate` is sent and Prowlarr counts up to its own clock.
 
 ## Open questions
 
 - **Clock mismatch:** Prowlarr's status reports `startTime` 2026-10-20T00:16Z while the dev machine's clock says 2026-10-16. One of the two is about four days off. Grace windows, expected issues and "today" all depend on the clock; check the time on the server and on the dev machine.
-- **Fortean Times number-only names:** the newest issues are posted as `Fortean.Times.No.475.2026` (number and year, no month). With month keys these are rejected ("number without a month"), so current issues would only be found when a month-named release appears. Options: estimate the month from the anchor (13 a year) and accept within a tolerance, or learn number-to-month from releases that carry both. Needs a decision.
 
 - PDF text reading for unidentifiable files is deferred (needs a dependency such as pypdf). Revisit after the first real preview shows how many files land in the queue.
 - Time zone for "today": background jobs (step 6) need it. On Windows `zoneinfo` needs the `tzdata` package; adding it needs approval. Step 4 functions take `today` as an argument.

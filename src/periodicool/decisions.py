@@ -10,13 +10,21 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from periodicool.matching import match_title
-from periodicool.models import FormatProfile, Issue, IssueStatus, Magazine, MonitorMode, Release
+from periodicool.models import (
+    FormatProfile,
+    Frequency,
+    Issue,
+    IssueStatus,
+    Magazine,
+    MonitorMode,
+    Release,
+)
 from periodicool.parser import FORMATS, ParsedRelease, parse_release
-from periodicool.schedule import generation_range, identify
+from periodicool.schedule import Reference, generation_range, identify
 
 MIN_SIZE_KEY = "release.min_size_mb"
 EARLY_DAYS_KEY = "search.early_days"
@@ -45,6 +53,7 @@ def load_options(session: Session) -> Options:
 class Evaluation:
     accepted: bool
     reasons: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)  # flags on an accepted release
     magazine: Magazine | None = None
     issue_key: str | None = None
     fields: dict = field(default_factory=dict)
@@ -82,6 +91,30 @@ def _in_monitored_range(mag: Magazine, cover: date | None, published, today: dat
     if when and when >= today - timedelta(days=NEW_ONLY_DAYS):
         return None
     return "not new (monitoring new issues only)"
+
+
+def thirteen_reference(session: Session, mag: Magazine) -> Reference | None:
+    """Newest known numbered issue with a month (or the anchor), for month estimates."""
+    if mag.frequency is not Frequency.THIRTEEN_PER_YEAR or mag.id is None:
+        return None
+    dated = session.scalars(
+        select(Issue)
+        .where(
+            Issue.magazine_id == mag.id,
+            Issue.issue_number.is_not(None),
+            Issue.cover_date.is_not(None),
+        )
+        .order_by(Issue.issue_number.desc())
+        .limit(1)
+    ).first()
+    newest = session.scalar(select(func.max(Issue.issue_number)).where(Issue.magazine_id == mag.id))
+    if dated is not None and (mag.anchor_number is None or dated.issue_number >= mag.anchor_number):
+        number, cover = dated.issue_number, dated.cover_date
+    elif mag.anchor_number is not None and mag.anchor_date is not None:
+        number, cover = mag.anchor_number, mag.anchor_date
+    else:
+        return None
+    return Reference(number=number, cover=cover, newest=max(newest or 0, number))
 
 
 def evaluate(
@@ -135,7 +168,7 @@ def evaluate(
     if parsed.formats and profile and not set(parsed.formats) & set(profile.formats):
         reasons.append(f"format {', '.join(parsed.formats)} not in profile {profile.name}")
 
-    ident = identify(parsed, mag)
+    ident = identify(parsed, mag, thirteen_reference(session, mag))
     ev.fields = ident.fields
     if ident.key is None or ident.reasons:
         reasons += [r for r in ident.reasons if r not in parsed.reasons]  # parser's already listed
@@ -143,6 +176,7 @@ def evaluate(
             reasons.append("no issue key")
         return ev
     ev.issue_key = ident.key
+    ev.notes = list(ident.notes)
     ev.rank = _rank(parsed, mag, size, published)
 
     if mag.monitored is False:
@@ -158,6 +192,9 @@ def evaluate(
             reasons.append(f"{ident.key} is not monitored")
         elif issue.status in (IssueStatus.GRABBED, IssueStatus.DOWNLOADED, IssueStatus.IMPORTED):
             reasons.append(f"{ident.key} is already {issue.status.value}")
+        number = ident.fields.get("issue_number")
+        if ident.fields.get("estimated") and issue.issue_number not in (None, number):
+            reasons.append(f"{ident.key} already holds issue {issue.issue_number}")
         cover = issue.cover_date or cover
     elif why := _in_monitored_range(mag, cover, published, today):
         reasons.append(why)

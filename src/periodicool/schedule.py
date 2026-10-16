@@ -59,6 +59,19 @@ class ExpectedIssue:
 
 
 @dataclass(frozen=True)
+class Reference:
+    """What is known about a thirteen-per-year magazine, for month estimates.
+
+    `number` and `cover` are the newest issue known with both a number and a
+    month (or the anchor); `newest` is the highest issue number known at all.
+    """
+
+    number: int
+    cover: date
+    newest: int
+
+
+@dataclass(frozen=True)
 class Identified:
     key: str | None
     fields: dict = field(default_factory=dict)
@@ -254,8 +267,14 @@ def _covered(mag: Magazine, d: date) -> bool:
     return is_regular(mag) and (mag.schedule_start is None or d >= mag.schedule_start)
 
 
-def identify(parsed: ParsedRelease, mag: Magazine) -> Identified:
-    """Map a parsed release (already matched to this magazine) to an issue key."""
+def identify(
+    parsed: ParsedRelease, mag: Magazine, reference: Reference | None = None
+) -> Identified:
+    """Map a parsed release (already matched to this magazine) to an issue key.
+
+    With a `reference`, a thirteen-per-year name with a number but no month
+    gets an estimated month (see `_estimate_month`). Without one it is flagged.
+    """
     reasons = list(parsed.reasons)
     notes: list[str] = []
     fields: dict = {
@@ -276,15 +295,15 @@ def identify(parsed: ParsedRelease, mag: Magazine) -> Identified:
         return Identified(None, fields, (*reasons, "special without a month"))
 
     if mag.numbering in (Numbering.ISSUE, Numbering.VOLUME):
-        return _identify_numbered(parsed, mag, fields, rel_date, reasons, notes)
+        return _identify_numbered(parsed, mag, fields, rel_date, reasons, notes, reference)
     return _identify_dated(parsed, mag, fields, rel_date, reasons, notes)
 
 
-def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes) -> Identified:
+def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes, reference=None) -> Identified:
     volume = mag.numbering is Numbering.VOLUME
     number = (parsed.volume or parsed.issue) if volume else parsed.issue
     if mag.frequency is Frequency.THIRTEEN_PER_YEAR:
-        return _identify_thirteen(parsed, mag, fields, number, reasons)
+        return _identify_thirteen(parsed, mag, fields, number, reasons, reference)
     numbered = mag.anchor_number is not None and is_regular(mag)
     tolerance = 2 if mag.frequency in _DAY_STEPS else 1
 
@@ -315,11 +334,40 @@ def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes) -> Identif
     return Identified(_number_key(mag, number), fields, tuple(reasons), tuple(notes))
 
 
-def _identify_thirteen(parsed, mag, fields, number, reasons) -> Identified:
+def _estimate_month(number: int, ref: Reference) -> date:
+    """Cover month for a newer issue number, at 13 issues a year from the reference."""
+    months = round((number - ref.number) * 12 / 13)
+    return _add_months(date(ref.cover.year, ref.cover.month, 1), months)
+
+
+def _identify_thirteen(parsed, mag, fields, number, reasons, reference=None) -> Identified:
     """Key by cover month; keep the number when the name has one."""
     if not (parsed.year and parsed.month):
-        reasons.append("number without a month" if number else "no month")
-        return Identified(None, fields, tuple(reasons))
+        if number is None:
+            reasons.append("no month")
+            return Identified(None, fields, tuple(reasons))
+        if reference is None:
+            reasons.append("number without a month")
+            return Identified(None, fields, tuple(reasons))
+        if number <= reference.newest:
+            reasons.append(
+                f"number {number} without a month is not newer than issue {reference.newest}"
+            )
+            return Identified(None, fields, tuple(reasons))
+        d = _estimate_month(number, reference)
+        if parsed.year and parsed.year != d.year:
+            reasons.append(f"estimated month {d:%Y-%m} for number {number} is not in {parsed.year}")
+            return Identified(None, fields, tuple(reasons))
+        note = f"month {d:%Y-%m} estimated from issue {number} (13 a year from {reference.number})"
+        fields |= {
+            "year": d.year,
+            "month": d.month,
+            "day": None,
+            "cover_date": d,
+            "issue_number": number,
+            "estimated": True,
+        }
+        return Identified(f"{d.year}-{d.month:02d}", fields, tuple(reasons), (note,))
     d = date(parsed.year, parsed.month, 1)
     if number is not None and mag.anchor_number is not None and mag.anchor_date:
         months = _months_between(_anchor(mag), d)

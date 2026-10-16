@@ -89,7 +89,11 @@ def test_accepts_current_issue(session):
         ("MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF", {}, "pack"),
         ("WineMaker.April-May.2026.HYBRID.MAGAZINE", {}, "no tracked magazine"),
         ("American.Cinematographer-September.2023", {}, "before the monitored range"),
-        ("Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1", {}, "number without a month"),
+        (
+            "Fortean.Times.No.416.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+            {},
+            "not newer than issue 437",
+        ),
         ("Fortean.Times.TruePDF-October", {}, "month without year"),
         ("Linux Magazine USA - Issue 314, January 2027", {}, "more than 45 days away"),
     ],
@@ -182,8 +186,11 @@ def test_rss_sync_records_and_dedupes(session, client, fake):
 
 def test_rss_skips_disabled_and_limited_indexers(session, client, fake):
     fake.status = [{"indexerId": 2, "disabledTill": "2026-10-16T18:00:00Z"}]
-    fake.stats = {"indexers": [{"indexerId": 1, "numberOfQueries": 90, "numberOfRssQueries": 10,
-                                "numberOfGrabs": 0}]}  # fmt: skip
+    fake.stats = {
+        "indexers": [
+            {"indexerId": 1, "numberOfQueries": 90, "numberOfRssQueries": 10, "numberOfGrabs": 0}
+        ]
+    }
     r = search.rss_sync(session, client, TODAY, NOW)
     assert fake.feeds() == []
     assert "query limit reached" in r.skipped["Alpha"] and "disabled" in r.skipped["Beta"]
@@ -255,8 +262,10 @@ def test_optional_daily_cap(session, client, fake):
 
 
 def test_no_usable_indexer(session, client, fake):
-    fake.status = [{"indexerId": 1, "disabledTill": "2026-10-17T00:00:00Z"},
-                   {"indexerId": 2, "disabledTill": "2026-10-17T00:00:00Z"}]  # fmt: skip
+    fake.status = [
+        {"indexerId": 1, "disabledTill": "2026-10-17T00:00:00Z"},
+        {"indexerId": 2, "disabledTill": "2026-10-17T00:00:00Z"},
+    ]
     with pytest.raises(search.Unavailable, match="no indexer available"):
         search.search_magazine(session, client, mag(session, "People"), TODAY, now=NOW)
 
@@ -296,8 +305,12 @@ def test_wanted_search_is_bounded_and_never_repeats(session, client, fake):
 
 
 def test_scheduler_runs_due_jobs_once(tmp_path):
-    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config"),
-                              "PERIODICOOL_LIBRARY_DIR": str(tmp_path / "library")})  # fmt: skip
+    settings = load_settings(
+        {
+            "PERIODICOOL_CONFIG_DIR": str(tmp_path / "config"),
+            "PERIODICOOL_LIBRARY_DIR": str(tmp_path / "library"),
+        }
+    )
     settings.config_dir.mkdir()
     db.upgrade(settings.db_url)
     engine = db.make_engine(settings.db_url)
@@ -335,8 +348,12 @@ def search_unconfigured(session, settings, now):
 def test_real_runners_skip_when_unconfigured(tmp_path):
     from periodicool.jobs import run_import, run_library, run_rss, run_wanted
 
-    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "c"),
-                              "PERIODICOOL_LIBRARY_DIR": str(tmp_path / "missing")})  # fmt: skip
+    settings = load_settings(
+        {
+            "PERIODICOOL_CONFIG_DIR": str(tmp_path / "c"),
+            "PERIODICOOL_LIBRARY_DIR": str(tmp_path / "missing"),
+        }
+    )
     settings.config_dir.mkdir()
     db.upgrade(settings.db_url)
     engine = db.make_engine(settings.db_url)
@@ -379,3 +396,70 @@ def test_rate_limited_search_raises(session, client, fake):
         search.search_magazine(session, client, mag(session, "People"), TODAY, now=NOW)
     assert library.get_setting(session, search.BACKOFF_UNTIL_KEY)
     assert isinstance(client, ProwlarrClient)
+
+
+# Fortean Times: number-only names get an estimated month
+
+
+FT_475 = "Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1"
+
+
+def test_number_only_name_gets_estimated_month(session):
+    e = ev(session, FT_475)
+    assert e.accepted and e.issue_key == "2026-10"
+    assert e.fields["issue_number"] == 475
+    assert e.notes == ["month 2026-10 estimated from issue 475 (13 a year from 437)"]
+
+
+def test_estimate_is_flagged_when_stored(session, client, fake):
+    fake.search_results = [release_json(FT_475)]
+    r = search.search_magazine(session, client, mag(session, "Fortean Times"), TODAY, now=NOW)
+    [(rel, _)] = r.candidates
+    assert rel.accepted and rel.reasons == [
+        "note: month 2026-10 estimated from issue 475 (13 a year from 437)"
+    ]
+
+
+def test_estimate_uses_newest_dated_issue(session):
+    ft = mag(session, "Fortean Times")
+    session.add(
+        Issue(magazine_id=ft.id, key="2026-08", cover_date=date(2026, 8, 1), issue_number=473)
+    )
+    session.flush()
+    e = ev(session, FT_475)
+    assert e.issue_key == "2026-10" and "from 473" in e.notes[0]
+
+
+def test_estimate_only_for_newer_numbers(session):
+    ft = mag(session, "Fortean Times")
+    session.add(
+        Issue(magazine_id=ft.id, key="2026-11", cover_date=date(2026, 11, 1), issue_number=476)
+    )
+    session.flush()
+    e = ev(session, FT_475)
+    assert not e.accepted and "not newer than issue 476" in e.reasons[0]
+
+
+def test_estimate_rejects_month_holding_another_issue(session):
+    ft = mag(session, "Fortean Times")
+    session.add(Issue(magazine_id=ft.id, key="2026-10", issue_number=470))
+    session.flush()
+    e = ev(session, FT_475)
+    assert not e.accepted and "already holds issue 470" in " ".join(e.reasons)
+
+
+def test_estimate_must_match_the_year_in_the_name(session):
+    e = ev(session, "Fortean.Times.No.480.2025.RETAIL.MAGAZINE.eBook-21A1")
+    assert not e.accepted and "is not in 2025" in e.reasons[0]
+
+
+def test_library_never_estimates(session, tmp_path):
+    from periodicool.models import ReasonCode, ScanKind
+
+    lib = tmp_path / "lib"
+    lib.mkdir()
+    (lib / f"{FT_475}.pdf").write_bytes(b"x")
+    scan = library.plan_scan(session, lib, ScanKind.LIBRARY)
+    [item] = library.queue(session)
+    assert item.reason_code is ReasonCode.UNIDENTIFIED and "number without a month" in item.reason
+    assert scan.counts["move"] == 0
