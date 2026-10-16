@@ -14,10 +14,13 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **Step 5 (library), 2026-10-16:** migration `0003` (`scans`, `import_items` = plan and manual import queue, `file_moves` = move log; `issues.cover_date` nullable). `naming.py` (SMB-safe `sanitize`, template `render`, root guard), `library.py` (`plan_scan` preview, `apply_scan`, `queue`/`skip`/`resolve`, `process_import_folder`), CLI in `cli.py` with `examples/magazines.json`. 993 tests pass. Manual run on a scratch library: 5 moved, 3 queued, cover.jpg untouched.
 
+- **Step 6 (search), 2026-10-16:** migration `0004` (`releases`, `search_cache`, `search_state`, `api_calls`, `jobs`, `magazines.search_term`). `prowlarr.py` (stdlib client: search, Newznab RSS feed, indexers, status, stats; request spacing; API key redacted everywhere and stripped from stored URLs), `decisions.py` (`evaluate` with every reason, ranking, `best_candidates`), `search.py` (`rss_sync`, `search_magazine` with cache, per-magazine backoff, `wanted_search`, `indexer_limits`), `jobs.py` (asyncio scheduler in the app: rss 15 min, wanted 6 h, library 24 h, import 5 min; `PERIODICOOL_JOBS=off`). CLI: `config`, `indexers`, `search`, `rss`, `wanted`, `jobs`. `tzdata==2026.5` added. 1033 tests pass. Live, read-only: indexers listed, RSS feed endpoint `/{id}/api` confirmed (3 feeds, 200 releases, no API key stored), one Fortean Times search (144 candidates, all rejected with correct reasons). About 6 indexer hits in total.
+- **Migration safety fix:** SQLite batch migrations rebuild tables; with foreign keys on, dropping the old `magazines` table cascade-deleted `issues` (caught by the downgrade test). Migrations now run with foreign keys off and finish with `PRAGMA foreign_key_check`.
+
 ## Next
 
 - **Before any real library run:** do a preview on the server against the real library (`scan` only, read the output, apply nothing) and review the queue counts. The LazyLibrarian files are the first real test of the parser on file names.
-- Step 6: Prowlarr search and RSS sync with accept/reject reasons and rate limiting; the scheduler for periodic rescans and import-folder polling.
+- Step 7: SABnzbd send (PeriodiCool's category only, jobs tracked by ID), download monitor, import, failed-download handling and blocklist. `best_candidates()` gives the release to grab per issue; the download URL needs the API key added back at grab time.
 
 ## Library decisions (step 5)
 
@@ -77,7 +80,17 @@ Handoff notes between sessions. Read at the start, update at the end.
 - Dev dependency `httpx` swapped for `httpx2` (2026-10-16), which Starlette's TestClient now prefers; the deprecation warning is gone.
 - CODE_OF_CONDUCT contact points to the maintainer's GitHub profile, not an email address.
 
+## Search decisions (step 6)
+
+- No universal search cap (maintainer decision: match Sonarr/Radarr). Per-indexer query and grab limits live in Prowlarr; PeriodiCool reads them with today's usage, leaves out indexers at their limit or disabled by Prowlarr, and backs off on 429/503 (5 min doubling to 6 h). `search.daily_cap` exists but is unset.
+- One search per magazine (search term, then each alias) covers all its issues. Results are cached 6 h. Scheduled searches back off per magazine: 6 h doubling to 7 days, reset by a new accepted release. At most 5 magazines per Wanted run, each once.
+- `evaluate` keeps going after the first rejection so interactive search shows every reason.
+- Indexer usage counts RSS plus searches (errs on the safe side). Prowlarr's `indexerstats` returns nothing when start and end fall on one day, so only `startDate` is sent and Prowlarr counts up to its own clock.
+
 ## Open questions
+
+- **Clock mismatch:** Prowlarr's status reports `startTime` 2026-10-20T00:16Z while the dev machine's clock says 2026-10-16. One of the two is about four days off. Grace windows, expected issues and "today" all depend on the clock; check the time on the server and on the dev machine.
+- **Fortean Times number-only names:** the newest issues are posted as `Fortean.Times.No.475.2026` (number and year, no month). With month keys these are rejected ("number without a month"), so current issues would only be found when a month-named release appears. Options: estimate the month from the anchor (13 a year) and accept within a tolerance, or learn number-to-month from releases that carry both. Needs a decision.
 
 - PDF text reading for unidentifiable files is deferred (needs a dependency such as pypdf). Revisit after the first real preview shows how many files land in the queue.
 - Time zone for "today": background jobs (step 6) need it. On Windows `zoneinfo` needs the `tzdata` package; adding it needs approval. Step 4 functions take `today` as an argument.

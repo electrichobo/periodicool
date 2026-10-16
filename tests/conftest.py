@@ -14,6 +14,7 @@ def settings(tmp_path: Path) -> Settings:
             "PERIODICOOL_CONFIG_DIR": str(tmp_path / "config"),
             "PERIODICOOL_LIBRARY_DIR": str(tmp_path / "library"),
             "PERIODICOOL_DOWNLOADS_DIR": str(tmp_path / "downloads"),
+            "PERIODICOOL_JOBS": "off",
         }
     )
 

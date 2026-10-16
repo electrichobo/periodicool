@@ -30,7 +30,10 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    engine = make_engine(_url())
+    # Foreign keys stay off while migrating: SQLite batch operations rebuild a
+    # table by dropping it, which would otherwise cascade-delete child rows
+    # (dropping a magazines column would wipe issues). Checked afterwards.
+    engine = make_engine(_url(), foreign_keys=False)
     with engine.connect() as connection:
         context.configure(
             connection=connection,
@@ -39,6 +42,9 @@ def run_migrations_online() -> None:
         )
         with context.begin_transaction():
             context.run_migrations()
+        problems = connection.exec_driver_sql("PRAGMA foreign_key_check").fetchall()
+        if problems:
+            raise RuntimeError(f"foreign key check failed after migration: {problems[:5]}")
     engine.dispose()
 
 

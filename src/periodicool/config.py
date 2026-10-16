@@ -30,6 +30,7 @@ class Settings:
     pgid: int
     umask: int
     tz: str
+    jobs_enabled: bool = True
 
     @property
     def db_path(self) -> Path:
@@ -70,4 +71,5 @@ def load_settings(env: Mapping[str, str] | None = None) -> Settings:
         pgid=_int(env, "PGID", 100),
         umask=umask,
         tz=env.get("TZ", "UTC"),
+        jobs_enabled=env.get("PERIODICOOL_JOBS", "on").strip().lower() not in ("off", "0", "false"),
     )

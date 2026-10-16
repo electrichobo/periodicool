@@ -116,6 +116,8 @@ class Magazine(Base):
     format_profile_id: Mapped[int | None] = mapped_column(ForeignKey("format_profiles.id"))
     must_contain: Mapped[list[str]] = mapped_column(JSON, default=list)
     must_not_contain: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # Query sent to Prowlarr; None means the title without punctuation.
+    search_term: Mapped[str | None] = mapped_column(String(200))
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     format_profile: Mapped[FormatProfile | None] = relationship()
@@ -246,3 +248,86 @@ class FileMove(Base):
     ok: Mapped[bool]
     error: Mapped[str | None] = mapped_column(String(2000))
     moved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class ReleaseSource(StrEnum):
+    RSS = "rss"
+    SEARCH = "search"
+
+
+class Release(Base):
+    """A release seen in RSS or search, with its latest accept/reject decision."""
+
+    __tablename__ = "releases"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    guid: Mapped[str] = mapped_column(String(1000), unique=True)
+    indexer_id: Mapped[int | None]
+    indexer: Mapped[str | None] = mapped_column(String(200))
+    title: Mapped[str] = mapped_column(String(1000))
+    size: Mapped[int | None]
+    publish_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    categories: Mapped[list[int]] = mapped_column(JSON, default=list)
+    protocol: Mapped[str | None] = mapped_column(String(20))
+    info_url: Mapped[str | None] = mapped_column(String(2000))
+    # Never holds an API key: it is stripped before saving.
+    download_url: Mapped[str | None] = mapped_column(String(2000))
+    source: Mapped[ReleaseSource] = mapped_column(_enum(ReleaseSource))
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
+    issue_key: Mapped[str | None] = mapped_column(String(100))
+    accepted: Mapped[bool] = mapped_column(default=False)
+    reasons: Mapped[list[str]] = mapped_column(JSON, default=list)
+    rank: Mapped[list] = mapped_column(JSON, default=list)
+
+    magazine: Mapped[Magazine | None] = relationship()
+
+
+class SearchCache(Base):
+    __tablename__ = "search_cache"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    query_key: Mapped[str] = mapped_column(String(500), unique=True)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    guids: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+
+class SearchState(Base):
+    """Per-magazine backoff for scheduled Wanted searches."""
+
+    __tablename__ = "search_state"
+
+    magazine_id: Mapped[int] = mapped_column(
+        ForeignKey("magazines.id", ondelete="CASCADE"), primary_key=True
+    )
+    last_search_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(default=0)
+    next_search_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_result: Mapped[str | None] = mapped_column(String(500))
+
+
+class ApiCall(Base):
+    """One request to Prowlarr, for limits, Health and debugging. Never holds secrets."""
+
+    __tablename__ = "api_calls"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    indexer_id: Mapped[int | None]
+    status: Mapped[int | None]
+    ok: Mapped[bool]
+    note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class Job(Base):
+    __tablename__ = "jobs"
+
+    name: Mapped[str] = mapped_column(String(50), primary_key=True)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    interval_s: Mapped[int]
+    last_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_result: Mapped[str | None] = mapped_column(String(2000))
+    next_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -20,9 +21,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         db.upgrade(settings.db_url)
         app.state.engine = db.make_engine(settings.db_url)
         app.state.sessions = db.make_session_factory(app.state.engine)
+        stop, task = asyncio.Event(), None
+        if settings.jobs_enabled:
+            from periodicool.jobs import Scheduler
+
+            task = asyncio.create_task(Scheduler(app.state.sessions, settings).loop(stop))
         try:
             yield
         finally:
+            stop.set()
+            if task is not None:
+                await task
             app.state.engine.dispose()
 
     app = FastAPI(title="PeriodiCool", version=__version__, lifespan=lifespan)

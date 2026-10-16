@@ -45,7 +45,14 @@ python -m periodicool apply 1         # carry out scan 1
 python -m periodicool queue           # files waiting for review
 python -m periodicool resolve ITEM_ID MAGAZINE_ID 2023-11
 python -m periodicool skip ITEM_ID
+python -m periodicool config set prowlarr.url http://prowlarr:9696
+python -m periodicool indexers        # per-indexer limits and what is left today
+python -m periodicool search 3        # every candidate with its accept/reject reasons
+python -m periodicool rss             # one RSS sync now
+python -m periodicool wanted          # wanted and missing issues
 ```
+
+The Prowlarr API key comes from the `PROWLARR_API_KEY` environment variable, never the database. Indexer API limits are whatever you set per indexer in Prowlarr; PeriodiCool reads them and stays within them.
 
 `scan` never touches files. Always read the preview before running `apply`, and try it on a copy of your library first.
 
@@ -64,6 +71,8 @@ Only paths, process settings and secrets come from the environment. Everything e
 | `PUID` / `PGID` | `99` / `100` | User and group the container runs as |
 | `UMASK` | `002` | File creation mask |
 | `TZ` | `UTC` | Time zone |
+| `PROWLARR_API_KEY` | unset | Prowlarr API key |
+| `PERIODICOOL_JOBS` | `on` | `off` disables background jobs |
 
 ## License
 

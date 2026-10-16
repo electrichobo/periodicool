@@ -15,6 +15,7 @@ dependencies = [
     "jinja2==3.1.6",
     "sqlalchemy==2.1.6",
     "alembic==1.20.0",
+    "tzdata==2026.5",
 ]
 
 [project.optional-dependencies]
@@ -49,4 +50,4 @@ src = ["src", "tests"]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "PTH"]
 
 [tool.ruff.lint.isort]
-known-local-folder = ["dev_magazines", "snapshot"]
+known-local-folder = ["dev_magazines", "snapshot", "fake_prowlarr"]

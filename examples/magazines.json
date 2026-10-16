@@ -6,12 +6,14 @@
   },
   {
     "title": "AMAZONAS Magazine",
+    "search_term": "Amazonas",
     "frequency": "bimonthly",
     "numbering": "date",
     "anchor_date": "2013-01-01"
   },
   {
     "title": "2600: The Hacker Quarterly",
+    "search_term": "2600",
     "frequency": "seasonal",
     "numbering": "season"
   },
@@ -25,6 +27,7 @@
   },
   {
     "title": "Make:",
+    "search_term": "Make Magazine",
     "frequency": "irregular",
     "numbering": "volume"
   },
@@ -37,6 +40,7 @@
   },
   {
     "title": "Tabletop Gaming Magazine",
+    "search_term": "Tabletop Gaming",
     "frequency": "monthly",
     "numbering": "issue",
     "anchor_date": "2024-02-01",

@@ -16,13 +16,13 @@ class Base(DeclarativeBase):
     pass
 
 
-def make_engine(db_url: str) -> Engine:
+def make_engine(db_url: str, foreign_keys: bool = True) -> Engine:
     engine = create_engine(db_url)
 
     @event.listens_for(engine, "connect")
     def _sqlite_pragmas(dbapi_conn, _record):
         cur = dbapi_conn.cursor()
-        cur.execute("PRAGMA foreign_keys=ON")
+        cur.execute(f"PRAGMA foreign_keys={'ON' if foreign_keys else 'OFF'}")
         cur.execute("PRAGMA journal_mode=WAL")
         cur.close()
 
