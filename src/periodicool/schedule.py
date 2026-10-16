@@ -223,6 +223,7 @@ def effective_status(issue: Issue, mag: Magazine, today: date) -> str:
         and issue.monitored
         and mag.monitored is not False
         and not issue.file_path
+        and issue.cover_date is not None
         and today > issue.cover_date + timedelta(days=grace)
     ):
         return MISSING

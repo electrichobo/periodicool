@@ -1,0 +1,55 @@
+[
+  {
+    "title": "American Cinematographer",
+    "frequency": "monthly",
+    "numbering": "date"
+  },
+  {
+    "title": "AMAZONAS Magazine",
+    "frequency": "bimonthly",
+    "numbering": "date",
+    "anchor_date": "2013-01-01"
+  },
+  {
+    "title": "2600: The Hacker Quarterly",
+    "frequency": "seasonal",
+    "numbering": "season"
+  },
+  {
+    "title": "Linux Magazine",
+    "frequency": "monthly",
+    "numbering": "issue",
+    "filler_optional": false,
+    "anchor_date": "2026-09-01",
+    "anchor_number": 310
+  },
+  {
+    "title": "Make:",
+    "frequency": "irregular",
+    "numbering": "volume"
+  },
+  {
+    "title": "Fortean Times",
+    "frequency": "thirteen_per_year",
+    "numbering": "issue",
+    "anchor_date": "2023-11-01",
+    "anchor_number": 437
+  },
+  {
+    "title": "Tabletop Gaming Magazine",
+    "frequency": "monthly",
+    "numbering": "issue",
+    "anchor_date": "2024-02-01",
+    "anchor_number": 87,
+    "schedule_start": "2018-01-01"
+  },
+  {
+    "title": "People",
+    "frequency": "weekly",
+    "numbering": "date",
+    "region": "USA",
+    "special_prefix": false,
+    "anchor_date": "2023-07-10",
+    "publish_weekday": 0
+  }
+]

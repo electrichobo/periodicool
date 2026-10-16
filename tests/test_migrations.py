@@ -65,3 +65,33 @@ def test_downgrade_and_upgrade_again(tmp_path):
     assert _current_revision(url) == "0001"
     db.upgrade(url)
     assert _current_revision(url) == ScriptDirectory.from_config(cfg).get_current_head()
+
+
+def test_downgrade_keeps_undated_issues(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO magazines (title, aliases, languages, filler_optional, special_prefix,"
+                " frequency, numbering, grace_days, monitored, monitor_mode, must_contain,"
+                " must_not_contain, added_at) VALUES ('Make:', '[]', '[]', 1, 1, 'irregular',"
+                " 'volume', 14, 1, 'new_only', '[]', '[]', '2026-10-16')"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO issues (magazine_id, key, special, expected, monitored, status)"
+                " VALUES (1, 'v5', 0, 0, 1, 'imported')"
+            )
+        )
+    engine.dispose()
+    command.downgrade(db.alembic_config(url), "0002")
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        rows = conn.execute(text("SELECT key, cover_date FROM issues")).all()
+    engine.dispose()
+    assert rows == [("v5", "1900-01-01")]

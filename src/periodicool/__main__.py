@@ -1,15 +1,8 @@
-"""Run with `python -m periodicool`."""
+"""Run with `python -m periodicool`. See periodicool.cli for subcommands."""
 
-import uvicorn
+import sys
 
-from periodicool.config import load_settings
-from periodicool.main import create_app
-
-
-def main() -> None:
-    settings = load_settings()
-    uvicorn.run(create_app(settings), host=settings.host, port=settings.port)
-
+from periodicool.cli import main
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -12,10 +12,24 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **Step 4 (data model), 2026-10-16:** migration `0002` adds `settings`, `format_profiles` (seeded "Any": pdf, epub, cbz, cbr, prefer TruePDF, upgrades off), `magazines` and `issues` (`src/periodicool/models.py`). `src/periodicool/schedule.py`: expected-issue generation per frequency from an anchor issue, generation range by monitor mode bounded by `schedule_start`, `sync_expected_issues` (insert-only, idempotent), computed "missing" status, and `identify` (parsed release to issue key with schedule checks). Dev magazine configs in `tests/dev_magazines.py` are now `Magazine` objects. 947 tests pass; fresh-DB smoke test OK.
 
+- **Step 5 (library), 2026-10-16:** migration `0003` (`scans`, `import_items` = plan and manual import queue, `file_moves` = move log; `issues.cover_date` nullable). `naming.py` (SMB-safe `sanitize`, template `render`, root guard), `library.py` (`plan_scan` preview, `apply_scan`, `queue`/`skip`/`resolve`, `process_import_folder`), CLI in `cli.py` with `examples/magazines.json`. 993 tests pass. Manual run on a scratch library: 5 moved, 3 queued, cover.jpg untouched.
+
 ## Next
 
-- Step 5: library scan, organize with dry-run preview, manual import queue (plan mode: moves files).
-- Duplicate-month handling for 13-per-year magazines: when two releases claim one month (Fortean Times' 13th issue), the second needs a key like `2022-08-2` decided at import time (step 5).
+- **Before any real library run:** do a preview on the server against the real library (`scan` only, read the output, apply nothing) and review the queue counts. The LazyLibrarian files are the first real test of the parser on file names.
+- Step 6: Prowlarr search and RSS sync with accept/reject reasons and rate limiting; the scheduler for periodic rescans and import-folder polling.
+
+## Library decisions (step 5)
+
+- Planning never touches files; `apply` is always a separate command. The import folder auto-applies only confident moves, only when `import.auto_apply` is on and after the first library scan has been applied.
+- Moves are a hard link to the new name plus removal of the old name (atomic, fails if the target exists). Where links are unsupported: exists check plus rename. Cross-device copies are only allowed for import-folder files (exclusive-create temp file, size check, then the source is removed). Library files never cross devices; the item fails instead.
+- A target that exists, or appears between plan and apply, sends the newcomer to review; both files stay.
+- Duplicates of one issue: profile format order, then TruePDF if preferred; the loser goes to review. Equal candidates both go to review. An issue that already has a file is never replaced (upgrades are a later feature).
+- Thirteen-per-year: two files with different known numbers in one month get keys `YYYY-MM` and `YYYY-MM-2`.
+- Names are tried as the file stem, then with the parent and grandparent folder names in front (`Fortean Times/2023/2023-11.pdf`).
+- Files of a tracked title rejected only for region or language say so in the queue ("People: region Australia, wanted USA").
+- Empty folders left behind after moves are not removed (that would be a delete); a cleanup option can come later.
+- Not in the approved plan: `apply --confident-only` was dropped, since only confident files are ever planned as moves.
 
 ## Parser decisions and known gaps
 
@@ -65,4 +79,5 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 ## Open questions
 
+- PDF text reading for unidentifiable files is deferred (needs a dependency such as pypdf). Revisit after the first real preview shows how many files land in the queue.
 - Time zone for "today": background jobs (step 6) need it. On Windows `zoneinfo` needs the `tzdata` package; adding it needs approval. Step 4 functions take `today` as an argument.

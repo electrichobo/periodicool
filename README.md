@@ -36,6 +36,19 @@ PERIODICOOL_CONFIG_DIR=./dev-data/config python -m periodicool
 
 Then open `http://localhost:8383/health`.
 
+### Command line (until the web UI exists)
+
+```bash
+python -m periodicool magazines import examples/magazines.json
+python -m periodicool scan            # preview only, nothing moves
+python -m periodicool apply 1         # carry out scan 1
+python -m periodicool queue           # files waiting for review
+python -m periodicool resolve ITEM_ID MAGAZINE_ID 2023-11
+python -m periodicool skip ITEM_ID
+```
+
+`scan` never touches files. Always read the preview before running `apply`, and try it on a copy of your library first.
+
 ### Environment variables
 
 Only paths, process settings and secrets come from the environment. Everything else lives in the database and is edited in the UI.

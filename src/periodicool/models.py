@@ -5,7 +5,17 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
-from sqlalchemy import JSON, Date, DateTime, Enum, ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Date,
+    DateTime,
+    Enum,
+    Float,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from periodicool.db import Base
@@ -135,7 +145,7 @@ class Issue(Base):
     magazine_id: Mapped[int] = mapped_column(ForeignKey("magazines.id", ondelete="CASCADE"))
     # Canonical identity: 2023-11, 2023-07-10, 2013-autumn, n437, v41, special-2023-07-07.
     key: Mapped[str] = mapped_column(String(100))
-    cover_date: Mapped[date] = mapped_column(Date)
+    cover_date: Mapped[date | None] = mapped_column(Date)  # None: number but no date
     year: Mapped[int | None]
     month: Mapped[int | None]
     month_end: Mapped[int | None]
@@ -148,6 +158,91 @@ class Issue(Base):
     expected: Mapped[bool] = mapped_column(default=True)
     monitored: Mapped[bool] = mapped_column(default=True)
     status: Mapped[IssueStatus] = mapped_column(_enum(IssueStatus), default=IssueStatus.WANTED)
+    # Relative to the library root, POSIX separators.
     file_path: Mapped[str | None] = mapped_column(String(1000))
 
     magazine: Mapped[Magazine] = relationship(back_populates="issues")
+
+
+class ScanKind(StrEnum):
+    LIBRARY = "library"
+    IMPORT = "import"
+
+
+class ItemAction(StrEnum):
+    MOVE = "move"
+    KEEP = "keep"
+    REVIEW = "review"
+
+
+class ItemStatus(StrEnum):
+    PENDING = "pending"
+    DONE = "done"
+    SKIPPED = "skipped"
+    FAILED = "failed"
+    GONE = "gone"
+
+
+class ReasonCode(StrEnum):
+    UNPARSED = "unparsed"
+    LOW_CONFIDENCE = "low_confidence"
+    NO_MAGAZINE = "no_magazine"
+    AMBIGUOUS_MAGAZINE = "ambiguous_magazine"
+    UNIDENTIFIED = "unidentified"
+    DUPLICATE = "duplicate"
+    COLLISION = "collision"
+    OUTSIDE_ROOT = "outside_root"
+
+
+class Scan(Base):
+    __tablename__ = "scans"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[ScanKind] = mapped_column(_enum(ScanKind))
+    root: Mapped[str] = mapped_column(String(1000))
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    counts: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class ImportItem(Base):
+    """One source file: its planned action, and its place in the manual import queue."""
+
+    __tablename__ = "import_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    scan_id: Mapped[int] = mapped_column(ForeignKey("scans.id"))
+    origin: Mapped[ScanKind] = mapped_column(_enum(ScanKind))
+    source_path: Mapped[str] = mapped_column(String(1000), unique=True)
+    size: Mapped[int]
+    mtime: Mapped[float] = mapped_column(Float)
+    parsed: Mapped[dict] = mapped_column(JSON, default=dict)
+    magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
+    issue_key: Mapped[str | None] = mapped_column(String(100))
+    target_path: Mapped[str | None] = mapped_column(String(1000))
+    action: Mapped[ItemAction] = mapped_column(_enum(ItemAction))
+    reason_code: Mapped[ReasonCode | None] = mapped_column(_enum(ReasonCode))
+    reason: Mapped[str | None] = mapped_column(String(2000))
+    status: Mapped[ItemStatus] = mapped_column(_enum(ItemStatus), default=ItemStatus.PENDING)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
+
+    magazine: Mapped[Magazine | None] = relationship()
+
+
+class FileMove(Base):
+    """Log of every move attempt."""
+
+    __tablename__ = "file_moves"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    item_id: Mapped[int | None] = mapped_column(ForeignKey("import_items.id", ondelete="SET NULL"))
+    source: Mapped[str] = mapped_column(String(1000))
+    target: Mapped[str] = mapped_column(String(1000))
+    method: Mapped[str | None] = mapped_column(String(10))
+    ok: Mapped[bool]
+    error: Mapped[str | None] = mapped_column(String(2000))
+    moved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
