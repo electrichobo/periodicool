@@ -8,9 +8,22 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **Step 2 (fixtures), 2026-10-16:** `scripts/collect_fixtures.py` (stdlib only, cached, spaced searches) pulled 774 release names from Prowlarr category 7010 into `tests/fixtures/releases/` (9 queries, about 27 indexer API hits). Formats and traps per magazine are summarized in `tests/fixtures/README.md`. Sanity tests check shape and that no links or keys leak in.
 
+- **Step 3 (parser), 2026-10-16:** `periodicool/parser.py` (`parse_release`) and `periodicool/matching.py` (`TitleSpec`, `match_title`). The parser strips post junk (sizes, par2/rar parts, "1 of 7", quoted yEnc subjects, spam tags, HTML entities), then extracts dates (month names incl. German, month pairs, seasons, day-month-year, ISO, numeric), issue/volume/week numbers, double issues, packs, specials, region, language, TruePDF/format/quality/group. Anything ambiguous or left over adds a reason and makes it low confidence. Tests: about 40 hand-checked parses, 13 low-confidence cases, 40 accept/reject match cases, and a snapshot of all 774 fixture names (`tests/fixtures/parser_snapshot.json`, regenerate with `scripts/update_parser_snapshot.py` and review the diff). 547 names match their magazine; 516 of those are high confidence.
+
 ## Next
 
-- Step 3: parser and tests against the fixtures. Expected outputs per fixture title need to be written by hand (or reviewed by the maintainer), since there is no ground truth.
+- Step 4: data model and expected-issue generation (plan mode: data model change).
+
+## Parser decisions and known gaps
+
+- Parsing is magazine-agnostic; matching is a separate step with a `TitleSpec` per magazine (title, aliases, region, languages, `filler_optional`, `special_prefix`). These fields will move into the Magazine model in step 4.
+- "Magazine"/"Mag" are ignored when comparing titles, except where the spec says they are part of the name (Linux Magazine, so a bare "Linux" does not match).
+- Specials may extend the title ("Fortean Times Paranormal Handbook") unless the spec turns that off (People, so "People Wellness Special" is not auto-accepted).
+- Region is read from inside the title ("People USA", "Linux Magazine USA"). A spec with a region rejects other regions and accepts names with none.
+- Day and month in all-numeric dates are only accepted when one part is over 12; otherwise low confidence ("People USA 02 10 2025").
+- Known gap: the Dutch "Linux Magazine #NN (YYYY)" carries no language marker and matches Linux Magazine. Expected-issue checks in step 4 or 6 (issue 1 to 6 in 2026 vs. the real issue 306+) should catch it.
+- Known gap: Make uses `No.98` for what is really volume 98. The parser reports what the name says; mapping issue numbers to volumes per numbering scheme belongs in step 4.
+- Tabletop Gaming names sometimes carry an on-sale day (`25.November.2022`) on a monthly; step 4 should treat day as optional for monthlies.
 
 ## Fixture findings vs. CLAUDE.md expectations
 

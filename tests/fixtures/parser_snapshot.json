@@ -1,0 +1,7719 @@
+{
+ "2600": {
+  "15 - MAGAZINE DeSoto.Magazine-November.2016.pdf.par2 - 2600 MB usenet-space-cowboys.online": {
+   "title": "DeSoto Magazine",
+   "year": 2016,
+   "month": 11,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "15 - Sueddeutsche Zeitung Muenchen - 12.01.2017.par2 - 2600 MB Absolute Nr 1 -- usenet-space-cowboys.online": {
+   "title": "Sueddeutsche Zeitung Muenchen",
+   "year": 2017,
+   "confidence": "low",
+   "reasons": [
+    "ambiguous numeric date '12 01 2017'",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Autumn.2013": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2013,
+   "season": "autumn",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Autumn.2014": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2014,
+   "season": "autumn",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Autumn.2015": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2015,
+   "season": "autumn",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Spring.2014": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2014,
+   "season": "spring",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Spring.2015": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2015,
+   "season": "spring",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Spring.2016": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2016,
+   "season": "spring",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Summer.2013": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2013,
+   "season": "summer",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Summer.2014": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2014,
+   "season": "summer",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Summer.2015": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2015,
+   "season": "summer",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Winter.2013": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2013,
+   "season": "winter",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Winter.2014": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2014,
+   "season": "winter",
+   "confidence": "high",
+   "match": true
+  },
+  "2600.Magazine.The.Hacker.Quarterly-Winter.2015": {
+   "title": "2600 Magazine The Hacker Quarterly",
+   "year": 2015,
+   "season": "winter",
+   "confidence": "high",
+   "match": true
+  }
+ },
+ "amazonas": {
+  "Amazonas-July.August.2013": {
+   "title": "Amazonas",
+   "year": 2013,
+   "month": 7,
+   "month_end": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas-May.June.2013": {
+   "title": "Amazonas",
+   "year": 2013,
+   "month": 5,
+   "month_end": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.Magazine-January.February.2013": {
+   "title": "Amazonas Magazine",
+   "year": 2013,
+   "month": 1,
+   "month_end": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.Magazine-July.August.2013": {
+   "title": "Amazonas Magazine",
+   "year": 2013,
+   "month": 7,
+   "month_end": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.Magazine-March.April.2013": {
+   "title": "Amazonas Magazine",
+   "year": 2013,
+   "month": 3,
+   "month_end": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.Magazine-November.December.2013": {
+   "title": "Amazonas Magazine",
+   "year": 2013,
+   "month": 11,
+   "month_end": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.Magazine-September.October.2013": {
+   "title": "Amazonas Magazine",
+   "year": 2013,
+   "month": 9,
+   "month_end": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.TruePDF-July.August.2017": {
+   "title": "Amazonas",
+   "year": 2017,
+   "month": 7,
+   "month_end": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.TruePDF-March.April.2017": {
+   "title": "Amazonas",
+   "year": 2017,
+   "month": 3,
+   "month_end": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.TruePDF-May.June.2017": {
+   "title": "Amazonas",
+   "year": 2017,
+   "month": 5,
+   "month_end": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.TruePDF-November.December.2017": {
+   "title": "Amazonas",
+   "year": 2017,
+   "month": 11,
+   "month_end": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Amazonas.TruePDF-September.October.2017": {
+   "title": "Amazonas",
+   "year": 2017,
+   "month": 9,
+   "month_end": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  }
+ },
+ "american-cinematographer": {
+  "14 - MAGAZINE American.Cinematographer-October.2016.pdf.par2 - 1958 MB usenet-space-cowboys.online": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 10,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "14 - MAGAZINE American.Cinematographer.TruePDF-2016.pdf.par2 - 2255 MB usenet-space-cowboys.online": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "14 - MAGAZINE American.Cinematographer.TruePDF-December.2016.pdf.par2 - 2255 MB usenet-space-cowboys.online": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "14 - MAGAZINE American.Cinematographer.TruePDF-November.2016.pdf.par2 - 1959 MB usenet-space-cowboys.online": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "14 - MAGAZINE American.Cinematographer.TruePDF-October.2016.pdf.par2 - 1958 MB usenet-space-cowboys.online": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] American.Cinematographer.TruePDF-September.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-April.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-August.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-December.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-February.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-February.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-January.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-January.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-January.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-January.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-July.2013": {
+   "title": "American Cinematographer",
+   "year": 2013,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-July.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-June.2014": {
+   "title": "American Cinematographer",
+   "year": 2014,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-June.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-June.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-March.2019": {
+   "title": "American Cinematographer",
+   "year": 2019,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-March.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-March.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-May.2013": {
+   "title": "American Cinematographer",
+   "year": 2013,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-May.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-November.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-November.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-October.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-October.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-October.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-September.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-September.2022": {
+   "title": "American Cinematographer",
+   "year": 2022,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer-September.2023": {
+   "title": "American Cinematographer",
+   "year": 2023,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer..TruePDF-September.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.2024-02": {
+   "title": "American Cinematographer",
+   "year": 2024,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.??.TruePDF-September.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-April.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-August.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-December.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-February.2014": {
+   "title": "American Cinematographer Magazine",
+   "year": 2014,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-January.2014": {
+   "title": "American Cinematographer Magazine",
+   "year": 2014,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-July.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-June.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-March.2014": {
+   "title": "American Cinematographer Magazine",
+   "year": 2014,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-May.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-November.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-October.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine-September.2013": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.November.2013.- SPIDAROT.SHARE -": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.November.2013.-_SPIDAROT.SHARE_-": {
+   "title": "American Cinematographer Magazine",
+   "year": 2013,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.TruePDF-December.2014": {
+   "title": "American Cinematographer Magazine",
+   "year": 2014,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.TruePDF-January.2015": {
+   "title": "American Cinematographer Magazine",
+   "year": 2015,
+   "month": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.TruePDF-March.2015": {
+   "title": "American Cinematographer Magazine",
+   "year": 2015,
+   "month": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.TruePDF-May.2015": {
+   "title": "American Cinematographer Magazine",
+   "year": 2015,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.Magazine.TruePDF-September.2014": {
+   "title": "American Cinematographer Magazine",
+   "year": 2014,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-April.2014": {
+   "title": "American Cinematographer",
+   "year": 2014,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-April.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-April.2017": {
+   "title": "American Cinematographer",
+   "year": 2017,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-August.2007": {
+   "title": "American Cinematographer",
+   "year": 2007,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-August.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-August.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-December.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-December.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-February.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-January.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-January.2017": {
+   "title": "American Cinematographer",
+   "year": 2017,
+   "month": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-July.2007": {
+   "title": "American Cinematographer",
+   "year": 2007,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-July.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-July.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-July.2017": {
+   "title": "American Cinematographer",
+   "year": 2017,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-June.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-June.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-March.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-March.2017": {
+   "title": "American Cinematographer",
+   "year": 2017,
+   "month": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-May.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-May.2017": {
+   "title": "American Cinematographer",
+   "year": 2017,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-November.2007": {
+   "title": "American Cinematographer",
+   "year": 2007,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-November.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-November.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-October.2007": {
+   "title": "American Cinematographer",
+   "year": 2007,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-October.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-October.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-September": {
+   "title": "American Cinematographer",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "month without year 'September'",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-September.2007": {
+   "title": "American Cinematographer",
+   "year": 2007,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-September.2015": {
+   "title": "American Cinematographer",
+   "year": 2015,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "American.Cinematographer.TruePDF-September.2016": {
+   "title": "American Cinematographer",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  }
+ },
+ "fortean-times": {
+  "14 - MAGAZINE Fortean.Times-November.2016.pdf.par2 - 1752 MB usenet-space-cowboys.online": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 11,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "15 - MAGAZINE Fortean.Times.TruePDF-December.2016.pdf.par2 - 3159 MB usenet-space-cowboys.online": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "15-Fortean-Times-February-2013.pdf-yEnc": {
+   "title": "Fortean-Times",
+   "year": 2013,
+   "month": 2,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "15-Fortean-Times-January-2013.pdf-yEnc": {
+   "title": "Fortean-Times",
+   "year": 2013,
+   "month": 1,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "15-Fortean-Times-March-2013.pdf-yEnc": {
+   "title": "Fortean-Times",
+   "year": 2013,
+   "month": 3,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "24 - MAGAZINE Fortean.Times.TruePDF-November.2016.pdf.part1.rar - 1859 MB usenet-space-cowboys.online": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] Fortean.Times-October.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] Fortean.Times-October.2016.pdf": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 10,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] Fortean.Times.TruePDF-October.2016.pdf": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] Fortean.Times.TruePDF-September.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] Fortean.Times.TruePDF-September.2016.pdf": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean Times - Issue 380 Jun 2019 1 of 7 Fortean Times - Issue 380 Jun 2019.jpg": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 6,
+   "issue": 380,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean Times - Issue 381 Jul 2019 1 of 7 Fortean Times - Issue 381 Jul 2019.jpg": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 7,
+   "issue": 381,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-April.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-April.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-August.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-August.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-August.2017.Magazine.True": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-August.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-August.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-December.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-December.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-December.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-February.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-February.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-January.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-January.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-July.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-July.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-June.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-June.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-June.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-March.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-March.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-March.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-May.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-May.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-May.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-November.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-November.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-November.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-November.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-October.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-October.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-October.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-October.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-September.2017.Magazine.True": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-September.2021": {
+   "title": "Fortean Times",
+   "year": 2021,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times-September.2022": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.HQ.PDF-December.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 12,
+   "formats": [
+    "pdf"
+   ],
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.HQ.PDF-September.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 9,
+   "formats": [
+    "pdf"
+   ],
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.351.TruePDF-March.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 3,
+   "issue": 351,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.352.TruePDF-April.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 4,
+   "issue": 352,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.353.TruePDF-May.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 5,
+   "issue": 353,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.354.TruePDF-June.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 6,
+   "issue": 354,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.357.TruePDF-September.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 9,
+   "issue": 357,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.359.TruePDF-November.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 11,
+   "issue": 359,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.435-September.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 9,
+   "issue": 435,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Issue.437-November.2023": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "month": 11,
+   "issue": 437,
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.416.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 416,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.419.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 419,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.421.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 421,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.422.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 422,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.423.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 423,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.424.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 424,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.426.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2022,
+   "issue": 426,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.427.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Fortean Times",
+   "year": 2023,
+   "issue": 427,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.474.2026.RETAIL.MAGAZINE.eBook-21A1": {
+   "title": "Fortean Times",
+   "year": 2026,
+   "issue": 474,
+   "quality": [
+    "retail"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1": {
+   "title": "Fortean Times",
+   "year": 2026,
+   "issue": 475,
+   "quality": [
+    "retail"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.Paranormal.Handbook.TruePDF.2013": {
+   "title": "Fortean Times Paranormal",
+   "year": 2013,
+   "special": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Fortean.Times.TruePDF-April.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-April.2019": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-August.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-August.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-August.2019": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-December.2014": {
+   "title": "Fortean Times",
+   "year": 2014,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-December.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-December.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-December.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-February.2014": {
+   "title": "Fortean Times",
+   "year": 2014,
+   "month": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-February.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-February.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-February.2018": {
+   "title": "Fortean Times",
+   "year": 2018,
+   "month": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-January.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-July.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-July.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-July.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-July.2019": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-June.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-June.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-June.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-June.2019": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-March.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-March.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-May.2014": {
+   "title": "Fortean Times",
+   "year": 2014,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-May.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-May.2019": {
+   "title": "Fortean Times",
+   "year": 2019,
+   "month": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-November.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-November.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-November.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-October": {
+   "title": "Fortean Times",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "month without year 'October'",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Fortean.Times.TruePDF-October.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-October.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-October.2017": {
+   "title": "Fortean Times",
+   "year": 2017,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-September": {
+   "title": "Fortean Times",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "month without year 'September'",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Fortean.Times.TruePDF-September.2013": {
+   "title": "Fortean Times",
+   "year": 2013,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-September.2014": {
+   "title": "Fortean Times",
+   "year": 2014,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-September.2015": {
+   "title": "Fortean Times",
+   "year": 2015,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.TruePDF-September.2016": {
+   "title": "Fortean Times",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Fortean.Times.UK-May.2014": {
+   "title": "Fortean Times",
+   "region": "UK",
+   "year": 2014,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  }
+ },
+ "linux-magazine": {
+  "- [MAGAZINE].Linux.Journal.TruePDF-September.2016": {
+   "title": "Linux Journal",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "15 - MAGAZINE  Linux": {
+   "title": "Linux",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "23 - MAGAZINE Linux.Journal-August.2016.pdf.rar - 1333 MB Usenet-Space-Cowboys.online No.1 NZB source": {
+   "title": "Linux Journal",
+   "year": 2016,
+   "month": 8,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "23 - MAGAZINE Linux.Journal.TruePDF-July.2016.pdf.rar - 1240 MB Usenet-Space-Cowboys.online No.1 NZB source": {
+   "title": "Linux Journal",
+   "year": 2016,
+   "month": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "26 - MAGAZINE  Linux": {
+   "title": "Linux",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "26 - MAGAZINE Linux.User.and.Developer-Issue.168.2016.pdf.part1.rar - 3440 MB Usenet-Space-Cowboys.online No.1 NZB source": {
+   "title": "Linux User and Developer",
+   "year": 2016,
+   "issue": 168,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "26 - MAGAZINE Linux.User.and.Developer.TruePDF-Issue.167.2016.pdf.part1.rar - 3553 MB Usenet-Space-Cowboys.online No.1 NZB source": {
+   "title": "Linux User and Developer",
+   "year": 2016,
+   "issue": 167,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "27 - MAGAZINE  Linux": {
+   "title": "Linux",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "[MAGAZINE] Linux.Voice.TruePDF-December.2015": {
+   "title": "Linux Voice",
+   "year": 2015,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Future.PLC-The.Complete.Guide.To.Linux.First.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Future PLC-The Complete Guide To Linux First Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Linux Magazine #01 (2026) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 1,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #02 (2025) - HQ.": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 2,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #02 (2026)": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #03 (2024)": {
+   "title": "Linux Magazine",
+   "year": 2024,
+   "issue": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #03 (2025) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 3,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #03 (2026)": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #04 (2024) - Jubileumeditie 25 jaar": {
+   "title": "Linux Magazine",
+   "year": 2024,
+   "issue": 4,
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 25"
+   ],
+   "match": true
+  },
+  "Linux Magazine #04 (2025) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 4,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #04 (2026)": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #05 (2025) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 5,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #06 (2024) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2024,
+   "issue": 6,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine #06 (2025) - HQ": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 6,
+   "quality": [
+    "hq"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine USA - Issue 310, September 2026": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2026,
+   "month": 9,
+   "issue": 310,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine USA - Issue 311, October 2026": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2026,
+   "month": 10,
+   "issue": 311,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine USA - Issue 312, November 2026": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2026,
+   "month": 11,
+   "issue": 312,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine USA -July": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "confidence": "low",
+   "reasons": [
+    "month without year 'July'",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Linux Magazine USA Issue 276-November 2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 11,
+   "issue": 276,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux Magazine USA-November 2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux-Magazin.No.06.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux-Magazin",
+   "language": "german",
+   "year": 2026,
+   "issue": 6,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux-Magazin.No.07.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux-Magazin",
+   "language": "german",
+   "year": 2026,
+   "issue": 7,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux-Magazin.No.09.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux-Magazin",
+   "language": "german",
+   "year": 2026,
+   "issue": 9,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux-Magazin.No.10.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux-Magazin",
+   "language": "german",
+   "year": 2026,
+   "issue": 10,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux-Magazin.No.11.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux-Magazin",
+   "language": "german",
+   "year": 2026,
+   "issue": 11,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Coding.Tricks.And.Tips.No.20.2024.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Coding Tricks And Tips",
+   "year": 2024,
+   "issue": 20,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Das.essentielle.Handbuch.Juni.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux Das essentielle Handbuch",
+   "language": "german",
+   "year": 2026,
+   "month": 6,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Das.essentielle.Handbuch.September.2026.GERMAN.HYBRID.MAGAZINE.eBook-LORENZ": {
+   "title": "Linux Das essentielle Handbuch",
+   "language": "german",
+   "year": 2026,
+   "month": 9,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LORENZ",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.For.Beginners.No.20.2024.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux For Beginners",
+   "year": 2024,
+   "issue": 20,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.For.Beginners.No.22.2025.HYBRID.MAGAZINE": {
+   "title": "Linux For Beginners",
+   "year": 2025,
+   "issue": 22,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.293.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Format",
+   "year": 2022,
+   "issue": 293,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.294.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Format",
+   "year": 2022,
+   "issue": 294,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.295.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Format",
+   "year": 2022,
+   "issue": 295,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.297.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 297,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.298.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 298,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.299.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 299,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.300.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 300,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.301.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 301,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.302.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 302,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.303.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 303,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.306.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 306,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.308.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Format",
+   "year": 2023,
+   "issue": 308,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Format.No.311.2024.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Format",
+   "year": 2024,
+   "issue": 311,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Magazin.2017.12.GERMAN.RETAiL.MAGAZiNE.eBOOk-sUppLeX": {
+   "title": "Linux Magazin",
+   "language": "german",
+   "year": 2017,
+   "month": 12,
+   "quality": [
+    "retail"
+   ],
+   "group": "sUppLeX",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Magazine.No.261.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2022,
+   "issue": 261,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.262.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2022,
+   "issue": 262,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.263.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2022,
+   "issue": 263,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.264.2022.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2022,
+   "issue": 264,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.266.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 266,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.267.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 267,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.268.2023.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 268,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.274.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 274,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.275.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 275,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.277.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "issue": 277,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.278.2024.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Magazine",
+   "year": 2024,
+   "issue": 278,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.279.2024.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2024,
+   "issue": 279,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.297.2025.HYBRID.MAGAZINE": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 297,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.298.2025.HYBRID.MAGAZINE": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "issue": 298,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.306.2026.HYBRID.MAGAZINE": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 306,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.306.2026.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 306,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.No.308.2026.HYBRiD.MAGAZiNE": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "issue": 308,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.Special.Cool.Linux.Hacks.2025.Edition.2025.HYBRID.MAGAZINE": {
+   "title": "Linux Magazine",
+   "year": 2025,
+   "special": true,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Linux.Magazine.Special.Edition.Getting.Started.With.Linux.2023.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "special": true,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Linux.Magazine.Special.Editions-17.October.2022": {
+   "title": "Linux Magazine",
+   "year": 2022,
+   "month": 10,
+   "day": 17,
+   "special": true,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.Special.Editions-30.June.2023": {
+   "title": "Linux Magazine",
+   "year": 2023,
+   "month": 6,
+   "day": 30,
+   "special": true,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-April.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-August.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-December.2022": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2022,
+   "month": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-February.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-May.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-November.2022": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2022,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-November.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-October.2022": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2022,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA-September.2022": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2022,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.261-August.2022": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2022,
+   "month": 8,
+   "issue": 261,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.268-March.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 3,
+   "issue": 268,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.272-July.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 7,
+   "issue": 272,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.274-September.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 9,
+   "issue": 274,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.275-October.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 10,
+   "issue": 275,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.Magazine.USA.Issue.276-November.2023": {
+   "title": "Linux Magazine",
+   "region": "USA",
+   "year": 2023,
+   "month": 11,
+   "issue": 276,
+   "confidence": "high",
+   "match": true
+  },
+  "Linux.New.Media-LibreOffice.Expert.2023-2024.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Linux New Media-LibreOffice Expert",
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "conflicting years 2023, 2024",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Linux.Pro.No.235.2026.iTALiAN.HYBRiD.MAGAZiNE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 235,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.236.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 236,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.237.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 237,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.238.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 238,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 239,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 239,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.User.2017.12.GERMAN.RETAiL.MAGAZiNE.eBOOk-sUppLeX": {
+   "title": "Linux User",
+   "language": "german",
+   "year": 2017,
+   "month": 12,
+   "quality": [
+    "retail"
+   ],
+   "group": "sUppLeX",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Voice.The.Best.Of.2026.Edition.2026.HYBRID.MAGAZINE": {
+   "title": "Linux Voice The Best Of",
+   "year": 2026,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Linux.Welt.2017.10.und.11.GERMAN.RETAiL.MAGAZiNE.eBOOk-sUppLeX": {
+   "title": "Linux Welt",
+   "language": "german",
+   "year": 2017,
+   "month": 10,
+   "quality": [
+    "retail"
+   ],
+   "group": "sUppLeX",
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 11"
+   ],
+   "match": false
+  },
+  "Linux_Magazine_-_March_2026": {
+   "title": "Linux Magazine",
+   "year": 2026,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.01.2022.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Coding And Programming The Complete Manual",
+   "year": 2022,
+   "volume": 1,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.02.2022.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Coding And Programming The Complete Manual",
+   "year": 2022,
+   "volume": 2,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Papercut.Limited-Linux.Coding.Tricks.And.Tips.Fifteenth.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Coding Tricks And Tips Fifteenth Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Papercut.Limited-Linux.For.Beginners.Fifteenth.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux For Beginners Fifteenth Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Papercut.Limited-Linux.For.Beginners.Sixteenth.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux For Beginners Sixteenth Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Papercut.Limited-Linux.Tricks.And.Tips.Sixteenth.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Tricks And Tips Sixteenth Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Win.Magazine.Linux.N.2-Linux.Masterclass.Feb-Mar.2025": {
+   "title": "Win Magazine Linux N",
+   "year": 2025,
+   "month": 2,
+   "month_end": 3,
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 2"
+   ],
+   "match": false
+  }
+ },
+ "linux-pro-magazine": {
+  "Linux.Magazin.06.2015.German.Retail.Magazine.PROPER.Ebook-PARADOX": {
+   "title": "Linux Magazin",
+   "language": "german",
+   "year": 2015,
+   "month": 6,
+   "quality": [
+    "retail",
+    "proper"
+   ],
+   "group": "PARADOX",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.235.2026.iTALiAN.HYBRiD.MAGAZiNE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 235,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.236.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 236,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.237.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 237,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.238.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 238,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 239,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.Pro.No.239.2026.iTALiAN.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Linux Pro",
+   "language": "italian",
+   "year": 2026,
+   "issue": 239,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Linux.User.11.2015.German.Retail.Magazine.PROPER.READ": {
+   "title": "Linux User",
+   "language": "german",
+   "year": 2015,
+   "month": 11,
+   "quality": [
+    "retail",
+    "proper"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.01.2022.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Coding And Programming The Complete Manual",
+   "year": 2022,
+   "volume": 1,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Papercut.Limited-Linux.Coding.And.Programming.The.Complete.Manual.Vol.02.2022.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Linux Coding And Programming The Complete Manual",
+   "year": 2022,
+   "volume": 2,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  }
+ },
+ "make": {
+  "- [MAGAZINE] Passage.Maker.TruePDF-September.2016": {
+   "title": "Passage Maker",
+   "year": 2016,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].Passage.Maker.TruePDF-October.2016": {
+   "title": "Passage Maker",
+   "year": 2016,
+   "month": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].Prima.Makes.TruePDF-Issue.13.2016": {
+   "title": "Prima Makes",
+   "year": 2016,
+   "issue": 13,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "0137 - MAGAZINE MAKE Magazine 01-45.par2 - 314 GB usenet-space-cowboys.online": {
+   "title": "MAKE Magazine",
+   "issue": 1,
+   "issue_end": 45,
+   "pack": true,
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "15 - MAGAZINE delicious.UK.Make.It.Everyday.TruePDF-Issue.5.2016.pdf.par2 - 2998 MB usenet-space-cowboys.online": {
+   "title": "delicious Make It Everyday",
+   "region": "UK",
+   "year": 2016,
+   "issue": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[[ MAKE Magazine vol 05 ]] - MAKE Magazine vol 05 - (0005/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 06 ]] - MAKE Magazine vol 06 - (0006/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 07 ]] - MAKE Magazine vol 07 - (0007/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 12 ]] - MAKE Magazine vol 12 - (0012/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 20 ]] - MAKE Magazine vol 20 - (0020/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 20,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 21 ]] - MAKE Magazine vol 21 - (0021/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 21,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 24 ]] - MAKE Magazine vol 24 - (0024/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 24,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 27 ]] - MAKE Magazine vol 27 - (0027/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 27,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 29 ]] - MAKE Magazine vol 29 - (0029/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 29,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 32 ]] - MAKE Magazine vol 32 - (0032/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 32,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE Magazine vol 35 ]] - MAKE Magazine vol 35 - (0035/1027)": {
+   "title": "MAKE Magazine",
+   "volume": 35,
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.31.PDF.English ]] - MAKE.Magazine.Vol.31.PDF.English - (0042/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 31,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.32.PDF.English ]] - MAKE.Magazine.Vol.32.PDF.English - (0043/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 32,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.33.PDF.English ]] - MAKE.Magazine.Vol.33.PDF.English - (0044/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 33,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.34.PDF.English ]] - MAKE.Magazine.Vol.34.PDF.English - (0045/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 34,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.35.PDF.English ]] - MAKE.Magazine.Vol.35.PDF.English - (0046/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 35,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.36.PDF.English ]] - MAKE.Magazine.Vol.36.PDF.English - (0047/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 36,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[[ MAKE.Magazine.Vol.37.PDF.English ]] - MAKE.Magazine.Vol.37.PDF.English - (0048/1027)": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 37,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE) Digital.FilmMaker.TruePDF-Issue.38.2016": {
+   "title": "Digital FilmMaker",
+   "year": 2016,
+   "issue": 38,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE) Digital.FilmMaker.TruePDF-Issue.39.2016": {
+   "title": "Digital FilmMaker",
+   "year": 2016,
+   "issue": 39,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] Selfbuilder.and.Homemaker.TruePDF-July.August.2016": {
+   "title": "Selfbuilder and Homemaker",
+   "year": 2016,
+   "month": 7,
+   "month_end": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] Stylemakers.TruePDF-2016": {
+   "title": "Stylemakers",
+   "year": 2016,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "[MAGAZINE] Stylemakers.TruePDF-2016.pdf": {
+   "title": "Stylemakers",
+   "year": 2016,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "[MAGAZINE].Stylemakers.TruePDF-2016.pdf": {
+   "title": "Stylemakers",
+   "year": 2016,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Australian.Womens.Weekly.Everyday.Cookbook.Collection.Snack.Maker.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Australian Womens Weekly Everyday Cookbook",
+   "year": 2023,
+   "pack": true,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Digital.FilmMaker.Magazine-October.2013.(gnv64)": {
+   "title": "Digital FilmMaker Magazine",
+   "year": 2013,
+   "month": 10,
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 64"
+   ],
+   "match": false
+  },
+  "Electronics.Maker.Magazine-July.2019": {
+   "title": "Electronics Maker Magazine",
+   "year": 2019,
+   "month": 7,
+   "confidence": "high",
+   "match": false
+  },
+  "Electronics.Maker.Magazine-March.2017": {
+   "title": "Electronics Maker Magazine",
+   "year": 2017,
+   "month": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "MAKE Magazine vol 01": {
+   "title": "MAKE Magazine",
+   "volume": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 02": {
+   "title": "MAKE Magazine",
+   "volume": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 03": {
+   "title": "MAKE Magazine",
+   "volume": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 04": {
+   "title": "MAKE Magazine",
+   "volume": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 05": {
+   "title": "MAKE Magazine",
+   "volume": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 06": {
+   "title": "MAKE Magazine",
+   "volume": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 07": {
+   "title": "MAKE Magazine",
+   "volume": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 08": {
+   "title": "MAKE Magazine",
+   "volume": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 09": {
+   "title": "MAKE Magazine",
+   "volume": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 10": {
+   "title": "MAKE Magazine",
+   "volume": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 11": {
+   "title": "MAKE Magazine",
+   "volume": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 12": {
+   "title": "MAKE Magazine",
+   "volume": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 13": {
+   "title": "MAKE Magazine",
+   "volume": 13,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 16": {
+   "title": "MAKE Magazine",
+   "volume": 16,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 17": {
+   "title": "MAKE Magazine",
+   "volume": 17,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 18": {
+   "title": "MAKE Magazine",
+   "volume": 18,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 19": {
+   "title": "MAKE Magazine",
+   "volume": 19,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 20": {
+   "title": "MAKE Magazine",
+   "volume": 20,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 21": {
+   "title": "MAKE Magazine",
+   "volume": 21,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 22": {
+   "title": "MAKE Magazine",
+   "volume": 22,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 23": {
+   "title": "MAKE Magazine",
+   "volume": 23,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 24": {
+   "title": "MAKE Magazine",
+   "volume": 24,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 25": {
+   "title": "MAKE Magazine",
+   "volume": 25,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 26": {
+   "title": "MAKE Magazine",
+   "volume": 26,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 27": {
+   "title": "MAKE Magazine",
+   "volume": 27,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 28": {
+   "title": "MAKE Magazine",
+   "volume": 28,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 29": {
+   "title": "MAKE Magazine",
+   "volume": 29,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 30": {
+   "title": "MAKE Magazine",
+   "volume": 30,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 31": {
+   "title": "MAKE Magazine",
+   "volume": 31,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 32": {
+   "title": "MAKE Magazine",
+   "volume": 32,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 33": {
+   "title": "MAKE Magazine",
+   "volume": 33,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 34": {
+   "title": "MAKE Magazine",
+   "volume": 34,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 35": {
+   "title": "MAKE Magazine",
+   "volume": 35,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 36": {
+   "title": "MAKE Magazine",
+   "volume": 36,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine vol 37": {
+   "title": "MAKE Magazine",
+   "volume": 37,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.01 True PDF English - MAKE Magazine vol 01.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.02 True PDF English - MAKE Magazine vol 02.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.03 True PDF English - MAKE Magazine vol 03.sfv - 36": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.04 True PDF English - MAKE Magazine vol 04.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.05 True PDF English - MAKE Magazine vol 05.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.06 True PDF English - MAKE Magazine vol 06.vol01.par2 - 45": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.07 True PDF English - MAKE Magazine vol 07.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.08 True PDF English - MAKE Magazine vol 08.vol01.par2 - 45": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.09 (True PDF) English - MAKE Magazine vol 09": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.09 True PDF English - MAKE Magazine vol 09.vol34.par2 - 66": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.10 True PDF English - MAKE Magazine vol 10.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.11 True PDF English - MAKE Magazine vol 11.vol01.par2 - 46": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.12 True PDF English - MAKE Magazine vol 12.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.13 True PDF English - MAKE Magazine vol 13.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 13,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.14 True PDF English - MAKE Magazine vol 14.sfv - 34": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 14,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.15 True PDF English - MAKE Magazine vol 15.sfv - 34": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 15,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.16 True PDF English - MAKE Magazine vol 16.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 16,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.17 True PDF English - MAKE Magazine vol 17.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 17,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.18 True PDF English - MAKE Magazine vol 18.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 18,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.19 True PDF English - MAKE Magazine vol 19.par2 - 15": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 19,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.20 True PDF English - MAKE Magazine vol 20.vol32.par2 - 66": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 20,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.21 True PDF English - MAKE Magazine vol 21.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 21,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.22 True PDF English - MAKE Magazine vol 22.vol12.par2 - 56": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 22,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.23 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 23,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.23 True PDF English - MAKE Magazine vol 23.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 23,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.24 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 24,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.24 True PDF English - MAKE Magazine vol 24.sfv - 36": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 24,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.25 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 25,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.25 True PDF English - MAKE Magazine vol 25.sfv - 35": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 25,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.26 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 26,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.26 True PDF English - MAKE Magazine vol 26.rar - 38": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 26,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.27 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 27,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.27 True PDF English - MAKE Magazine vol 27.par2 - 15": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 27,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.28 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 28,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.28 True PDF English - MAKE Magazine vol 28.par2 - 18": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 28,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.29 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 29,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.29 True PDF English - MAKE Magazine vol 29.rar - 38": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 29,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.30 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 30,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.30 PDF English - MAKE.Magazine.Vol.30.PDF.English.rar - 27": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 30,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.30 True PDF English - MAKE Magazine vol 30.vol012.par2 - 57": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 30,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.31 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 31,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.31 PDF English - MAKE.Magazine.Vol.31.PDF.English.rar - 27": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 31,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.31 True PDF English - MAKE Magazine vol 31.par2 - 18": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 31,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.32 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 32,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.32 PDF English - MAKE.Magazine.Vol.32.PDF.English.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 32,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.32 True PDF English - MAKE Magazine vol 32.par2 - 16": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 32,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.33 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 33,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.33 PDF English - MAKE.Magazine.Vol.33.PDF.English.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 33,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.33 True PDF English - MAKE Magazine vol 33.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 33,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.34 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 34,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.34 PDF English - MAKE.Magazine.Vol.34.PDF.English.nfo - 17": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 34,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.34 True PDF English - MAKE Magazine vol 34.rar - 27": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 34,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.35 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 35,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.35 PDF English - MAKE.Magazine.Vol.35.PDF.English.rar - 27": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 35,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.35 True PDF English - MAKE Magazine vol 35.par2 - 17": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 35,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.36 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 36,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.36 True PDF English - MAKE Magazine vol 36.rar - 27": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 36,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.37 (True PDF) English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 37,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE Magazine Vol.37 True PDF English - MAKE Magazine vol 37.rar - 26": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 37,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Make magazine- Volume 33, 2013": {
+   "title": "Make magazine",
+   "year": 2013,
+   "volume": 33,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine": {
+   "title": "MAKE Magazine",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Make.Magazine-August.September.2015": {
+   "title": "Make Magazine",
+   "year": 2015,
+   "month": 8,
+   "month_end": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine-Issue.46.2015": {
+   "title": "MAKE Magazine",
+   "year": 2015,
+   "issue": 46,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine-Vol.47.2015": {
+   "title": "MAKE Magazine",
+   "year": 2015,
+   "volume": 47,
+   "confidence": "high",
+   "match": true
+  },
+  "Make.Magazine-Volume.32.2012": {
+   "title": "Make Magazine",
+   "year": 2012,
+   "volume": 32,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine-Volume35.2013": {
+   "title": "MAKE Magazine",
+   "year": 2013,
+   "volume": 35,
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF": {
+   "title": "MAKE Magazine",
+   "issue": 1,
+   "issue_end": 45,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF - MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF.nfo - 0170": {
+   "title": "MAKE Magazine",
+   "issue": 1,
+   "issue_end": 45,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF - MAKE.Magazine.01-45.Mega.Pack.-.DIY.Projects.and.Ideas.for.Makers.TruePDF.part45.rar - 4770": {
+   "title": "MAKE Magazine",
+   "issue": 1,
+   "issue_end": 45,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "MAKE.Magazine.[01-45].Mega.Pack-DIY.Projects.and.Ideas.for.Makers.[TruePDF]": {
+   "title": "MAKE Magazine",
+   "issue": 1,
+   "issue_end": 45,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "MAKE.Magazine.Complete.eBook.Collection.Volumes.01-37.2005-2014.True.PDF.English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 1,
+   "volume_end": 37,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "conflicting years 2005, 2014",
+    "multi-issue pack"
+   ],
+   "match": true
+  },
+  "Make.Magazine.TruePDF-April.May.2015": {
+   "title": "Make Magazine",
+   "year": 2015,
+   "month": 4,
+   "month_end": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Make.Magazine.TruePDF-June.July.2015": {
+   "title": "Make Magazine",
+   "year": 2015,
+   "month": 6,
+   "month_end": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "MAKE.Magazine.Vol.30.PDF.English": {
+   "title": "MAKE Magazine",
+   "language": "english",
+   "volume": 30,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Make.Magazine.Vol.41.September.2014.RETAiL.eBOOk-NEWSPAPER": {
+   "title": "Make Magazine",
+   "year": 2014,
+   "month": 9,
+   "volume": 41,
+   "quality": [
+    "retail"
+   ],
+   "group": "NEWSPAPER",
+   "confidence": "high",
+   "match": true
+  },
+  "Make.No.98.2026.RETAIL.MAGAZINE.eBook-21A1": {
+   "title": "Make",
+   "year": 2026,
+   "issue": 98,
+   "quality": [
+    "retail"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Make.Your.Own.PC.For.Beginners.No.22.2025.HYBRID.MAGAZINE": {
+   "title": "Make Your Own PC For Beginners",
+   "year": 2025,
+   "issue": 22,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Make.Your.Own.PC.Tricks.And.Tips.No.23.2026.HYBRID.MAGAZINE": {
+   "title": "Make Your Own PC Tricks And Tips",
+   "year": 2026,
+   "issue": 23,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Make.Your.Own.PC.Tricks.And.Tips.No.23.2026.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Make Your Own PC Tricks And Tips",
+   "year": 2026,
+   "issue": 23,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "MAKE_Magazine_-_Vol": {
+   "title": "MAKE Magazine",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "MakerSpace.No.06.2026.HYBRID.MAGAZINE": {
+   "title": "MakerSpace",
+   "year": 2026,
+   "issue": 6,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Moviemaker.Magazine.Issue.141.Complete.Guide.to.Making.Movies-Fall.2021": {
+   "title": "Moviemaker Magazine",
+   "year": 2021,
+   "season": "autumn",
+   "issue": 141,
+   "confidence": "high",
+   "match": false
+  },
+  "MovieMaker.Magazine.TruePDF-Fall.2019": {
+   "title": "MovieMaker Magazine",
+   "year": 2019,
+   "season": "autumn",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.480.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 480,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.481.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 481,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.482.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 482,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.483.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 483,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.484.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 484,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.485.2021.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2021,
+   "issue": 485,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Musicmaker.No.486.2022.DUTCH.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Musicmaker",
+   "language": "dutch",
+   "year": 2022,
+   "issue": 486,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": false
+  },
+  "Papercut.Limited-Make.Your.Own.PC.For.Beginners.Fifteenth.Edition.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Papercut Limited-Make Your Own PC For Beginners Fifteenth Edition",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Passagemaker.October.2026.RETAIL.MAGAZINE": {
+   "title": "Passagemaker",
+   "year": 2026,
+   "month": 10,
+   "quality": [
+    "retail"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Selfbuilder and Homemaker - Full Year 2016 Issues Collection Magazine True PDF-NG": {
+   "title": "Selfbuilder and Homemaker",
+   "year": 2016,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "multi-issue pack",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Selfbuilder.&amp;.homemaker-full.year.2016.issues.collection.magazine.true.pdf-ng16-0102": {
+   "title": "Selfbuilder & homemaker",
+   "year": 2016,
+   "pack": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 16 0102",
+    "multi-issue pack",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "WineMaker.April-May.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2023,
+   "month": 4,
+   "month_end": 5,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.April-May.2026.HYBRID.MAGAZINE": {
+   "title": "WineMaker",
+   "year": 2026,
+   "month": 4,
+   "month_end": 5,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.August-September.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2023,
+   "month": 8,
+   "month_end": 9,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.August-September.2025.HYBRID.MAGAZINE": {
+   "title": "WineMaker",
+   "year": 2025,
+   "month": 8,
+   "month_end": 9,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.December-January.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2023,
+   "month": 12,
+   "month_end": 1,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.February-March.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2023,
+   "month": 2,
+   "month_end": 3,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.February-March.2024.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2024,
+   "month": 2,
+   "month_end": 3,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.February-March.2026.HYBRID.MAGAZINE": {
+   "title": "WineMaker",
+   "year": 2026,
+   "month": 2,
+   "month_end": 3,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "WineMaker.June-July.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "WineMaker",
+   "year": 2023,
+   "month": 6,
+   "month_end": 7,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": false
+  },
+  "Woodworking - MAKE.Magazine.Vol.30.PDF.English.rar - 167178": {
+   "title": "Woodworking - MAKE Magazine",
+   "language": "english",
+   "volume": 30,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  }
+ },
+ "people": {
+  "- [MAGAZINE].People.Australia-12.September.2016": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2016,
+   "month": 9,
+   "day": 12,
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].People.Australia.TruePDF-12.September.2016": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2016,
+   "month": 9,
+   "day": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].People.South.Africa-16.September.2016": {
+   "title": "People",
+   "region": "South Africa",
+   "year": 2016,
+   "month": 9,
+   "day": 16,
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].People.South.Africa.TruePDF-16.September.2016": {
+   "title": "People",
+   "region": "South Africa",
+   "year": 2016,
+   "month": 9,
+   "day": 16,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].People.USA-12.September.2016": {
+   "title": "People",
+   "region": "USA",
+   "year": 2016,
+   "month": 9,
+   "day": 12,
+   "confidence": "high",
+   "match": true
+  },
+  "- [MAGAZINE].People.USA.TruePDF-12.September.2016": {
+   "title": "People",
+   "region": "USA",
+   "year": 2016,
+   "month": 9,
+   "day": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "- [MAGAZINE].People.USA.TruePDF-19.September.2016": {
+   "title": "People",
+   "region": "USA",
+   "year": 2016,
+   "month": 9,
+   "day": 19,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "- [MAGAZINE].People.USA.Wellness.Special.TruePDF-2016": {
+   "title": "People Wellness",
+   "region": "USA",
+   "year": 2016,
+   "special": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "- [MAGAZINE].Real.People.TruePDF-15.September.2016": {
+   "title": "Real People",
+   "year": 2016,
+   "month": 9,
+   "day": 15,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "- [MAGAZINE].The.Peoples.Friend.TruePDF-10.September.2016": {
+   "title": "The Peoples Friend",
+   "year": 2016,
+   "month": 9,
+   "day": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[Gossip Magazine package for 07 Jun 2021 - Supplemental] [2 of 9] \"People - Vol. 95 No. 23 [07 Jun 2021] (TruePDF).pdf\" yEnc": {
+   "title": "People",
+   "year": 2021,
+   "month": 6,
+   "day": 7,
+   "issue": 23,
+   "volume": 95,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[Gossip Magazine package for 14 Jun 2021] [14 of 29] \"People - Vol. 95 No. 24 [14 Jun 2021] (TruePDF).pdf\" yEnc": {
+   "title": "People",
+   "year": 2021,
+   "month": 6,
+   "day": 14,
+   "issue": 24,
+   "volume": 95,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[Gossip Magazine package for 18 Dec 2023] [23 of 48] \"People - Vol. 99 No. 51 [18 Dec 2023] (TruePDF).jpg\" yEnc": {
+   "title": "People",
+   "year": 2023,
+   "month": 12,
+   "day": 18,
+   "issue": 51,
+   "volume": 99,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] People.Australia-15.August.2016": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2016,
+   "month": 8,
+   "day": 15,
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] People.Australia.TruePDF-15.August.2016": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2016,
+   "month": 8,
+   "day": 15,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] People.Magazine.South.Africa.TruePDF-19.August.2016": {
+   "title": "People Magazine",
+   "region": "South Africa",
+   "year": 2016,
+   "month": 8,
+   "day": 19,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] People.Matters.TruePDF-August.2016": {
+   "title": "People Matters",
+   "year": 2016,
+   "month": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] People.South.Africa.TruePDF-26.August.2016": {
+   "title": "People",
+   "region": "South Africa",
+   "year": 2016,
+   "month": 8,
+   "day": 26,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] People.USA.TruePDF-22.August.2016": {
+   "title": "People",
+   "region": "USA",
+   "year": 2016,
+   "month": 8,
+   "day": 22,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "[MAGAZINE] The.Peoples.Friend.TruePDF-13.August.2016": {
+   "title": "The Peoples Friend",
+   "year": 2016,
+   "month": 8,
+   "day": 13,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] The.Peoples.Friend.TruePDF-24.September.2016": {
+   "title": "The Peoples Friend",
+   "year": 2016,
+   "month": 9,
+   "day": 24,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[MAGAZINE] The.Peoples.Friend.TruePDF-8.October.2016": {
+   "title": "The Peoples Friend",
+   "year": 2016,
+   "month": 10,
+   "day": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[People South Africa - Vol. 33 No. 51 & 52 [27 Dec 2019]] [2 of 8] \"People South Africa - Vol. 33 No. 51 & 52 [27 Dec 2019].pdf\" yEnc": {
+   "title": "People",
+   "region": "South Africa",
+   "year": 2019,
+   "month": 12,
+   "day": 27,
+   "issue": 51,
+   "issue_end": 52,
+   "volume": 33,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "[People.Magazine.South.Africa-7.June.2013] - People.Magazine.South.Africa-7.June.2013": {
+   "title": "People Magazine",
+   "region": "South Africa",
+   "year": 2013,
+   "month": 6,
+   "day": 7,
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 7"
+   ],
+   "match": false
+  },
+  "Country.Music.People-September.2023": {
+   "title": "Country Music People",
+   "year": 2023,
+   "month": 9,
+   "confidence": "high",
+   "match": false
+  },
+  "Diana.The.Peoples.Princess-August.2023": {
+   "title": "Diana The Peoples Princess",
+   "year": 2023,
+   "month": 8,
+   "confidence": "high",
+   "match": false
+  },
+  "Dotdash.Meridith-People.Friends.Friends.Forever.Laughs.Tears.And.The.Inside.Story.A.Matthew.Perry.Tribute.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Dotdash Meridith-People Friends Friends Forever Laughs Tears And The Inside Story A Matthew Perry Tribute",
+   "year": 2023,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Horses.and.People.TruePDF-July.August.2019": {
+   "title": "Horses and People",
+   "year": 2019,
+   "month": 7,
+   "month_end": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People - Vol. 91 No. 22 27 May 2019 1 of 9 People - Vol. 91 No. 22 27 May 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 5,
+   "day": 27,
+   "issue": 22,
+   "volume": 91,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 91 No. 23 03 Jun 2019 1 of 10 People - Vol. 91 No. 23 03 Jun 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 6,
+   "day": 3,
+   "issue": 23,
+   "volume": 91,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 91 No. 25 17 Jun 2019 1 of 10 People - Vol. 91 No. 25 17 Jun 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 6,
+   "day": 17,
+   "issue": 25,
+   "volume": 91,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 91 No. 26 24 Jun 2019 1 of 9 People - Vol. 91 No. 26 24 Jun 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 6,
+   "day": 24,
+   "issue": 26,
+   "volume": 91,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 92 No. 01 01 Jul 2019 1 of 9 People - Vol. 92 No. 01 01 Jul 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 7,
+   "day": 1,
+   "issue": 1,
+   "volume": 92,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 92 No. 02 08 Jul 2019 1 of 8 People - Vol. 92 No. 02 08 Jul 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 7,
+   "day": 8,
+   "issue": 2,
+   "volume": 92,
+   "confidence": "high",
+   "match": true
+  },
+  "People - Vol. 92 No. 05 29 Jul 2019 1 of 8 People - Vol. 92 No. 05 29 Jul 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "month": 7,
+   "day": 29,
+   "issue": 5,
+   "volume": 92,
+   "confidence": "high",
+   "match": true
+  },
+  "People Bookazines - Farrah Special 2019 1 of 8 People Bookazines - Farrah Special 2019.jpg": {
+   "title": "People",
+   "year": 2019,
+   "special": true,
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People USA 02 10 2025": {
+   "title": "People",
+   "region": "USA",
+   "year": 2025,
+   "confidence": "low",
+   "reasons": [
+    "ambiguous numeric date '02 10 2025'",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People-Taylor.Swift.Special.Edition.[2023]": {
+   "title": "People-Taylor Swift",
+   "year": 2023,
+   "special": true,
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.and.Management.TruePDF-22.December.2017": {
+   "title": "People and Management",
+   "year": 2017,
+   "month": 12,
+   "day": 22,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.September.26.TruePDF-10": {
+   "title": "People",
+   "region": "Australia",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "month without year 'September'",
+    "unrecognized numbers 26 10",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Australia.TruePDF-01.January.2018": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2018,
+   "month": 1,
+   "day": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-01.November.2017": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2017,
+   "month": 11,
+   "day": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-08.April.2019": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2019,
+   "month": 4,
+   "day": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-08.January.2018": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2018,
+   "month": 1,
+   "day": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-12": {
+   "title": "People",
+   "region": "Australia",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 12",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Australia.TruePDF-15": {
+   "title": "People",
+   "region": "Australia",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 15",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Australia.TruePDF-20.November.2017": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2017,
+   "month": 11,
+   "day": 20,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-22.April.2019": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2019,
+   "month": 4,
+   "day": 22,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-25.March.2019": {
+   "title": "People",
+   "region": "Australia",
+   "year": 2019,
+   "month": 3,
+   "day": 25,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Australia.TruePDF-26": {
+   "title": "People",
+   "region": "Australia",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 26",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Australia.TruePDF-29": {
+   "title": "People",
+   "region": "Australia",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 29",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "PEOPLE.Barbie-June.2023": {
+   "title": "PEOPLE Barbie",
+   "year": 2023,
+   "month": 6,
+   "confidence": "high",
+   "match": false
+  },
+  "People.Bookazines.TruePDF-March.2019": {
+   "title": "People",
+   "year": 2019,
+   "month": 3,
+   "special": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.en.Espaol.TruePDF-December.2017": {
+   "title": "People en Espaol",
+   "year": 2017,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.en.Espaol.TruePDF-June.2019": {
+   "title": "People en Espaol",
+   "year": 2019,
+   "month": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Magazine.South.Africa.TruePDF-16.August.2013": {
+   "title": "People Magazine",
+   "region": "South Africa",
+   "year": 2013,
+   "month": 8,
+   "day": 16,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Magazine.South.Africa.TruePDF-19": {
+   "title": "People Magazine",
+   "region": "South Africa",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 19",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Magazine.South.Africa.TruePDF-20.September.2013": {
+   "title": "People Magazine",
+   "region": "South Africa",
+   "year": 2013,
+   "month": 9,
+   "day": 20,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.Matters.TruePDF-August": {
+   "title": "People Matters",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "month without year 'August'",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.South.Africa.TruePDF-16": {
+   "title": "People",
+   "region": "South Africa",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 16",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.South.Africa.TruePDF-2": {
+   "title": "People",
+   "region": "South Africa",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 2",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.South.Africa.TruePDF-26": {
+   "title": "People",
+   "region": "South Africa",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 26",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.South.Africa.TruePDF-30": {
+   "title": "People",
+   "region": "South Africa",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 30",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "People.Special.Edition-07.July.2023": {
+   "title": "People",
+   "year": 2023,
+   "month": 7,
+   "day": 7,
+   "special": true,
+   "confidence": "high",
+   "match": true
+  },
+  "People.Special.Edition.39.80s.Trivia.Quiz-29.September.2023": {
+   "title": "People",
+   "year": 2023,
+   "month": 9,
+   "day": 29,
+   "special": true,
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 39 80"
+   ],
+   "match": true
+  },
+  "People.Special.Edition.3F.Yearbook.2023.[2024]": {
+   "title": "People",
+   "special": true,
+   "confidence": "low",
+   "reasons": [
+    "conflicting years 2023, 2024",
+    "unrecognized numbers 3",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.Specials-Yearbook.2023.[2023]": {
+   "title": "People",
+   "year": 2023,
+   "special": true,
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.StyleWatch.TruePDF-December.2014": {
+   "title": "People StyleWatch",
+   "year": 2014,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.StyleWatch.TruePDF-September.2014": {
+   "title": "People StyleWatch",
+   "year": 2014,
+   "month": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "People.USA-10.July.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 7,
+   "day": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-11.September.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 9,
+   "day": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-14.August.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 8,
+   "day": 14,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-16.October.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 10,
+   "day": 16,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-17.July.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 7,
+   "day": 17,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-2.October.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 10,
+   "day": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-21.August.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 8,
+   "day": 21,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-24.July.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 7,
+   "day": 24,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-28.August.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 8,
+   "day": 28,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-30.October.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 10,
+   "day": 30,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA-9.October.2023": {
+   "title": "People",
+   "region": "USA",
+   "year": 2023,
+   "month": 10,
+   "day": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-01.January.2018": {
+   "title": "People",
+   "region": "USA",
+   "year": 2018,
+   "month": 1,
+   "day": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-01.November.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 11,
+   "day": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-03.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-04.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-06.May.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 5,
+   "day": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-06.November.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 11,
+   "day": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-08.April.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 4,
+   "day": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-08.January.2018": {
+   "title": "People",
+   "region": "USA",
+   "year": 2018,
+   "month": 1,
+   "day": 8,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-1.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-10.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-11.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-12": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 12",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-13.May.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 5,
+   "day": 13,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-13.November.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 11,
+   "day": 13,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-15.January.2018": {
+   "title": "People",
+   "region": "USA",
+   "year": 2018,
+   "month": 1,
+   "day": 15,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-18.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 18,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-19": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 19",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-22": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 22",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-22.April.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 4,
+   "day": 22,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-25.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 25,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-26": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 26",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-27.November.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 11,
+   "day": 27,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-29": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 29",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-29.April.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 4,
+   "day": 29,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-3": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 3",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-3.December.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 12,
+   "day": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-5": {
+   "title": "People",
+   "region": "USA",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 5",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "People.USA.TruePDF-6.May.2019": {
+   "title": "People",
+   "region": "USA",
+   "year": 2019,
+   "month": 5,
+   "day": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.TruePDF-6.November.2017": {
+   "title": "People",
+   "region": "USA",
+   "year": 2017,
+   "month": 11,
+   "day": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "People.USA.Wellness.Special.TruePDF-2016": {
+   "title": "People Wellness",
+   "region": "USA",
+   "year": 2016,
+   "special": true,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "POPCORN - Das Teen People Magazin No 03-2014": {
+   "title": "POPCORN - Das Teen People Magazin",
+   "year": 2014,
+   "issue": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "POPCORN-Das.Teen.People.Magazin.No.03-2014": {
+   "title": "POPCORN-Das Teen People Magazin",
+   "year": 2014,
+   "issue": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "Real People - Issue 22 06 Jun 2019 1 of 7 Real People - Issue 22 06 Jun 2019.jpg": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 6,
+   "day": 6,
+   "issue": 22,
+   "confidence": "high",
+   "match": false
+  },
+  "Real People - Issue 23 13 Jun 2019 1 of 7 Real People - Issue 23 13 Jun 2019.jpg": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 6,
+   "day": 13,
+   "issue": 23,
+   "confidence": "high",
+   "match": false
+  },
+  "Real People - Issue 24 20 Jun 2019 1 of 7 Real People - Issue 24 20 Jun 2019.jpg": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 6,
+   "day": 20,
+   "issue": 24,
+   "confidence": "high",
+   "match": false
+  },
+  "Real People - Issue 26 04 Jul 2019 1 of 7 Real People - Issue 26 04 Jul 2019.jpg": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 7,
+   "day": 4,
+   "issue": 26,
+   "confidence": "high",
+   "match": false
+  },
+  "Real People - Issue 27 11 Jul 2109 1 of 7 Real People - Issue 27 11 Jul 2109.jpg": {
+   "title": "Real People",
+   "issue": 27,
+   "confidence": "low",
+   "reasons": [
+    "month without year 'Jul'",
+    "unrecognized numbers 11 2109"
+   ],
+   "match": false
+  },
+  "Real People - Number 29 25 Jul 2019 1 of 7 Real People - Number 29 25 Jul 2019.jpg": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 7,
+   "day": 25,
+   "issue": 29,
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-02.May.2019": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 5,
+   "day": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-03.January.2018": {
+   "title": "Real People",
+   "year": 2018,
+   "month": 1,
+   "day": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-04.April.2019": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 4,
+   "day": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-05.January.2018": {
+   "title": "Real People",
+   "year": 2018,
+   "month": 1,
+   "day": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-07.December.2017": {
+   "title": "Real People",
+   "year": 2017,
+   "month": 12,
+   "day": 7,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-09.November.2017": {
+   "title": "Real People",
+   "year": 2017,
+   "month": 11,
+   "day": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-15": {
+   "title": "Real People",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 15",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Real.People.TruePDF-18.December.2014": {
+   "title": "Real People",
+   "year": 2014,
+   "month": 12,
+   "day": 18,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-23.November.2017": {
+   "title": "Real People",
+   "year": 2017,
+   "month": 11,
+   "day": 23,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-25.April.2019": {
+   "title": "Real People",
+   "year": 2019,
+   "month": 4,
+   "day": 25,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-29.August.2013": {
+   "title": "Real People",
+   "year": 2013,
+   "month": 8,
+   "day": 29,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": false
+  },
+  "Real.People.TruePDF-8": {
+   "title": "Real People",
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 8",
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "Sunday.People.[2023.07.09]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 7,
+   "day": 9,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.07.16]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 7,
+   "day": 16,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.07.23]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 7,
+   "day": 23,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.07.30]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 7,
+   "day": 30,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.08.13]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 8,
+   "day": 13,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.08.27]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 8,
+   "day": 27,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.09.03]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 9,
+   "day": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.09.10]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 9,
+   "day": 10,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.10.01]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 10,
+   "day": 1,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.10.08]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 10,
+   "day": 8,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.10.15]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 10,
+   "day": 15,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.10.29]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 10,
+   "day": 29,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.11.05]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 11,
+   "day": 5,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.11.12]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 11,
+   "day": 12,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.11.19]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 11,
+   "day": 19,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.11.26]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 11,
+   "day": 26,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.12.03]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 12,
+   "day": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.12.10]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 12,
+   "day": 10,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.12.17]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 12,
+   "day": 17,
+   "confidence": "high",
+   "match": false
+  },
+  "Sunday.People.[2023.12.24]": {
+   "title": "Sunday People",
+   "year": 2023,
+   "month": 12,
+   "day": 24,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.2010.01.10.Retail.Ebook-PDFWriters": {
+   "title": "The People",
+   "year": 2010,
+   "month": 1,
+   "day": 10,
+   "quality": [
+    "retail"
+   ],
+   "group": "PDFWriters",
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend-16.September.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 16,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend-21.October.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 10,
+   "day": 21,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend-23.September.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 23,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend-7.October.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 10,
+   "day": 7,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend.Issue.7994-9.September.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 9,
+   "issue": 7994,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend.Issue.7997-30.September.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 30,
+   "issue": 7997,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend.Issue.7999-14.October.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 10,
+   "day": 14,
+   "issue": 7999,
+   "confidence": "high",
+   "match": false
+  },
+  "The.People.s.Friend.Special.Issue.249-30.September.2023": {
+   "title": "The People s Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 30,
+   "issue": 249,
+   "special": true,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-03.July.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 7,
+   "day": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-10.July.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 7,
+   "day": 10,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-12.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 12,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-17.July.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 7,
+   "day": 17,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-2.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 2,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-24.July.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 7,
+   "day": 24,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-26.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 26,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-28.October.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 10,
+   "day": 28,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-30.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 30,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-31.July.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 7,
+   "day": 31,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend-9.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 9,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Issue.7991-19.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 19,
+   "issue": 7991,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-06.July.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 7,
+   "day": 6,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-12.October.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 10,
+   "day": 12,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-14.September.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 9,
+   "day": 14,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-17.August.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 8,
+   "day": 17,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-20.July.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 7,
+   "day": 20,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-28.September.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 9,
+   "day": 28,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-3.August.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 8,
+   "day": 3,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Pocket.Novel-31.August.2023": {
+   "title": "The Peoples Friend Pocket Novel",
+   "year": 2023,
+   "month": 8,
+   "day": 31,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Special-30.June.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 6,
+   "day": 30,
+   "special": true,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Special.Issue.247-16.August.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 8,
+   "day": 16,
+   "issue": 247,
+   "special": true,
+   "confidence": "high",
+   "match": false
+  },
+  "The.Peoples.Friend.Special.Issue.248-9.September.2023": {
+   "title": "The Peoples Friend",
+   "year": 2023,
+   "month": 9,
+   "day": 9,
+   "issue": 248,
+   "special": true,
+   "confidence": "high",
+   "match": false
+  },
+  "TIME.Magazine.USA.Special.Edition.People.We.Lost.2025.2025.HYBRID.MAGAZINE": {
+   "title": "TIME Magazine",
+   "region": "USA",
+   "year": 2025,
+   "special": true,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  },
+  "TIME.Magazine.USA.Special.Edition.Pope.Francis.The.Peoples.Pope.2025.HYBRID.MAGAZINE": {
+   "title": "TIME Magazine",
+   "region": "USA",
+   "year": 2025,
+   "special": true,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "no issue identity"
+   ],
+   "match": false
+  }
+ },
+ "tabletop-gaming": {
+  "Tabletop.Gaming-25.November.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 11,
+   "day": 25,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-26.November.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 11,
+   "day": 26,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-April.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-April.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 4,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-August.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 8,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-February.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-February.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 2,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-January.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-January.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 1,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-July.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-July.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 7,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-June.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 6,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-March.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-March.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 3,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-May.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-May.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 5,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-November.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 11,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-October.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-October.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 10,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-September.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming-September.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 9,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.08.09.TruePDF-2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "low",
+   "reasons": [
+    "unrecognized numbers 08 09",
+    "no issue identity"
+   ],
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.10.TruePDF-June.July.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 6,
+   "month_end": 7,
+   "issue": 10,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.11.TruePDF-August.September.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 8,
+   "month_end": 9,
+   "issue": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.2.TruePDF-Autumn.2015": {
+   "title": "Tabletop Gaming",
+   "year": 2015,
+   "season": "autumn",
+   "issue": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.3.TruePDF-Winter.2015": {
+   "title": "Tabletop Gaming",
+   "year": 2015,
+   "season": "winter",
+   "issue": 3,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.4.TruePDF-Spring.2016": {
+   "title": "Tabletop Gaming",
+   "year": 2016,
+   "season": "spring",
+   "issue": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.5.TruePDF-Summer.2016": {
+   "title": "Tabletop Gaming",
+   "year": 2016,
+   "season": "summer",
+   "issue": 5,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.51-February.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 2,
+   "issue": 51,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.57-August.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 8,
+   "issue": 57,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.58-September.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 9,
+   "issue": 58,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.6.TruePDF-Autumn.2016": {
+   "title": "Tabletop Gaming",
+   "year": 2016,
+   "season": "autumn",
+   "issue": 6,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.60-November.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 11,
+   "issue": 60,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.61-December.2021": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "month": 12,
+   "issue": 61,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.62-January.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 1,
+   "issue": 62,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.63-February.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 2,
+   "issue": 63,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.64-March.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 3,
+   "issue": 64,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.65-April.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 4,
+   "issue": 65,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.68-July.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 7,
+   "issue": 68,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.70-September.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 9,
+   "issue": 70,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.71-October.2022": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "month": 10,
+   "issue": 71,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.81-August.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 8,
+   "issue": 81,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.82-September.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 9,
+   "issue": 82,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.83-October.2023": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "month": 10,
+   "issue": 83,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.87.2024-02": {
+   "title": "Tabletop Gaming",
+   "year": 2024,
+   "month": 2,
+   "issue": 87,
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.Issue.9.TruePDF-April.May.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 4,
+   "month_end": 5,
+   "issue": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.104.2025.HYBRID.MAGAZINE": {
+   "title": "Tabletop Gaming",
+   "year": 2025,
+   "issue": 104,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.105.2025.HYBRID.MAGAZINE": {
+   "title": "Tabletop Gaming",
+   "year": 2025,
+   "issue": 105,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.106.2025.HYBRID.MAGAZINE": {
+   "title": "Tabletop Gaming",
+   "year": 2025,
+   "issue": 106,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.114.2026.HYBRID.MAGAZINE": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 114,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.114.2026.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 114,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.115.2026.HYBRiD.MAGAZiNE": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 115,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.115.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 115,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.116.2026.HYBRID.MAGAZINE": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 116,
+   "quality": [
+    "hybrid"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.116.2026.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 116,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.117.2026.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 117,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.118.2026.RETAIL.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 118,
+   "quality": [
+    "retail"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.119.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2026,
+   "issue": 119,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.52.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "issue": 52,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.54.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "issue": 54,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.55.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "issue": 55,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.56.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "issue": 56,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.57.2021.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2021,
+   "issue": 57,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.74.2022.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2022,
+   "issue": 74,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.75.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 75,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.76.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 76,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.77.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 77,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.82.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 82,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.84.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 84,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.85.2023.HYBRID.MAGAZINE.eBook-21A1": {
+   "title": "Tabletop Gaming",
+   "year": 2023,
+   "issue": 85,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "21A1",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.No.99.2025.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE": {
+   "title": "Tabletop Gaming",
+   "year": 2025,
+   "issue": 99,
+   "quality": [
+    "hybrid"
+   ],
+   "group": "LiBRiCiDE",
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-April.2019": {
+   "title": "Tabletop Gaming",
+   "year": 2019,
+   "month": 4,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-August.September.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 8,
+   "month_end": 9,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-December.2016": {
+   "title": "Tabletop Gaming",
+   "year": 2016,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-December.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 12,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-Issue.1.2015": {
+   "title": "Tabletop Gaming",
+   "year": 2015,
+   "issue": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-Issue.2.2015": {
+   "title": "Tabletop Gaming",
+   "year": 2015,
+   "issue": 2,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-January.2018": {
+   "title": "Tabletop Gaming",
+   "year": 2018,
+   "month": 1,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  },
+  "Tabletop.Gaming.TruePDF-October.November.2017": {
+   "title": "Tabletop Gaming",
+   "year": 2017,
+   "month": 10,
+   "month_end": 11,
+   "true_pdf": true,
+   "formats": [
+    "pdf"
+   ],
+   "confidence": "high",
+   "match": true
+  }
+ }
+}

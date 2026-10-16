@@ -47,3 +47,6 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "PTH"]
+
+[tool.ruff.lint.isort]
+known-local-folder = ["dev_magazines", "snapshot"]
