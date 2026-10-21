@@ -13,7 +13,7 @@ from datetime import date, datetime, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from periodicool.matching import match_title
+from periodicool.matching import TitleIndex, match_title
 from periodicool.models import (
     FormatProfile,
     Frequency,
@@ -76,10 +76,18 @@ def format_rank(fmt: str | None, true_pdf: bool, profile: FormatProfile | None) 
     return [rank, 0 if (prefer_true and true_pdf) else 1]
 
 
-def _rank(parsed: ParsedRelease, mag: Magazine, size, published: datetime | None) -> list:
+def _rank(
+    parsed: ParsedRelease, mag: Magazine, size, published: datetime | None, agreements: int = 0
+) -> list:
+    """Lower is better: format, then agreeing clues, then newest, then largest."""
     fmt = parsed.formats[0] if parsed.formats else None
     stamp = published.timestamp() if published else 0
-    return [*format_rank(fmt, parsed.true_pdf, mag.format_profile), -stamp, -(size or 0)]
+    return [
+        *format_rank(fmt, parsed.true_pdf, mag.format_profile),
+        -agreements,
+        -stamp,
+        -(size or 0),
+    ]
 
 
 def _in_monitored_range(mag: Magazine, cover: date | None, published, today: date) -> str | None:
@@ -143,7 +151,7 @@ def evaluate(
     if size is not None and size < options.min_size_mb * 1024 * 1024:
         reasons.append(f"size {size / 1048576:.1f} MB is under {options.min_size_mb} MB")
 
-    parsed = parse_release(title)
+    parsed = parse_release(title, TitleIndex.from_magazines(magazines))
     ev = Evaluation(accepted=False, reasons=reasons, parsed=parsed)
     if parsed.pack:
         reasons.append("multi-issue pack (not grabbed automatically)")
@@ -195,8 +203,8 @@ def evaluate(
             reasons.append("no issue key")
         return ev
     ev.issue_key = ident.key
-    ev.notes = list(ident.notes)
-    ev.rank = _rank(parsed, mag, size, published)
+    ev.notes = list(ident.notes) + [f"agrees: {a}" for a in ident.agreements]
+    ev.rank = _rank(parsed, mag, size, published, len(ident.agreements))
 
     if mag.monitored is False:
         reasons.append("magazine is not monitored")

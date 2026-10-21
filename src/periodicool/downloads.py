@@ -36,7 +36,7 @@ from periodicool.library import (
     get_setting,
     walk,
 )
-from periodicool.matching import match_title
+from periodicool.matching import TitleIndex, match_title
 from periodicool.models import (
     ACTIVE_GRAB,
     BlockedRelease,
@@ -510,13 +510,15 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     if mag is None or issue is None:
         return _review(session, g, "magazine or issue no longer exists")
 
+    titles = TitleIndex.from_magazines(session.scalars(select(Magazine)))
+
     def score(f: Path):
-        parsed = parse_release(f.stem)
+        parsed = parse_release(f.stem, titles)
         ext = f.suffix.lower().lstrip(".")
         return [*format_rank(ext, parsed.true_pdf, mag.format_profile), -f.stat().st_size]
 
     best = min(files, key=score)
-    parsed = parse_release(best.stem)
+    parsed = parse_release(best.stem, titles)
     if not parsed.reasons and match_title(parsed, mag.title_spec()).accepted:
         ident = identify(parsed, mag)
         if ident.confident and ident.key != g.issue_key:

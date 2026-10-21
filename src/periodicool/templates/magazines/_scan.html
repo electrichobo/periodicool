@@ -24,7 +24,7 @@
           <td>{{ ui.led("info", "Move") if it.action.value == "move" else ui.led("warn", "Review") }}</td>
           <td class="wrap"><code>{{ it.source_path | relative_to(library) }}</code></td>
           <td class="wrap">{% if it.target_path %}<code>{{ it.target_path }}</code>{% endif %}</td>
-          <td class="wrap">{{ it.reason or "" }}</td>
+          <td class="wrap">{{ it.reason or "" }}{% for a in (it.parsed or {}).get("agreements", []) %}<div class="muted small">Agrees: {{ a }}</div>{% endfor %}</td>
         </tr>
         {% endfor %}
       </tbody>

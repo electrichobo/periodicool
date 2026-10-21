@@ -108,6 +108,8 @@ _SPECIAL = re.compile(
 
 # Dates and numbers, in the order they are tried.
 _SEASON_YEAR = re.compile(rf"\b({_SEASON})[\s\-,]+({_YEAR})\b", _I)
+# Year first, as PeriodiCool names seasonal issues: 2026-Autumn.
+_YEAR_SEASON = re.compile(rf"\b({_YEAR})[\s\-]+({_SEASON})\b", _I)
 _DAY_MONTH_YEAR = re.compile(
     rf"\b(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?[\s\-]+({_MONTH})\b\.?[\s\-,]+({_YEAR})\b", _I
 )
@@ -180,15 +182,20 @@ def _drop_repeated_tail(s: str) -> str:
     return s
 
 
-def clean_name(raw: str) -> tuple[str, tuple[str, ...]]:
-    """Strip post-subject junk. Returns the cleaned name and file formats seen."""
+def clean_name(raw: str, strip_counter: bool = True) -> tuple[str, tuple[str, ...]]:
+    """Strip post-subject junk. Returns the cleaned name and file formats seen.
+
+    With strip_counter=False a leading "07 - " stays, for titles that start with
+    a number ("2600 - The Hacker Quarterly").
+    """
     s = html.unescape(raw).strip()
     if m := _QUOTED.search(s):
         s = m.group(1)
     if m := _DOUBLE_BRACKET.match(s):
         s = m.group(1)
     s = _LEAD_DASH.sub("", s)
-    s = _LEAD_COUNTER.sub("", s)
+    if strip_counter:
+        s = _LEAD_COUNTER.sub("", s)
     s = _LEAD_TAG.sub("", s)
     s = _LEAD_DASH.sub("", s)
     for pattern in (_SIZE_TAIL, _PART_TAIL, _COUNTER_TAIL, _NUMBER_TAIL):
@@ -227,24 +234,52 @@ class _Scanner:
         return found
 
 
-def _split_region(title: str) -> tuple[str, str | None]:
-    """Pull a region phrase out of a title, unless it is the first word."""
+def _split_region(title: str, protect: int = 1) -> tuple[str, str | None]:
+    """Pull a region phrase out of a title, but not from its first `protect` words
+    (the first word, or the whole of a known title)."""
     words = title.split(" ")
     lowered = [w.lower() for w in words]
+    protect = max(protect, 1)
     for phrase, name in sorted(REGIONS.items(), key=lambda kv: -len(kv[0])):
         parts = phrase.split(" ")
-        for i in range(1, len(words) - len(parts) + 1):
+        for i in range(protect, len(words) - len(parts) + 1):
             if lowered[i : i + len(parts)] == parts:
                 return " ".join(words[:i] + words[i + len(parts) :]), name
-    for i in range(1, len(words)):
+    for i in range(protect, len(words)):
         if words[i] == "US":  # case-sensitive: "us" is an English word
             return " ".join(words[:i] + words[i + 1 :]), "USA"
     return title, None
 
 
-def parse_release(raw: str) -> ParsedRelease:
-    text, file_formats = clean_name(raw)
+def _lead_title(raw: str, titles) -> tuple[str, tuple[str, ...], list[tuple[int, int]]]:
+    """Clean the name, keeping a leading number when a tracked title starts with it.
+
+    Returns the text, file formats, and the spans of tracked titles in the text.
+    The first span starts at 0 when the name leads with a tracked title.
+    """
+    if titles is not None:
+        text, formats = clean_name(raw, strip_counter=False)
+        spans = titles.spans(text)
+        if spans and spans[0][0] == 0:
+            return text, formats, spans
+    text, formats = clean_name(raw)
+    spans = titles.spans(text) if titles is not None else []
+    return text, formats, spans
+
+
+def parse_release(raw: str, titles=None) -> ParsedRelease:
+    """Parse a release or file name.
+
+    `titles` (a `matching.TitleIndex`) lets the parser read a tracked title first:
+    its words are never taken as issue numbers, dates or regions, and a title that
+    starts with a number keeps it. The title's end is still found from the rest,
+    so matching stays strict.
+    """
+    text, file_formats, spans = _lead_title(raw, titles)
     sc = _Scanner(text)
+    for start, stop in spans:
+        sc.text = sc.text[:start] + _MASK * (stop - start) + sc.text[stop:]
+    lead_end = spans[0][1] if spans and spans[0][0] == 0 else 0
     found: dict = {}
     formats = list(file_formats)
     reasons: list[str] = []
@@ -265,6 +300,8 @@ def parse_release(raw: str) -> ParsedRelease:
     if m := sc.take(_SEASON_YEAR):
         found["season"] = SEASONS[m.group(1).lower()]
         year = int(m.group(2))
+    elif m := sc.take(_YEAR_SEASON):
+        year, found["season"] = int(m.group(1)), SEASONS[m.group(2).lower()]
     elif m := sc.take(_DAY_MONTH_YEAR):
         found["day"], found["month"] = int(m.group(1)), MONTHS[m.group(2).lower()]
         year = int(m.group(3))
@@ -332,9 +369,11 @@ def parse_release(raw: str) -> ParsedRelease:
         pos = text.find(bracket, 1)
         if pos != -1:
             end = min(end, pos)
+    end = max(end, lead_end)
     title = _EDGE_JUNK.sub("", text[:end])
     title = _EDGE_JUNK.sub("", _DANGLING.sub("", title))
-    title, region = _split_region(re.sub(r"\s+", " ", title))
+    protect = len(text[:lead_end].split()) if lead_end else 1
+    title, region = _split_region(re.sub(r"\s+", " ", title), protect)
 
     leftovers = [m.group(0) for m in _DIGITS.finditer(sc.text) if m.start() >= end]
     if leftovers:

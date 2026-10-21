@@ -24,7 +24,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from periodicool import history
-from periodicool.matching import match_title
+from periodicool.matching import TitleIndex, match_title
 from periodicool.models import (
     FileMove,
     FormatProfile,
@@ -124,8 +124,9 @@ def classify(path: Path, library_root: Path, scan_root: Path, magazines, templat
     ext = path.suffix.lower().lstrip(".")
     first = None
     near: list[str] = []
+    titles = TitleIndex.from_magazines(magazines)
     for name in _candidates(path, scan_root):
-        parsed = parse_release(name)
+        parsed = parse_release(name, titles)
         first = first or parsed
         results = [(m, match_title(parsed, m.title_spec())) for m in magazines]
         matches = [m for m, r in results if r.accepted]
@@ -162,7 +163,11 @@ def _decide(parsed, name, mag, ext, library_root, template) -> Decision:
         d.review(ReasonCode.LOW_CONFIDENCE, "; ".join(parsed.reasons))
         return d
     ident = identify(parsed, mag)
-    summary |= {"fields": _jsonable(ident.fields), "notes": list(ident.notes)}
+    summary |= {
+        "fields": _jsonable(ident.fields),
+        "notes": list(ident.notes),
+        "agreements": list(ident.agreements),
+    }
     if not ident.confident:
         d.review(ReasonCode.UNIDENTIFIED, "; ".join(ident.reasons) or "no issue key")
         return d

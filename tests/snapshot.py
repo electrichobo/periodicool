@@ -3,17 +3,19 @@
 import json
 from pathlib import Path
 
-from periodicool.matching import match_title
+from periodicool.matching import TitleIndex, match_title
 from periodicool.parser import parse_release
 
 from dev_magazines import BY_FIXTURE
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SNAPSHOT_PATH = FIXTURES / "parser_snapshot.json"
+# Parsed as the app does: with every dev magazine's title known.
+TITLES = TitleIndex.from_magazines(BY_FIXTURE.values())
 
 
 def summarize(name: str, slug: str) -> dict:
-    parsed = parse_release(name)
+    parsed = parse_release(name, TITLES)
     fields = {
         k: v
         for k, v in vars(parsed).items()

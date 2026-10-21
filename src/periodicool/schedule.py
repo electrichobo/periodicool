@@ -77,6 +77,9 @@ class Identified:
     fields: dict = field(default_factory=dict)
     reasons: tuple[str, ...] = ()
     notes: tuple[str, ...] = ()
+    # Independent clues in the name that agree, such as an issue number that fits
+    # the cover month. More agreement means more confidence.
+    agreements: tuple[str, ...] = ()
 
     @property
     def confident(self) -> bool:
@@ -302,6 +305,7 @@ def identify(
 def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes, reference=None) -> Identified:
     volume = mag.numbering is Numbering.VOLUME
     number = (parsed.volume or parsed.issue) if volume else parsed.issue
+    agreements: list[str] = []
     if mag.frequency is Frequency.THIRTEEN_PER_YEAR:
         return _identify_thirteen(parsed, mag, fields, number, reasons, reference)
     numbered = mag.anchor_number is not None and is_regular(mag)
@@ -318,6 +322,8 @@ def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes, reference=
         guess = slot_number(mag, nearest_slot(mag, rel_date))
         if guess is not None and abs(number - guess) > tolerance:
             reasons.append(f"number {number} does not fit {rel_date:%Y-%m}, expected about {guess}")
+        elif guess is not None:
+            agreements.append(f"{'volume' if volume else 'issue'} {number} fits {rel_date:%Y-%m}")
     elif numbered and parsed.year and _covered(mag, date(parsed.year, 12, 31)):
         span = _year_numbers(mag, parsed.year)
         if span and not span[0] - tolerance <= number <= span[1] + tolerance:
@@ -331,7 +337,9 @@ def _identify_numbered(parsed, mag, fields, rel_date, reasons, notes, reference=
     elif numbered:
         k = number - mag.anchor_number
         fields["cover_date"] = slot_date(mag, k)
-    return Identified(_number_key(mag, number), fields, tuple(reasons), tuple(notes))
+    return Identified(
+        _number_key(mag, number), fields, tuple(reasons), tuple(notes), tuple(agreements)
+    )
 
 
 def _estimate_month(number: int, ref: Reference) -> date:
@@ -369,13 +377,16 @@ def _identify_thirteen(parsed, mag, fields, number, reasons, reference=None) -> 
         }
         return Identified(f"{d.year}-{d.month:02d}", fields, tuple(reasons), (note,))
     d = date(parsed.year, parsed.month, 1)
+    agreements = []
     if number is not None and mag.anchor_number is not None and mag.anchor_date:
         months = _months_between(_anchor(mag), d)
         guess = mag.anchor_number + round(months * 13 / 12)
         if abs(number - guess) > 2:
             reasons.append(f"number {number} does not fit {d:%Y-%m}, expected about {guess}")
+        else:
+            agreements.append(f"issue {number} fits {d:%Y-%m}")
     fields |= {"day": None, "cover_date": d, "issue_number": number}
-    return Identified(f"{d.year}-{d.month:02d}", fields, tuple(reasons))
+    return Identified(f"{d.year}-{d.month:02d}", fields, tuple(reasons), (), tuple(agreements))
 
 
 def _identify_dated(parsed, mag, fields, rel_date, reasons, notes) -> Identified:
@@ -394,13 +405,16 @@ def _identify_dated(parsed, mag, fields, rel_date, reasons, notes) -> Identified
         d = date(parsed.year, parsed.month, parsed.day)
         slot = slot_date(mag, nearest_slot(mag, d))
         off = abs((slot - d).days)
+        agreements = ()
+        if off == 0 and mag.publish_weekday is not None and d.weekday() == mag.publish_weekday:
+            agreements = (f"{d:%A} is the publishing day",)
         if off > WEEKLY_SLACK_DAYS:
             reasons.append(f"{d} is {off} days from the schedule")
             slot = d
         elif off:
             notes.append(f"{d} moved to schedule date {slot}")
         fields |= {"year": slot.year, "month": slot.month, "day": slot.day, "cover_date": slot}
-        return Identified(_date_key(mag, slot), fields, tuple(reasons), tuple(notes))
+        return Identified(_date_key(mag, slot), fields, tuple(reasons), tuple(notes), agreements)
 
     if not (parsed.year and parsed.month):
         reasons.append("no month")
