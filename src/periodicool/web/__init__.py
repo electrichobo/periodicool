@@ -81,7 +81,7 @@ templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
 router = APIRouter()
 
 
-def render(request: Request, name: str, **context) -> HTMLResponse:
+def render(request: Request, name: str, /, **context) -> HTMLResponse:
     context.setdefault("csrf_token", getattr(request.state, "csrf_token", ""))
     context.setdefault("user", getattr(request.state, "user", None))
     return templates.TemplateResponse(request, name, context)

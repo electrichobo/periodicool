@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}System · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">System</h1>
+<nav class="tabs tabs--nav" aria-label="System">
+  {% for key, label in tabs %}<a href="/system/{{ key }}"{% if key == tab %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+</nav>
+{% block system %}{% endblock %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<section class="panel" aria-labelledby="lf-title">
+  <h2 class="panel__label" id="lf-title">Log files</h2>
+  {% if not files %}
+  {{ ui.empty("No log files", "The log file appears in /config/logs once something is logged.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">File</th><th scope="col">Last written</th><th scope="col" class="num">Size</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for name, size, modified in files %}
+        <tr>
+          <td>{{ name }}</td>
+          <td>{{ modified | when }}</td>
+          <td class="num">{{ size | filesize }}</td>
+          <td>
+            <div class="cluster row-actions">
+              <a class="btn btn--small" href="/system/logs/{{ name }}">View</a>
+              <a class="btn btn--small" href="/system/logs/{{ name }}/download" download>Download</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  <p class="field__help">Files rotate at 1 MB and five old files are kept.</p>
+</section>
+{% endblock %}

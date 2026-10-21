@@ -1,4 +1,4 @@
-"""Background jobs: RSS sync, Wanted search, library rescan, import folder.
+"""Background jobs: RSS sync, Wanted search, library rescan, import folder, backups.
 
 A small scheduler inside the web app. Jobs run one at a time in a worker
 thread, each with its own database session, and record their result in the
@@ -38,7 +38,18 @@ DEFAULT_INTERVALS = {
     "library": 24 * 3600,
     "import": 5 * 60,
     "downloads": 60,
+    "backup": 7 * 86400,
 }
+LABELS = {
+    "rss": "RSS sync",
+    "wanted": "Search for wanted issues",
+    "library": "Library rescan",
+    "import": "Import folder",
+    "downloads": "Check downloads",
+    "backup": "Backup",
+}
+# One lock for every scheduler instance, so "Run now" never overlaps a scheduled run.
+RUN_LOCK = threading.Lock()
 TICK_SECONDS = 30
 
 
@@ -103,12 +114,21 @@ def run_import(session: Session, settings: Settings, now: datetime) -> str:
     return f"scan {scan.id}: " + ", ".join(f"{k} {v}" for k, v in scan.counts.items())
 
 
+def run_backup(session: Session, settings: Settings, now: datetime) -> str:
+    from periodicool.backup import create_backup
+
+    session.commit()  # the copy reads the database file, so write pending changes first
+    made = create_backup(settings.config_dir, keep=int(get_setting(session, "backup.keep", 7)))
+    return f"made {made.name}"
+
+
 RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "rss": run_rss,
     "wanted": run_wanted,
     "library": run_library,
     "import": run_import,
     "downloads": run_downloads,
+    "backup": run_backup,
 }
 
 
@@ -124,12 +144,14 @@ class Scheduler:
         self.settings = settings
         self.clock = clock
         self.runners = runners or RUNNERS
-        self._lock = threading.Lock()
+        self._lock = RUN_LOCK
 
     def _job(self, session: Session, name: str) -> Job:
         job = session.get(Job, name)
         if job is None:
             interval = get_setting(session, f"jobs.{name}.interval_s", DEFAULT_INTERVALS[name])
+            if name == "backup":
+                interval = int(get_setting(session, "backup.interval_days", 7)) * 86400
             job = Job(name=name, enabled=True, interval_s=interval)
             session.add(job)
             session.commit()
@@ -150,24 +172,39 @@ class Scheduler:
                         nxt = nxt.replace(tzinfo=UTC)
                     if not job.enabled or (nxt is not None and nxt > now):
                         continue
-                    job.last_started_at = now
-                    try:
-                        result = runner(session, self.settings, now)
-                        session.commit()
-                    except Exception as exc:  # a failing job must not stop the others
-                        session.rollback()
-                        job = self._job(session, name)
-                        result = f"error: {exc}"
-                        log.exception("Job %s failed", name)
-                    job.last_finished_at = self.clock()
-                    job.last_result = result[:2000]
-                    job.next_run_at = now + timedelta(seconds=job.interval_s)
-                    session.commit()
-                    ran[name] = result
-                    log.info("Job %s: %s", name, result)
+                    ran[name] = self._run(session, name, runner, now)
         finally:
             self._lock.release()
         return ran
+
+    def _run(self, session: Session, name: str, runner, now: datetime) -> str:
+        job = self._job(session, name)
+        job.last_started_at = now
+        try:
+            result = runner(session, self.settings, now)
+            session.commit()
+        except Exception as exc:  # a failing job must not stop the others
+            session.rollback()
+            job = self._job(session, name)
+            result = f"error: {exc}"
+            log.exception("Job %s failed", name)
+        job.last_finished_at = self.clock()
+        job.last_result = result[:2000]
+        job.next_run_at = now + timedelta(seconds=job.interval_s)
+        session.commit()
+        log.info("Job %s: %s", name, result)
+        return result
+
+    def run_now(self, name: str) -> str | None:
+        """Run one job now (the Tasks page's Run now). None if another job is running."""
+        runner = self.runners[name]
+        if not self._lock.acquire(blocking=False):
+            return None
+        try:
+            with self.sessions() as session:
+                return self._run(session, name, runner, self.clock())
+        finally:
+            self._lock.release()
 
     async def loop(self, stop: asyncio.Event) -> None:
         while not stop.is_set():

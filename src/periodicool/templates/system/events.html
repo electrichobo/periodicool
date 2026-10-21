@@ -1,0 +1,37 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<div class="toolbar">
+  <form class="toolbar__group" method="get" action="/system/events">
+    <label class="visually-hidden" for="ev-level">Level</label>
+    <select class="select input--compact" id="ev-level" name="level" onchange="this.form.submit()">
+      <option value="">All levels</option>
+      {% for l in levels %}<option value="{{ l }}"{% if l == level %} selected{% endif %}>{{ l | capitalize }} and above</option>{% endfor %}
+    </select>
+    <noscript><button class="btn btn--small" type="submit">Filter</button></noscript>
+  </form>
+  <p class="on-chassis-muted toolbar__note">{{ total }} events. Kept for 30 days. Keys and passwords are removed before anything is stored.</p>
+</div>
+<section class="panel" aria-label="Events">
+  {% if not rows %}
+  {{ ui.empty("No events", "Nothing has been logged yet.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Level</th><th scope="col">Time</th><th scope="col">Component</th><th scope="col">Message</th></tr></thead>
+      <tbody>
+        {% for e in rows %}
+        <tr>
+          <td>{{ ui.led({"ERROR": "bad", "CRITICAL": "bad", "WARNING": "warn"}.get(e.level, "info"), e.level | capitalize) }}</td>
+          <td>{{ e.time | when("%Y-%m-%d %H:%M:%S") }}</td>
+          <td>{{ e.logger | replace("periodicool.", "") }}</td>
+          <td class="wrap">{{ e.message }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ ui.pager(page, pages, pager_url) }}
+  {% endif %}
+</section>
+{% endblock %}

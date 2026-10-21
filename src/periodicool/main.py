@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 
 from fastapi import Depends, FastAPI
 
@@ -54,6 +55,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         dependencies=[Depends(csrf_guard)],
     )
     app.state.settings = settings
+    app.state.started_at = datetime.now(UTC)
     from periodicool import web
 
     web.DISPLAY_TZ["name"] = settings.tz
@@ -68,6 +70,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web.magazines import router as magazines_router
     from periodicool.web.security import router as security_router
     from periodicool.web.settings import router as settings_router
+    from periodicool.web.system import router as system_router
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(security_router)
@@ -75,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(magazines_router)
     app.include_router(activity_router)
     app.include_router(settings_router)
+    app.include_router(system_router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

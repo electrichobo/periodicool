@@ -1,0 +1,40 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<div class="toolbar">
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/system/backups" hx-swap="none">Back up now</button>
+    <span class="spinner" aria-hidden="true"></span>
+  </div>
+  <p class="on-chassis-muted toolbar__note">Backups hold the database, secret.key and api.key. They are kept in <code>{{ folder }}</code>.</p>
+</div>
+<section class="panel" aria-labelledby="bk-title">
+  <h2 class="panel__label" id="bk-title">Backups</h2>
+  {% if not files %}
+  {{ ui.empty("No backups yet", "A backup is made on the schedule in Settings, General, or when you press Back up now.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">Made</th><th scope="col" class="num">Size</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for b in files %}
+        <tr>
+          <td>{{ b.name }}{% if b.name.endswith("-prerestore.zip") %} <span class="tag tag--yellow">Before restore</span>{% endif %}</td>
+          <td>{{ b.created | when }}</td>
+          <td class="num">{{ b.size | filesize }}</td>
+          <td>
+            <div class="cluster row-actions">
+              <a class="btn btn--small" href="/system/backups/{{ b.name }}" download>Download</a>
+              <button class="btn btn--small btn--danger" type="button" hx-post="/system/backups/{{ b.name }}/restore" hx-swap="none"
+                      hx-confirm="Restore {{ b.name }}? The current database is backed up first, then replaced." data-confirm-type="restore">Restore</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  <p class="field__help">To restore a backup from elsewhere, copy the zip into the backups folder; it then shows up here.</p>
+</section>
+{% endblock %}

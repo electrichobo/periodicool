@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Library · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">Library</h1>
+<div class="toolbar">
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/library/scan" hx-swap="none">Scan the library (preview)</button>
+    <span class="spinner" aria-hidden="true"></span>
+  </div>
+  <p class="on-chassis-muted toolbar__note">A scan only plans. Nothing moves until you apply it; files are moved and renamed, never deleted or overwritten.</p>
+</div>
+
+{% if not first_done and not scan %}
+<div class="crt flash" role="status">{{ ui.led("info", "First scan") }} Run a scan and read the preview before anything is organized. The first scan is never applied on its own.</div>
+{% endif %}
+
+{% if scan %}
+<section class="panel" aria-labelledby="scan-title">
+  <h2 class="panel__label" id="scan-title">Scan preview</h2>
+  <div class="cluster">
+    {{ ui.led("info", scan.counts.get("move", 0) ~ " to move or rename") }}
+    {{ ui.led("ok", scan.counts.get("keep", 0) ~ " in place") }}
+    {{ ui.led("warn", scan.counts.get("review", 0) ~ " need review") }}
+    {{ ui.led("off", scan.counts.get("ignored", 0) ~ " ignored (not pdf, epub, cbz or cbr)") }}
+  </div>
+  {% if items %}
+  <div class="toolbar toolbar--light" style="margin-top: 0.75rem">
+    <div class="toolbar__group">
+      <label class="visually-hidden" for="scan-filter">Filter</label>
+      <input class="input input--compact" id="scan-filter" type="search" placeholder="Filter" data-filter-for="scan-table">
+      <select class="select input--compact" aria-label="Action" data-filter-for="scan-table" data-filter-attr="action">
+        <option value="">All</option><option value="move">Move</option><option value="review">Review</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="table" id="scan-table">
+      <thead><tr><th scope="col">Action</th><th scope="col">File</th><th scope="col">Goes to</th><th scope="col">Magazine</th><th scope="col">Why</th></tr></thead>
+      <tbody>
+        {% for it in items %}
+        <tr data-action="{{ it.action.value }}">
+          <td>{{ ui.led("info", "Move") if it.action.value == "move" else ui.led("warn", "Review") }}</td>
+          <td class="wrap"><code>{{ it.source_path | relative_to(library) }}</code></td>
+          <td class="wrap">{% if it.target_path %}<code>{{ it.target_path }}</code>{% endif %}</td>
+          <td>{{ titles.get(it.magazine_id, "") }}</td>
+          <td class="wrap">{{ it.reason or "" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% if scan.counts.get("move", 0) %}
+  <div class="cluster" style="margin-top: 0.75rem">
+    <button class="btn btn--primary" type="button" hx-post="/scans/{{ scan.id }}/apply" hx-swap="none"
+            hx-confirm="Move and rename {{ scan.counts.get('move', 0) }} files now? Every move is logged; nothing is deleted or overwritten.">Apply {{ scan.counts.get("move", 0) }} moves</button>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="panel" aria-labelledby="queue-title">
+  <h2 class="panel__label" id="queue-title">Manual import ({{ waiting | length }})</h2>
+  <p class="field__help">Files PeriodiCool could not match with confidence, duplicates and name collisions. Match each one to an issue or skip it. Nothing is guessed.</p>
+  {% if not waiting %}
+  {{ ui.empty("Nothing to review", "Every file is matched.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">File</th><th scope="col">Why</th><th scope="col">Match to</th><th scope="col"><span class="visually-hidden">Skip</span></th></tr></thead>
+      <tbody>
+        {% for it in waiting %}
+        <tr>
+          <td class="wrap"><code>{{ it.source_path | relative_to(library) }}</code><div class="muted small">{{ it.size | filesize }}</div></td>
+          <td class="wrap">{{ it.reason or "" }}</td>
+          <td>
+            <form class="cluster" hx-post="/library/queue/{{ it.id }}/resolve" hx-swap="none">
+              <label class="visually-hidden" for="qm-{{ it.id }}">Magazine</label>
+              <select class="select input--compact" id="qm-{{ it.id }}" name="magazine_id">
+                <option value="">Magazine</option>
+                {% for m in magazines %}<option value="{{ m.id }}"{% if m.id == it.magazine_id %} selected{% endif %}>{{ m.title }}</option>{% endfor %}
+              </select>
+              <label class="visually-hidden" for="qk-{{ it.id }}">Issue</label>
+              <input class="input input--compact" id="qk-{{ it.id }}" name="key" placeholder="2026-10, n475, v95" value="{{ it.issue_key or '' }}" style="width: 9rem">
+              <button class="btn btn--small btn--primary" type="submit">Match &amp; move</button>
+            </form>
+          </td>
+          <td><button class="btn btn--small" type="button" hx-post="/library/queue/{{ it.id }}/skip" hx-swap="none">Skip</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

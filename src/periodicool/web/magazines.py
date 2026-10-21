@@ -38,7 +38,7 @@ NO_PROWLARR = (
 )
 
 
-def _render(request: Request, name: str, **context) -> HTMLResponse:
+def _render(request: Request, name: str, /, **context) -> HTMLResponse:
     from periodicool.web import render
 
     return render(request, name, **context)

@@ -346,6 +346,10 @@ def save(session: Session, section: str, form: dict[str, str]) -> dict[str, str]
             job = session.get(Job, field.key.split(".")[1])
             if job is not None:
                 job.interval_s = int(value)
+        if field.key == "backup.interval_days":
+            job = session.get(Job, "backup")
+            if job is not None:
+                job.interval_s = int(value) * 86400
     return {}
 
 

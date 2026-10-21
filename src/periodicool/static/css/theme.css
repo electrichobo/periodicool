@@ -1683,3 +1683,12 @@ html[data-effects="off"] .led::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- System (P7) ---- */
+.log-view pre {
+  max-height: 70vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}

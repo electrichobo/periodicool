@@ -1,0 +1,35 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<section class="panel" aria-labelledby="tasks-title">
+  <h2 class="panel__label" id="tasks-title">Scheduled tasks</h2>
+  {% if not enabled %}<p>{{ ui.led("warn", "Off") }} Background tasks are turned off (PERIODICOOL_JOBS). Run now still works.</p>{% endif %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr>
+        <th scope="col">Task</th><th scope="col">Every</th><th scope="col">Last run</th><th scope="col">Took</th>
+        <th scope="col">Result</th><th scope="col">Next run</th><th scope="col"><span class="visually-hidden">Run</span></th>
+      </tr></thead>
+      <tbody>
+        {% for r in rows %}
+        {% set j = r.job %}
+        <tr>
+          <td>{{ r.label }}</td>
+          <td>{% if r.interval >= 86400 %}{{ (r.interval / 86400) | round(1) }} days{% elif r.interval >= 3600 %}{{ (r.interval / 3600) | round(1) }} hours{% elif r.interval >= 60 %}{{ (r.interval / 60) | round(0) | int }} minutes{% else %}{{ r.interval }} seconds{% endif %}</td>
+          <td>{{ (j.last_started_at | when) if j and j.last_started_at else "Never" }}</td>
+          <td>{{ ("%.1f s" | format(r.duration)) if r.duration is not none else "" }}</td>
+          <td class="wrap">
+            {% if j and j.last_result %}
+            {{ ui.led("bad", "Error") if j.last_result.startswith("error") else ui.led("ok", "OK") }} {{ j.last_result }}
+            {% endif %}
+          </td>
+          <td>{{ (j.next_run_at | when) if j and j.next_run_at else "" }}</td>
+          <td><button class="btn btn--small" type="button" hx-post="/system/tasks/{{ r.name }}/run" hx-swap="none" aria-label="Run {{ r.label }} now">Run now</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="field__help">Intervals are set in Settings (Indexers, Download clients, General).</p>
+</section>
+{% endblock %}

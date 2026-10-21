@@ -1,0 +1,12 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<div class="toolbar">
+  <div class="toolbar__group">
+    <a class="btn btn--chassis btn--small" href="/system/logs">&lsaquo; Log files</a>
+    <a class="btn btn--chassis btn--small" href="/system/logs/{{ name }}/download" download>Download</a>
+  </div>
+  <p class="on-chassis-muted toolbar__note">Last {{ lines }} lines of {{ name }}</p>
+</div>
+<div class="crt log-view"><pre>{{ tail }}</pre></div>
+{% endblock %}

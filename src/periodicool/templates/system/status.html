@@ -1,0 +1,35 @@
+{% extends "system/_layout.html" %}
+{% import "_macros.html" as ui %}
+{% block system %}
+<div class="settings-layout">
+  <section class="panel" aria-labelledby="about-title">
+    <h2 class="panel__label" id="about-title">About</h2>
+    <dl class="summary">
+      <div><dt>Version</dt><dd>{{ version }}</dd></div>
+      <div><dt>Python</dt><dd>{{ python }}</dd></div>
+      <div><dt>SQLite</dt><dd>{{ sqlite }}</dd></div>
+      <div><dt>System</dt><dd>{{ os_name }}</dd></div>
+      <div><dt>Started</dt><dd>{{ started | when }}</dd></div>
+      <div><dt>Uptime</dt><dd>{{ uptime }}</dd></div>
+      <div><dt>Time zone</dt><dd>{{ tz }}</dd></div>
+      <div><dt>Magazines</dt><dd>{{ counts.magazines }}</dd></div>
+      <div><dt>Database</dt><dd>{{ db_size | filesize }}</dd></div>
+      <div class="summary__wide"><dt>Config folder</dt><dd><code>{{ config_dir }}</code></dd></div>
+    </dl>
+    <p>PeriodiCool is free software under the GPL-3.0 license. It ships no content and no indexers. It sends no telemetry and makes no calls except to the services you set up (Prowlarr and SABnzbd).</p>
+  </section>
+  <section class="panel" aria-labelledby="disk-title">
+    <h2 class="panel__label" id="disk-title">Disk space</h2>
+    {% for label, path, usage in paths %}
+    <div class="stack" style="--gap: 0.25rem; margin-top: 0.6rem">
+      {% if usage %}
+      {{ ui.disk(label ~ " (" ~ path ~ ")", usage.used, usage.total, "sdisk-" ~ loop.index) }}
+      <span class="field__help">{{ (usage.free | filesize) }} free</span>
+      {% else %}
+      <div class="field__label">{{ label }}</div><div><code>{{ path }}</code>{% if path != "Not set" %} {{ ui.led("warn", "Not found") }}{% endif %}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+</div>
+{% endblock %}
