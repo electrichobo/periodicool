@@ -18,6 +18,20 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 templates.env.globals["version"] = __version__
 templates.env.globals["static"] = lambda path: f"/static/{path}?v={__version__}"
 
+
+def filesize(num) -> str:
+    size = float(num or 0)
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if size < 1024 or unit == "TB":
+            return f"{size:.0f} {unit}" if unit == "B" else f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} TB"
+
+
+templates.env.filters["filesize"] = filesize
+# Sum of the numeric parts of a chart row (label, have, wanted, missing).
+templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
+
 router = APIRouter()
 
 

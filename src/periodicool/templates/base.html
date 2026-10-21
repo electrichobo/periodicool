@@ -36,6 +36,24 @@
     {% endfor %}
     {% block content %}{% endblock %}
   </main>
+  <dialog id="modal" class="modal" aria-labelledby="modal-title">
+    <div id="modal-body"></div>
+  </dialog>
+  <dialog id="confirm" class="modal modal--narrow" aria-labelledby="confirm-title">
+    <div class="panel">
+      <h2 class="panel__label" id="confirm-title">Confirm</h2>
+      <p class="confirm__text"></p>
+      <div class="field confirm__typed" hidden>
+        <label class="field__label" for="confirm-input">Type <strong class="confirm__word"></strong> to confirm</label>
+        <input class="input confirm__input" id="confirm-input" autocomplete="off">
+      </div>
+      <div class="modal__foot">
+        <button class="btn" type="button" data-close-modal onclick="this.closest('dialog').close()">Cancel</button>
+        <button class="btn btn--danger confirm__ok" type="button">Confirm</button>
+      </div>
+    </div>
+  </dialog>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
   <footer class="deck-bar">
     <label class="switch switch--on-chassis">
       Effects

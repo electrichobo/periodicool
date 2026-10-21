@@ -1,0 +1,99 @@
+{# Shared building blocks. Import with: {% import "_macros.html" as ui %} #}
+
+{% macro led(kind, label) -%}
+<span class="led led--{{ kind }}">{{ label }}</span>
+{%- endmacro %}
+
+{% macro counter(value, digits=3, label=none) -%}
+{% set text = value | string %}
+<span class="counter" aria-label="{{ label or value }}">
+  <span class="counter__ghost" aria-hidden="true">{{ "8" * [digits, text | length] | max }}</span>
+  <span class="counter__value" aria-hidden="true">{{ text }}</span>
+</span>
+{%- endmacro %}
+
+{% macro segbar(percent, label_id) -%}
+{% set p = [[percent | float, 0] | max, 100] | min %}
+<div class="segbar" role="progressbar" aria-labelledby="{{ label_id }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" style="--value: {{ p }}">
+  <div class="segbar__fill"></div>
+</div>
+{%- endmacro %}
+
+{% macro vu(percent, label, value_text) -%}
+{% set p = [[percent | float, 0] | max, 100] | min %}
+<div class="vu" role="meter" aria-label="{{ label }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" aria-valuetext="{{ value_text }}" style="--value: {{ p }}">
+  <span class="vu__label">{{ label | upper }}</span>
+  <span class="vu__value">{{ value_text }}</span>
+  <div class="vu__scale" aria-hidden="true"></div>
+  <div class="vu__needle" aria-hidden="true"></div>
+</div>
+{%- endmacro %}
+
+{% macro empty(title, text) -%}
+<div class="empty">
+  <p class="empty__title">{{ title }}</p>
+  <p>{{ text }}</p>
+</div>
+{%- endmacro %}
+
+{% macro pager(page, pages, url) -%}
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page > 1 %}<a href="{{ url }}page={{ page - 1 }}">&lsaquo; Prev</a>{% endif %}
+  {% for p in range(1, pages + 1) %}
+    {% if p == 1 or p == pages or (p - page) | abs <= 2 %}
+      {% if p == page %}<span aria-current="page">{{ p }}</span>{% else %}<a href="{{ url }}page={{ p }}">{{ p }}</a>{% endif %}
+    {% elif (p - page) | abs == 3 %}<span aria-hidden="true">&hellip;</span>{% endif %}
+  {% endfor %}
+  {% if page < pages %}<a href="{{ url }}page={{ page + 1 }}">Next &rsaquo;</a>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{# Stacked bars of issues per year: rows = [(label, have, wanted, missing)].
+   Wanted is hatched and missing is darker so the parts differ without color,
+   and a hidden table gives screen readers the numbers. #}
+{% macro year_chart(rows, caption) -%}
+{% set width = 640 %}{% set height = 180 %}{% set pad_l = 28 %}{% set pad_b = 22 %}
+{% set top = (rows | map(attribute=1) | list | length) and ([1] + rows | map("sum_parts") | list) | max or 1 %}
+{% set n = rows | length %}{% set slot = ((width - pad_l) / ([n, 1] | max)) %}{% set bar = [slot * 0.6, 34] | min %}
+<figure class="chart">
+  <svg viewBox="0 0 {{ width }} {{ height }}" role="img" aria-label="{{ caption }}">
+    <defs>
+      <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" class="chart-wanted"></rect>
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#1e1c19" stroke-width="2" opacity="0.35"></line>
+      </pattern>
+    </defs>
+    {% for f in [0.25, 0.5, 0.75, 1] %}
+    {% set y = (height - pad_b) - (height - pad_b - 8) * f %}
+    <line class="chart-grid" x1="{{ pad_l }}" x2="{{ width }}" y1="{{ y }}" y2="{{ y }}"></line>
+    <text class="chart-axis" x="{{ pad_l - 4 }}" y="{{ y + 4 }}" text-anchor="end">{{ (top * f) | round(0) | int }}</text>
+    {% endfor %}
+    {% for label, have, wanted, missing in rows %}
+    {% set x = pad_l + slot * loop.index0 + (slot - bar) / 2 %}
+    {% set scale = (height - pad_b - 8) / top %}
+    {% set y0 = height - pad_b %}
+    <rect class="chart-have" x="{{ x }}" y="{{ y0 - have * scale }}" width="{{ bar }}" height="{{ have * scale }}"><title>{{ label }}: {{ have }} have</title></rect>
+    <rect class="chart-wanted-hatch" x="{{ x }}" y="{{ y0 - (have + wanted) * scale }}" width="{{ bar }}" height="{{ wanted * scale }}"><title>{{ label }}: {{ wanted }} wanted</title></rect>
+    <rect class="chart-missing" x="{{ x }}" y="{{ y0 - (have + wanted + missing) * scale }}" width="{{ bar }}" height="{{ missing * scale }}" stroke="#1e1c19" stroke-width="1"><title>{{ label }}: {{ missing }} missing</title></rect>
+    <text class="chart-axis" x="{{ x + bar / 2 }}" y="{{ height - 6 }}" text-anchor="middle">{{ label }}</text>
+    {% endfor %}
+  </svg>
+  <div class="chart__legend">{{ led("ok", "Have") }} {{ led("warn", "Wanted (hatched)") }} {{ led("bad", "Missing (outlined)") }}</div>
+  <table class="visually-hidden">
+    <caption>{{ caption }}</caption>
+    <tr><th scope="col">Year</th><th scope="col">Have</th><th scope="col">Wanted</th><th scope="col">Missing</th></tr>
+    {% for label, have, wanted, missing in rows %}<tr><th scope="row">{{ label }}</th><td>{{ have }}</td><td>{{ wanted }}</td><td>{{ missing }}</td></tr>{% endfor %}
+  </table>
+</figure>
+{%- endmacro %}
+
+{# Disk usage: used and free bytes, as a segmented bar with text. #}
+{% macro disk(label, used, total, label_id) -%}
+{% set pct = (used / total * 100) if total else 0 %}
+<div class="stack" style="--gap: 0.3rem">
+  <div class="field__label" id="{{ label_id }}">{{ label }} · {{ used | filesize }} of {{ total | filesize }} used ({{ pct | round(0) | int }}%)</div>
+  {{ segbar(pct, label_id) }}
+</div>
+{%- endmacro %}
