@@ -50,4 +50,4 @@ src = ["src", "tests"]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "PTH"]
 
 [tool.ruff.lint.isort]
-known-local-folder = ["dev_magazines", "snapshot", "fake_prowlarr"]
+known-local-folder = ["dev_magazines", "snapshot", "fake_prowlarr", "fake_sab"]

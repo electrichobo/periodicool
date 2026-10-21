@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session, sessionmaker
 
 from periodicool.config import Settings
+from periodicool.downloads import auto_grab, make_download_client, monitor
 from periodicool.library import (
     FIRST_SCAN_KEY,
     apply_scan,
@@ -35,6 +36,7 @@ DEFAULT_INTERVALS = {
     "wanted": 6 * 3600,
     "library": 24 * 3600,
     "import": 5 * 60,
+    "downloads": 60,
 }
 TICK_SECONDS = 30
 
@@ -47,19 +49,39 @@ def run_rss(session: Session, settings: Settings, now: datetime) -> str:
     client = make_client(session)
     if client is None:
         return "skipped: Prowlarr is not configured"
-    r = rss_sync(session, client, today_in(settings.tz, now), now)
+    today = today_in(settings.tz, now)
+    r = rss_sync(session, client, today, now)
     text = f"{r.seen} seen, {r.new} new, {len(r.accepted)} accepted"
-    return text + "".join(f"; {e}" for e in r.errors)
+    return text + "".join(f"; {e}" for e in r.errors) + _auto_grab(session, client, today)
+
+
+def _auto_grab(session: Session, prowlarr, today: date) -> str:
+    grabs = auto_grab(session, prowlarr, make_download_client(session), today)
+    sent = [g for g in grabs if g.ok]
+    return f"; grabbed {len(sent)}" if grabs else ""
 
 
 def run_wanted(session: Session, settings: Settings, now: datetime) -> str:
     client = make_client(session)
     if client is None:
         return "skipped: Prowlarr is not configured"
-    results = wanted_search(session, client, today_in(settings.tz, now), now=now)
+    today = today_in(settings.tz, now)
+    results = wanted_search(session, client, today, now=now)
     if not results:
-        return "nothing due"
-    return "; ".join(f"{r.magazine.title}: {r.new_accepted} new accepted" for r in results)
+        return "nothing due" + _auto_grab(session, client, today)
+    text = "; ".join(f"{r.magazine.title}: {r.new_accepted} new accepted" for r in results)
+    return text + _auto_grab(session, client, today)
+
+
+def run_downloads(session: Session, settings: Settings, now: datetime) -> str:
+    client = make_download_client(session)
+    if client is None:
+        return "skipped: SABnzbd is not configured"
+    r = monitor(session, client, settings, make_client(session), today_in(settings.tz, now))
+    return (
+        f"{r.updated} active, {len(r.imported)} imported, {len(r.failed)} failed, "
+        f"{len(r.review)} need review, {len(r.removed)} removed, {len(r.retried)} retried"
+    )
 
 
 def run_library(session: Session, settings: Settings, now: datetime) -> str:
@@ -84,6 +106,7 @@ RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "wanted": run_wanted,
     "library": run_library,
     "import": run_import,
+    "downloads": run_downloads,
 }
 
 

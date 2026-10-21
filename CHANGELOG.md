@@ -13,6 +13,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Library scan with a dry-run preview, organize (move and rename only, never overwrite, every move logged), manual import queue, drop-in import folder, and a command line for magazines, scans and the queue.
 - Prowlarr RSS sync and magazine search with an accept/reject reason for every candidate, per-indexer limits read from Prowlarr, request spacing, result cache, per-magazine backoff, and background jobs (RSS, Wanted search, library rescan, import folder).
 - Thirteen-per-year magazines: release names with an issue number but no month get an estimated month when the issue is newer than any known one; the estimate is flagged.
+- SABnzbd support: grab (NZB uploaded into PeriodiCool's category only), download monitor by job ID, import into the library, failed-download handling with blocklist and automatic retry of the next best release, and removal of the job's leftover folder after a verified import. Auto-grab is off by default.
 
 ### Changed
 

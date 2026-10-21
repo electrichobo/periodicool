@@ -14,6 +14,11 @@ python -m periodicool search MAGAZINE_ID      every candidate with accept/reject
 python -m periodicool rss                     one RSS sync now
 python -m periodicool wanted                  wanted and missing issues
 python -m periodicool jobs                    background job status
+python -m periodicool sab test                check SABnzbd and the category
+python -m periodicool grab RELEASE_ID         send one release to SABnzbd
+python -m periodicool downloads               grabs and their status
+python -m periodicool monitor                 check downloads and import finished ones
+python -m periodicool blocklist [remove ID]
 """
 
 from __future__ import annotations
@@ -27,18 +32,22 @@ from pathlib import Path
 
 from sqlalchemy import select
 
-from periodicool import db, library, search
+from periodicool import db, downloads, library, search
+from periodicool.clients.base import ClientError
 from periodicool.config import Settings, load_settings
 from periodicool.jobs import today_in
 from periodicool.models import (
+    BlockedRelease,
     FormatProfile,
     Frequency,
+    Grab,
     ImportItem,
     ItemAction,
     Job,
     Magazine,
     MonitorMode,
     Numbering,
+    Release,
     ScanKind,
     SearchState,
 )
@@ -69,8 +78,9 @@ _ALLOWED = {
     "search_term",
 }
 _SECRET_WORDS = ("key", "password", "token", "secret")
-# Tests replace this with a fake transport; None means real HTTP.
+# Tests replace these with fake transports; None means real HTTP.
 TRANSPORT = None
+SAB_TRANSPORT = None
 
 
 @contextmanager
@@ -319,6 +329,96 @@ def cmd_jobs(session, settings, args, out) -> int:
     return 0
 
 
+def _sab(session, out):
+    client = downloads.make_download_client(session, transport=SAB_TRANSPORT)
+    if client is None:
+        print(
+            "SABnzbd is not configured: config set sabnzbd.url URL, and set the "
+            f"{downloads.SAB_KEY_ENV} environment variable",
+            file=out,
+        )
+    return client
+
+
+def cmd_sab_test(session, settings, args, out) -> int:
+    if not (client := _sab(session, out)):
+        return 2
+    category = library.get_setting(session, downloads.CATEGORY_KEY)
+    try:
+        version = client.check(category)
+    except ClientError as exc:
+        print(f"not ready: {exc}", file=out)
+        return 1
+    ours = session.scalars(select(Grab).where(Grab.status.in_(downloads.ACTIVE_GRAB))).all()
+    print(
+        f"SABnzbd {version}; category {category!r} exists; {len(ours)} active PeriodiCool jobs",
+        file=out,
+    )
+    return 0
+
+
+def cmd_grab(session, settings, args, out) -> int:
+    release = session.get(Release, args.release_id)
+    if release is None:
+        print(f"no release {args.release_id}", file=out)
+        return 2
+    if not (prowlarr := _client(session, out)) or not (client := _sab(session, out)):
+        return 2
+    result = downloads.grab(session, release, prowlarr, client, today_in(settings.tz))
+    if result.ok:
+        print(
+            f"sent {release.title}\n  job {result.grab.job_id}, issue {result.grab.issue_key}",
+            file=out,
+        )
+        return 0
+    print(f"not grabbed: {release.title}", file=out)
+    for reason in result.reasons:
+        print(f"  - {reason}", file=out)
+    return 1
+
+
+def cmd_downloads(session, settings, args, out) -> int:
+    for g in session.scalars(select(Grab).order_by(Grab.id.desc()).limit(50)):
+        line = f"{g.id:4}  {g.status.value:11} {g.progress:5.1f}%  {g.issue_key:12} {g.title}"
+        print(line, file=out)
+        if g.error:
+            print(f"        {g.error}", file=out)
+    return 0
+
+
+def cmd_monitor(session, settings, args, out) -> int:
+    if not (client := _sab(session, out)):
+        return 2
+    prowlarr = search.make_client(session, transport=TRANSPORT)
+    try:
+        r = downloads.monitor(session, client, settings, prowlarr, today_in(settings.tz))
+    except ClientError as exc:
+        print(f"monitor not run: {exc}", file=out)
+        return 1
+    print(
+        f"{r.updated} active, {len(r.imported)} imported, {len(r.failed)} failed, "
+        f"{len(r.review)} need review, {len(r.removed)} removed, {len(r.retried)} retried",
+        file=out,
+    )
+    for g in r.review + r.failed:
+        print(f"  {g.status.value}: {g.title}: {g.error}", file=out)
+    return 0
+
+
+def cmd_blocklist(session, settings, args, out) -> int:
+    if args.action == "remove":
+        row = session.get(BlockedRelease, args.id)
+        if row is None:
+            print(f"no blocklist entry {args.id}", file=out)
+            return 2
+        session.delete(row)
+        print(f"removed from blocklist: {row.title}", file=out)
+        return 0
+    for row in session.scalars(select(BlockedRelease).order_by(BlockedRelease.id)):
+        print(f"{row.id:4}  {row.title}\n      {row.reason}", file=out)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="periodicool")
     sub = p.add_subparsers(dest="command")
@@ -356,6 +456,17 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("rss").set_defaults(func=cmd_rss)
     sub.add_parser("wanted").set_defaults(func=cmd_wanted)
     sub.add_parser("jobs").set_defaults(func=cmd_jobs)
+    sab = sub.add_parser("sab").add_subparsers(dest="sab_command", required=True)
+    sab.add_parser("test").set_defaults(func=cmd_sab_test)
+    gr = sub.add_parser("grab")
+    gr.add_argument("release_id", type=int)
+    gr.set_defaults(func=cmd_grab)
+    sub.add_parser("downloads").set_defaults(func=cmd_downloads)
+    sub.add_parser("monitor").set_defaults(func=cmd_monitor)
+    bl = sub.add_parser("blocklist")
+    bl.add_argument("action", nargs="?", choices=["list", "remove"], default="list")
+    bl.add_argument("id", nargs="?", type=int)
+    bl.set_defaults(func=cmd_blocklist)
     return p
 
 

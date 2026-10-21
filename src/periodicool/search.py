@@ -224,7 +224,7 @@ def _apply_evaluation(rel: Release, ev: Evaluation) -> None:
     rel.rank = list(ev.rank)
 
 
-def _evaluate(session, title, size, protocol, published, magazines, today, options):
+def _evaluate(session, title, size, protocol, published, magazines, today, options, guid=None):
     return evaluate(
         session,
         title,
@@ -234,6 +234,7 @@ def _evaluate(session, title, size, protocol, published, magazines, today, optio
         protocol=protocol,
         published=_aware(published),
         options=options,
+        guid=guid,
     )
 
 
@@ -269,7 +270,15 @@ def rss_sync(
             continue
         for f in found:
             ev = _evaluate(
-                session, f.title, f.size, f.protocol, f.publish_date, magazines, today, options
+                session,
+                f.title,
+                f.size,
+                f.protocol,
+                f.publish_date,
+                magazines,
+                today,
+                options,
+                f.guid,
             )
             rel, new = _upsert(session, f, ReleaseSource.RSS, ev, now)
             result.seen += 1
@@ -339,6 +348,7 @@ def search_magazine(
                     magazines,
                     today,
                     options,
+                    rel.guid,
                 )
                 _apply_evaluation(rel, ev)
                 result.candidates.append((rel, ev))
@@ -364,7 +374,15 @@ def search_magazine(
         guids = []
         for f in found:
             ev = _evaluate(
-                session, f.title, f.size, f.protocol, f.publish_date, magazines, today, options
+                session,
+                f.title,
+                f.size,
+                f.protocol,
+                f.publish_date,
+                magazines,
+                today,
+                options,
+                f.guid,
             )
             rel, new = _upsert(session, f, ReleaseSource.SEARCH, ev, now)
             guids.append(f.guid)

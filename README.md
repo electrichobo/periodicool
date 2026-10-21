@@ -50,7 +50,15 @@ python -m periodicool indexers        # per-indexer limits and what is left toda
 python -m periodicool search 3        # every candidate with its accept/reject reasons
 python -m periodicool rss             # one RSS sync now
 python -m periodicool wanted          # wanted and missing issues
+python -m periodicool config set sabnzbd.url http://sabnzbd:8080
+python -m periodicool config set sabnzbd.category magazines
+python -m periodicool sab test        # SABnzbd reachable and the category exists
+python -m periodicool grab 42         # send release 42 to SABnzbd
+python -m periodicool monitor         # check downloads, import finished ones
+python -m periodicool downloads       # grabs and their status
 ```
+
+PeriodiCool only adds jobs in its own SABnzbd category (create it in SABnzbd first) and only ever reads the jobs it created. If SABnzbd sees its completed folder at a different path than PeriodiCool does, map it: `config set sabnzbd.path_map '[["/data/complete/magazines", "/downloads"]]'`. Automatic grabbing is off until `config set grab.auto true`.
 
 The Prowlarr API key comes from the `PROWLARR_API_KEY` environment variable, never the database. Indexer API limits are whatever you set per indexer in Prowlarr; PeriodiCool reads them and stays within them.
 
@@ -72,6 +80,7 @@ Only paths, process settings and secrets come from the environment. Everything e
 | `UMASK` | `002` | File creation mask |
 | `TZ` | `UTC` | Time zone |
 | `PROWLARR_API_KEY` | unset | Prowlarr API key |
+| `SABNZBD_API_KEY` | unset | SABnzbd API key |
 | `PERIODICOOL_JOBS` | `on` | `off` disables background jobs |
 
 ## License

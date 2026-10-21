@@ -447,7 +447,7 @@ def apply_scan(
         query = query.where(ImportItem.id.in_(item_ids))
     result = {"moved": 0, "kept": 0, "failed": 0, "review": 0}
     for item in session.scalars(query).all():
-        _apply_item(session, item, library_root, result)
+        apply_item(session, item, library_root, result)
     scan = session.get(Scan, scan_id)
     scan.applied_at = datetime.now(UTC)
     if scan.kind is ScanKind.LIBRARY and (result["moved"] or result["kept"]):
@@ -456,7 +456,7 @@ def apply_scan(
     return result
 
 
-def _apply_item(session: Session, item: ImportItem, library_root: Path, result: dict) -> None:
+def apply_item(session: Session, item: ImportItem, library_root: Path, result: dict) -> None:
     src = Path(item.source_path)
     try:
         st = src.stat()
@@ -485,7 +485,9 @@ def _apply_item(session: Session, item: ImportItem, library_root: Path, result: 
         return
     move = FileMove(item_id=item.id, source=str(src), target=str(dst), ok=False)
     try:
-        move.method = _move(src, dst, allow_copy=item.origin is ScanKind.IMPORT)
+        move.method = _move(
+            src, dst, allow_copy=item.origin in (ScanKind.IMPORT, ScanKind.DOWNLOAD)
+        )
     except FileExistsError:
         move.error = "target exists"
         item.action, item.reason_code = ItemAction.REVIEW, ReasonCode.COLLISION

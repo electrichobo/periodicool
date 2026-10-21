@@ -127,6 +127,7 @@ def evaluate(
     protocol: str | None = "usenet",
     published: datetime | None = None,
     options: Options | None = None,
+    guid: str | None = None,
 ) -> Evaluation:
     options = options or Options()
     reasons: list[str] = []
@@ -155,6 +156,11 @@ def evaluate(
         reasons.append("matches " + ", ".join(m.title for m in matches))
         return ev
     mag = ev.magazine = matches[0]
+
+    from periodicool.downloads import blocked
+
+    if row := blocked(session, guid, title, mag.id):
+        reasons.append(f"blocklisted: {row.reason}")
 
     lowered = title.lower()
     for term in mag.must_contain or []:

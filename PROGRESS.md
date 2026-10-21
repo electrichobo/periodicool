@@ -17,10 +17,13 @@ Handoff notes between sessions. Read at the start, update at the end.
 - **Step 6 (search), 2026-10-21:** migration `0004` (`releases`, `search_cache`, `search_state`, `api_calls`, `jobs`, `magazines.search_term`). `prowlarr.py` (stdlib client: search, Newznab RSS feed, indexers, status, stats; request spacing; API key redacted everywhere and stripped from stored URLs), `decisions.py` (`evaluate` with every reason, ranking, `best_candidates`), `search.py` (`rss_sync`, `search_magazine` with cache, per-magazine backoff, `wanted_search`, `indexer_limits`), `jobs.py` (asyncio scheduler in the app: rss 15 min, wanted 6 h, library 24 h, import 5 min; `PERIODICOOL_JOBS=off`). CLI: `config`, `indexers`, `search`, `rss`, `wanted`, `jobs`. `tzdata==2026.5` added. 1033 tests pass. Live, read-only: indexers listed, RSS feed endpoint `/{id}/api` confirmed (3 feeds, 200 releases, no API key stored), one Fortean Times search (144 candidates, all rejected with correct reasons). About 6 indexer hits in total.
 - **Migration safety fix:** SQLite batch migrations rebuild tables; with foreign keys on, dropping the old `magazines` table cascade-deleted `issues` (caught by the downgrade test). Migrations now run with foreign keys off and finish with `PRAGMA foreign_key_check`.
 
+- **Step 7 (downloads), 2026-10-21:** migration `0005` (`grabs`, `blocklist`). `clients/base.py` (pluggable `DownloadClient`), `clients/sabnzbd.py` (version, get_cats, addfile into our category, queue/history filtered to our category and job IDs, and filtered again client-side), `prowlarr.fetch_nzb` (adds the key only for the configured Prowlarr host), `downloads.py` (`check_nzb`, `grab`, `auto_grab`, `monitor`, `import_download`, `fail` with blocklist and next-candidate retry, guarded leftover removal). Blocklist check in `evaluate`. `downloads` job every 60 s; RSS and Wanted runs call `auto_grab`. CLI: `sab test`, `grab`, `downloads`, `monitor`, `blocklist`. 1063 tests pass (1 symlink test skipped on Windows). Live, read-only: SABnzbd 5.1.3 reachable, category `mags` exists, queue/history filters return nothing for a job ID that is not ours. No job was added.
+
 ## Next
 
 - **Before any real library run:** do a preview on the server against the real library (`scan` only, read the output, apply nothing) and review the queue counts. The LazyLibrarian files are the first real test of the parser on file names.
-- Step 7: SABnzbd send (PeriodiCool's category only, jobs tracked by ID), download monitor, import, failed-download handling and blocklist. `best_candidates()` gives the release to grab per issue; the download URL needs the API key added back at grab time.
+- Step 8: web UI (cassette futurism) and login. Include the Health clock check (see notes) and screens for Wanted, interactive search with reasons, downloads, blocklist and the manual import queue.
+- First real grab: only after the container exists (step 9), since the SAB completed folder is not reachable from the dev machine. Set `sabnzbd.category`, `sabnzbd.path_map` (SAB's completed path to the container's `/downloads`), grab one release by hand, run `monitor`, check the library, then decide on `grab.auto`.
 
 ## Library decisions (step 5)
 
@@ -87,6 +90,15 @@ Handoff notes between sessions. Read at the start, update at the end.
 - `evaluate` keeps going after the first rejection so interactive search shows every reason.
 - Thirteen-per-year number-only names (`Fortean.Times.No.475.2026`): during release evaluation the month is estimated at 13 a year from the newest known issue with both a number and a month (or the anchor). Accepted only if the number is newer than every known issue number, the estimate falls in the year the name gives, and the month does not already hold a different issue. The estimate is stored as a `note:` entry in `releases.reasons` and shown in search output. Library organizing never estimates; such files go to the queue. Live: No.475 is accepted as 2026-10, No.474 (2026-09) is outside the new-only range.
 - Indexer usage counts RSS plus searches (errs on the safe side). Prowlarr's `indexerstats` returns nothing when start and end fall on one day, so only `startDate` is sent and Prowlarr counts up to its own clock.
+
+## Download decisions (step 7)
+
+- NZBs are fetched by PeriodiCool and uploaded to SAB (`addfile`), so the Prowlarr key never sits in SAB's queue or history, and NZBs whose file list clearly holds no pdf/epub/cbz/cbr are blocklisted before downloading. Archives and obfuscated names count as unknown and are allowed.
+- Auto-grab is off until `grab.auto` is true (`grab.max_per_run` 10). Manual grabs via the CLI.
+- SAB calls are limited to version, get_cats, addfile, and queue/history filtered by category and job ID. No delete, pause, config or category calls. Jobs that are not in `grabs` are never acted on.
+- A failed download (or one with no magazine file) blocklists the release, frees the issue and grabs the next best accepted release once (up to 3 tries per issue); it stops when candidates run out. A job removed by the user becomes `removed` without a blocklist entry.
+- Imports reuse the library apply path (never overwrite, cross-device copy allowed for downloads, every move logged). A target collision or a file that names a different issue goes to review.
+- After a verified import the job's leftover folder is removed (maintainer decision; `downloads.remove_leftovers`, default on). Only a folder strictly inside the downloads dir, not overlapping the library, containing no symlinks, and reported by SAB for our own job ID. This is the only delete in the app.
 
 ## Notes for later steps
 

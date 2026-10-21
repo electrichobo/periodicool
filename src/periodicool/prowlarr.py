@@ -215,6 +215,35 @@ class ProwlarrClient:
         body = self._get(f"/{indexer_id}/api", params, "rss", indexer_id, key_in_query=True)
         return parse_newznab(body, indexer_id)
 
+    def fetch_nzb(self, download_url: str, indexer_id: int | None = None) -> bytes:
+        """Download an NZB through Prowlarr. Counts as a grab on the indexer.
+
+        The API key is added only when the URL points at the configured Prowlarr,
+        so it is never sent anywhere else.
+        """
+        target = urllib.parse.urlsplit(download_url)
+        base = urllib.parse.urlsplit(self.url)
+
+        def origin(u):
+            port = u.port or (443 if u.scheme == "https" else 80)
+            return u.scheme, (u.hostname or "").lower(), port
+
+        if origin(target) != origin(base):
+            raise ProwlarrError("download URL is not on the configured Prowlarr; not fetched")
+        path = target.path
+        prefix = base.path.rstrip("/")
+        if prefix and path.startswith(prefix):
+            path = path[len(prefix) :]
+        params = [
+            (k, v)
+            for k, v in urllib.parse.parse_qsl(target.query, keep_blank_values=True)
+            if k.lower() != "apikey"
+        ]
+        body = self._get(path, params, "grab", indexer_id, key_in_query=True)
+        if b"<nzb" not in body[:2048]:
+            raise ProwlarrError("download is not an NZB file")
+        return body
+
     def indexers(self, category: int = 7010) -> list[IndexerInfo]:
         out = []
         for r in self._json("/api/v1/indexer", [], "indexers"):

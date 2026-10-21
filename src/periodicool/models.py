@@ -169,6 +169,7 @@ class Issue(Base):
 class ScanKind(StrEnum):
     LIBRARY = "library"
     IMPORT = "import"
+    DOWNLOAD = "download"
 
 
 class ItemAction(StrEnum):
@@ -331,3 +332,62 @@ class Job(Base):
     last_finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_result: Mapped[str | None] = mapped_column(String(2000))
     next_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class GrabStatus(StrEnum):
+    QUEUED = "queued"
+    DOWNLOADING = "downloading"
+    COMPLETED = "completed"
+    IMPORTED = "imported"
+    REVIEW = "review"
+    FAILED = "failed"
+    REMOVED = "removed"
+
+
+ACTIVE_GRAB = (GrabStatus.QUEUED, GrabStatus.DOWNLOADING, GrabStatus.COMPLETED)
+
+
+class Grab(Base):
+    """A job PeriodiCool sent to a download client. Only these jobs are ever looked at."""
+
+    __tablename__ = "grabs"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    release_id: Mapped[int | None] = mapped_column(ForeignKey("releases.id", ondelete="SET NULL"))
+    magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
+    issue_key: Mapped[str] = mapped_column(String(100))
+    title: Mapped[str] = mapped_column(String(1000))
+    indexer_id: Mapped[int | None]
+    client: Mapped[str] = mapped_column(String(20))
+    job_id: Mapped[str] = mapped_column(String(200), unique=True)
+    category: Mapped[str] = mapped_column(String(100))
+    status: Mapped[GrabStatus] = mapped_column(_enum(GrabStatus), default=GrabStatus.QUEUED)
+    client_status: Mapped[str | None] = mapped_column(String(50))
+    progress: Mapped[float] = mapped_column(Float, default=0.0)
+    storage_path: Mapped[str | None] = mapped_column(String(2000))
+    error: Mapped[str | None] = mapped_column(String(2000))
+    import_item_id: Mapped[int | None] = mapped_column(
+        ForeignKey("import_items.id", ondelete="SET NULL")
+    )
+    grabbed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    imported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, onupdate=_now
+    )
+
+    release: Mapped[Release | None] = relationship()
+    magazine: Mapped[Magazine | None] = relationship()
+
+
+class BlockedRelease(Base):
+    __tablename__ = "blocklist"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    guid: Mapped[str | None] = mapped_column(String(1000), index=True)
+    title: Mapped[str] = mapped_column(String(1000))
+    indexer_id: Mapped[int | None]
+    magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
+    issue_key: Mapped[str | None] = mapped_column(String(100))
+    reason: Mapped[str] = mapped_column(String(1000))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
