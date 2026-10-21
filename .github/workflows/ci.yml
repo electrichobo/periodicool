@@ -59,10 +59,11 @@ jobs:
           exit 1
       - name: App runs as 1234, not root
         run: |
-          docker top pc -eo uid,gid,args
-          uids="$(docker top pc -eo uid,args | awk 'NR > 1 && /periodicool/ {print $1}' | sort -u)"
-          echo "uids: $uids"
-          test "$uids" = "1234"
+          # The entrypoint execs into the app, so PID 1 is PeriodiCool itself.
+          docker exec pc cat /proc/1/cmdline | tr '\0' ' '; echo
+          docker exec pc grep -E '^(Uid|Gid):' /proc/1/status
+          test "$(docker exec pc awk '/^Uid:/ {print $2 $3 $4 $5}' /proc/1/status)" = "1234123412341234"
+          test "$(docker exec pc awk '/^Gid:/ {print $2 $3 $4 $5}' /proc/1/status)" = "1234123412341234"
       - name: Database owned by 1234
         run: test "$(stat -c %u /tmp/pc/config/periodicool.db)" = "1234"
       - name: Container log as annotations (on failure)
@@ -75,7 +76,7 @@ jobs:
           }
           annotate "docker ps" "$(docker ps -a 2>&1)"
           annotate "container log" "$(docker logs pc 2>&1 | tail -60)"
-          annotate "processes" "$(docker top pc -eo uid,gid,args 2>&1 || true)"
+          annotate "process 1" "$(docker exec pc grep -E "^(Name|Uid|Gid):" /proc/1/status 2>&1 || true)"
           annotate "config dir" "$(ls -lan /tmp/pc/config 2>&1)"
       - name: Refuses to run as root
         run: |
