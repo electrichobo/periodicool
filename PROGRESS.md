@@ -22,6 +22,9 @@ Handoff notes between sessions. Read at the start, update at the end.
 ## Next
 
 - **Before any real library run:** do a preview on the server against the real library (`scan` only, read the output, apply nothing) and review the queue counts. The LazyLibrarian files are the first real test of the parser on file names.
+- **Step 9 (container), 2026-10-21:** `Dockerfile` (python:3.14-slim, installs with `requirements.lock` as constraints, health check, `/config` volume), `docker/entrypoint.sh` (refuses PUID/PGID 0, chowns only `/config`, applies UMASK, drops to PUID:PGID with `setpriv`), `.dockerignore` (keeps `.env`, `CLAUDE.local.md`, tests and git out of the build context), CI `image` job (builds, runs as 1234:1234, checks `/health`, the app's UID and the DB owner, and that PUID 0 is refused), `release.yml` (multi-arch amd64/arm64 to `ghcr.io/electrichobo/periodicool` with the version tag and `latest` on `v*.*.*` tags), `examples/docker-compose.yml`. The image cannot be built on the dev machine (no Docker there); CI is the build check.
+- Dependency note: FastAPI 0.158 requires `opentelemetry-api`. It is the no-op API only (no network code); the SDK and exporters that could send data are FastAPI extras we do not install.
+
 - Step 8: web UI (cassette futurism) and login. Include the Health clock check (see notes) and screens for Wanted, interactive search with reasons, downloads, blocklist and the manual import queue.
 - First real grab: only after the container exists (step 9), since the SAB completed folder is not reachable from the dev machine. Set `sabnzbd.category`, `sabnzbd.path_map` (SAB's completed path to the container's `/downloads`), grab one release by hand, run `monitor`, check the library, then decide on `grab.auto`.
 

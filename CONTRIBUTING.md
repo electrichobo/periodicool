@@ -18,11 +18,15 @@ Thanks for helping. A few ground rules keep the project safe for people's existi
 
 ```bash
 python -m venv .venv
-.venv/bin/pip install -e ".[dev]"
+.venv/bin/pip install -c requirements.lock -e ".[dev]"
 pytest
 ruff check .
 ruff format --check .
 ```
+
+## Dependencies
+
+Runtime dependencies are pinned in `pyproject.toml`, and every runtime package (including indirect ones) is pinned in `requirements.lock`, which CI and the image use as constraints. After changing a dependency, regenerate the lock file as described at its top.
 
 ## Pull requests
 

@@ -2,7 +2,7 @@
 
 Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through Prowlarr, sends them to SABnzbd, and keeps your library organized.
 
-> **Status:** early development. Nothing here is usable yet. See [CHANGELOG.md](CHANGELOG.md).
+> **Status:** early development. The back end works from the command line; there is no web UI yet. See [CHANGELOG.md](CHANGELOG.md).
 
 ## No content, no indexers
 
@@ -16,6 +16,15 @@ PeriodiCool ships no content and no indexers. You bring your own Prowlarr instan
 - Send to SABnzbd in PeriodiCool's own category, and only ever touch jobs PeriodiCool created.
 - Import and organize into `{Title}/{Year}/{Title} - {YYYY-MM}.{ext}`, with a dry-run preview. Files are moved and renamed, never deleted or overwritten.
 - Manual import queue for anything uncertain.
+
+## Running in Docker
+
+The image is `ghcr.io/electrichobo/periodicool` (amd64 and arm64). See [examples/docker-compose.yml](examples/docker-compose.yml).
+
+- The app runs as `PUID`:`PGID` (default 99:100, Unraid's nobody:users), never as root; the container refuses `PUID=0`. Only `/config` is chowned; `/library` and `/downloads` are left as they are.
+- Mount `/config` (database), `/library` (magazines), `/downloads` (the download client's completed folder for PeriodiCool's category) and optionally `/import`.
+- Run commands inside the container, for example: `docker exec -it periodicool python -m periodicool scan`.
+- First run on an existing library: `scan` shows a preview only. Read it before `apply`.
 
 ## Development
 

@@ -1,0 +1,23 @@
+# Secrets and personal notes must never enter the image or build context.
+.env
+.env.*
+CLAUDE.local.md
+.claude/
+
+.git/
+.github/
+.venv/
+venv/
+dev-data/
+tests/
+scripts/
+examples/
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+*.db
+*.db-*

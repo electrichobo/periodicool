@@ -20,12 +20,49 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: |
+            pyproject.toml
+            requirements.lock
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -c requirements.lock -e ".[dev]"
       - name: Lint
         run: |
           ruff check .
           ruff format --check .
       - name: Test
         run: pytest
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image (amd64, not pushed)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: periodicool:ci
+      - name: Smoke test as a non-root user
+        run: |
+          mkdir -p /tmp/pc/config /tmp/pc/library /tmp/pc/downloads
+          docker run -d --name pc -p 8383:8383 \
+            -e PUID=1234 -e PGID=1234 -e TZ=America/Los_Angeles \
+            -v /tmp/pc/config:/config -v /tmp/pc/library:/library -v /tmp/pc/downloads:/downloads \
+            periodicool:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8383/health; then break; fi
+            sleep 1
+          done
+          echo
+          curl -fsS http://127.0.0.1:8383/health | grep -q '"status":"ok"'
+          docker top pc -eo uid,gid,args
+          test "$(docker top pc -eo uid,args | awk '/periodicool/ && !/entrypoint/ {print $1}' | sort -u)" = "1234"
+          test "$(stat -c %u /tmp/pc/config/periodicool.db)" = "1234"
+          docker logs pc
+      - name: Refuses to run as root
+        run: |
+          if docker run --rm -e PUID=0 -e PGID=0 periodicool:ci; then
+            echo "container started with PUID 0" >&2
+            exit 1
+          fi
