@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 {% block title %}UI kit · PeriodiCool{% endblock %}
 {% block content %}
 <h1 class="page-title">UI kit</h1>
@@ -176,6 +177,128 @@ NzbPlanet   queries  12 / 100 left</pre>
         <span class="field__error" id="kit-anchor-err">Must be a number.</span>
       </div>
     </form>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-popups">
+    <h2 class="panel__label" id="kit-popups">Pop-ups, toasts and confirm</h2>
+    <div class="cluster">
+      <button class="btn" type="button" hx-get="/ui-kit/modal" hx-target="#modal-body">Issue details</button>
+      <button class="btn" type="button" hx-post="/ui-kit/toast" hx-swap="none">Save (toast)</button>
+      <button class="btn btn--danger" type="button" hx-post="/ui-kit/toast" hx-swap="none"
+              hx-confirm="Remove 3 magazines from PeriodiCool? Files on disk are kept.">Remove</button>
+      <button class="btn btn--danger" type="button" hx-post="/ui-kit/toast" hx-swap="none"
+              hx-confirm="Clear the whole blocklist?" data-confirm-type="clear">Clear blocklist</button>
+      <span class="spinner spinner--visible" role="img" aria-label="Loading"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="kit-toolbar">
+    <h2 class="page-title" id="kit-toolbar" style="font-size: 1.3rem">Page toolbar and table tools</h2>
+    <div class="toolbar">
+      <div class="toolbar__group">
+        <button class="btn btn--chassis btn--small" type="button">&#8635; Update all</button>
+        <button class="btn btn--chassis btn--small" type="button">RSS sync</button>
+        <button class="btn btn--chassis btn--small" type="button">Search missing</button>
+      </div>
+      <div class="toolbar__group">
+        <div class="segmented" role="group" aria-label="View">
+          <button type="button" aria-pressed="false">Cards</button>
+          <button type="button" aria-pressed="true">Table</button>
+          <button type="button" aria-pressed="false">Overview</button>
+        </div>
+        <label class="visually-hidden" for="kit-filter-text">Filter</label>
+        <input class="input" id="kit-filter-text" placeholder="Filter" data-filter-for="kit-mags" style="width: 10rem">
+        <label class="visually-hidden" for="kit-filter-status">Status</label>
+        <select class="select" id="kit-filter-status" data-filter-for="kit-mags" data-filter-attr="status" style="width: auto">
+          <option value="">All</option><option value="monitored">Monitored</option><option value="unmonitored">Unmonitored</option>
+        </select>
+        <details class="menu" data-columns-for="kit-mags">
+          <summary class="btn btn--chassis btn--small">Columns</summary>
+          <div class="menu__list">
+            <label><input type="checkbox" data-col="frequency"> Frequency</label>
+            <label><input type="checkbox" data-col="size"> Size on disk</label>
+            <label><input type="checkbox" data-col="tags"> Tags</label>
+          </div>
+        </details>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="bulkbar" data-bulk-for="kit-mags" hidden>
+        <span class="bulkbar__count">0 selected</span>
+        <button class="btn btn--small" type="button">Edit</button>
+        <button class="btn btn--small btn--danger" type="button">Remove</button>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="kit-mags">
+          <thead><tr>
+            <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all"></th>
+            <th scope="col">Monitored</th>
+            <th scope="col"><button class="sort" type="button">Title</button></th>
+            <th scope="col" data-col="frequency"><button class="sort" type="button">Frequency</button></th>
+            <th scope="col">Issues</th>
+            <th scope="col" class="num" data-col="size" data-numeric><button class="sort" type="button">Size</button></th>
+            <th scope="col" data-col="tags">Tags</th>
+          </tr></thead>
+          <tbody>
+            {% for title, freq, have, total, size, tags, mon in [
+              ("2600: The Hacker Quarterly", "Seasonal", 12, 13, 412000000, ["tech"], True),
+              ("American Cinematographer", "Monthly", 38, 42, 3900000000, ["film"], True),
+              ("Fortean Times", "13 / year", 97, 98, 6100000000, [], True),
+              ("People", "Weekly", 0, 52, 0, ["generic"], False)] %}
+            <tr data-status="{{ 'monitored' if mon else 'unmonitored' }}">
+              <td><input type="checkbox" class="row-select" aria-label="Select {{ title }}"></td>
+              <td>{{ ui.led("ok", "On") if mon else ui.led("off", "Off") }}</td>
+              <td>{{ title }}</td>
+              <td>{{ freq }}</td>
+              <td data-sort="{{ have }}">
+                <div class="stack" style="--gap: 0.2rem">
+                  <span id="kit-have-{{ loop.index }}" class="num" style="text-align: left">{{ have }} / {{ total }}</span>
+                  {{ ui.segbar(have / total * 100, "kit-have-" ~ loop.index, plain=true) }}
+                </div>
+              </td>
+              <td class="num" data-sort="{{ size }}">{{ size | filesize }}</td>
+              <td>{% for t in tags %}<span class="tag">{{ t }}</span>{% endfor %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {{ ui.pager(3, 9, "?") }}
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-folds">
+    <h2 class="panel__label" id="kit-folds">Years (collapsible) and summary</h2>
+    <dl class="summary" style="margin-bottom: 1rem">
+      <div><dt>Frequency</dt><dd>13 / year</dd></div>
+      <div><dt>Numbering</dt><dd>Issue number</dd></div>
+      <div><dt>Latest</dt><dd>No. 475 (2026-10)</dd></div>
+      <div><dt>Next expected</dt><dd>No. 476 (2026-11)</dd></div>
+      <div><dt>Size on disk</dt><dd>{{ 6100000000 | filesize }}</dd></div>
+    </dl>
+    {% for year, have, total in [(2026, 11, 13), (2025, 13, 13)] %}
+    <details class="fold"{% if loop.first %} open{% endif %}>
+      <summary>
+        {{ year }}
+        <span class="fold__spacer"></span>
+        {{ ui.led("ok" if have == total else "warn", have ~ " / " ~ total) }}
+      </summary>
+      <div class="fold__body muted">Issue rows for {{ year }} go here.</div>
+    </details>
+    {% endfor %}
+  </section>
+
+  <section class="panel" aria-labelledby="kit-charts">
+    <h2 class="panel__label" id="kit-charts">Charts</h2>
+    <div class="stack">
+      {{ ui.year_chart([("2022", 13, 0, 0), ("2023", 12, 0, 1), ("2024", 13, 0, 0), ("2025", 11, 1, 1), ("2026", 9, 2, 2)], "Fortean Times issues per year") }}
+      {{ ui.disk("Library", 412 * 1024**3, 1024**4, "kit-disk") }}
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-empty">
+    <h2 class="panel__label" id="kit-empty">Empty state</h2>
+    {{ ui.empty("Nothing wanted", "Every monitored issue is in the library.") }}
   </section>
 </div>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from fastapi import APIRouter, Request
@@ -16,7 +17,18 @@ TEMPLATES_DIR = PACKAGE / "templates"
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 templates.env.globals["version"] = __version__
-templates.env.globals["static"] = lambda path: f"/static/{path}?v={__version__}"
+
+
+def static_url(path: str) -> str:
+    # Stamp with the file's mtime so browsers refetch after any change.
+    try:
+        stamp = int((STATIC_DIR / path).stat().st_mtime)
+    except OSError:
+        stamp = __version__
+    return f"/static/{path}?v={stamp}"
+
+
+templates.env.globals["static"] = static_url
 
 
 def filesize(num) -> str:
@@ -48,3 +60,14 @@ def home() -> RedirectResponse:
 @router.get("/ui-kit", response_class=HTMLResponse, include_in_schema=False)
 def ui_kit(request: Request) -> HTMLResponse:
     return render(request, "ui_kit.html", active="/ui-kit")
+
+
+@router.get("/ui-kit/modal", response_class=HTMLResponse, include_in_schema=False)
+def ui_kit_modal(request: Request) -> HTMLResponse:
+    return render(request, "_kit_modal.html")
+
+
+@router.post("/ui-kit/toast", include_in_schema=False)
+def ui_kit_toast() -> HTMLResponse:
+    trigger = {"toast": {"kind": "ok", "text": "Settings saved."}}
+    return HTMLResponse("", headers={"HX-Trigger": json.dumps(trigger)})

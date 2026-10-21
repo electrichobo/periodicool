@@ -12,9 +12,9 @@
 </span>
 {%- endmacro %}
 
-{% macro segbar(percent, label_id) -%}
+{% macro segbar(percent, label_id, plain=false) -%}
 {% set p = [[percent | float, 0] | max, 100] | min %}
-<div class="segbar" role="progressbar" aria-labelledby="{{ label_id }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" style="--value: {{ p }}">
+<div class="segbar{{ ' segbar--plain' if plain }}" role="progressbar" aria-labelledby="{{ label_id }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" style="--value: {{ p }}">
   <div class="segbar__fill"></div>
 </div>
 {%- endmacro %}

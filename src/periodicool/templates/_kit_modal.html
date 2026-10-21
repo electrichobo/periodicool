@@ -1,0 +1,36 @@
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Fortean Times · 2026-10</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Issue details">
+    <button type="button" role="tab" id="kit-m-tab-1" aria-controls="kit-m-panel-1" aria-selected="true">Summary</button>
+    <button type="button" role="tab" id="kit-m-tab-2" aria-controls="kit-m-panel-2" aria-selected="false" tabindex="-1">History</button>
+  </div>
+  <div role="tabpanel" id="kit-m-panel-1" aria-labelledby="kit-m-tab-1">
+    <dl class="summary">
+      <div><dt>Status</dt><dd>{{ ui.led("ok", "Imported") }}</dd></div>
+      <div><dt>Issue</dt><dd>No. 475</dd></div>
+      <div><dt>Cover date</dt><dd>2026-10</dd></div>
+      <div><dt>Format</dt><dd>PDF <span class="tag tag--blue">TruePDF</span></dd></div>
+      <div><dt>Size</dt><dd>{{ 87412736 | filesize }}</dd></div>
+      <div><dt>Path</dt><dd>Fortean Times/2026/Fortean Times - 2026-10.pdf</dd></div>
+    </dl>
+  </div>
+  <div role="tabpanel" id="kit-m-panel-2" aria-labelledby="kit-m-tab-2" hidden>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Event</th><th scope="col">Date</th><th scope="col">Source</th></tr></thead>
+        <tbody>
+          <tr><td>{{ ui.led("ok", "Imported") }}</td><td>2026-10-19 08:12</td><td>Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1</td></tr>
+          <tr><td>{{ ui.led("info", "Grabbed") }}</td><td>2026-10-19 07:58</td><td>Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Close</button>
+    <button class="btn btn--primary" type="button">Search</button>
+  </div>
+</div>

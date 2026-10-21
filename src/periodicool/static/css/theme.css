@@ -606,6 +606,10 @@ main {
 .segbar {
   container-type: inline-size;
 }
+/* Plain fill for completeness (have / total), where full is good */
+.segbar--plain .segbar__fill {
+  background: var(--led-ok);
+}
 
 .vu {
   --value: 0;
@@ -1241,6 +1245,7 @@ html[data-effects="off"] .led::before {
 .chart svg {
   display: block;
   width: 100%;
+  max-width: 48rem;
   height: auto;
 }
 .chart figcaption {

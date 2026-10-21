@@ -1,5 +1,6 @@
 """Theme checks: WCAG AA contrast of every text pair, and assets in the package."""
 
+import json
 import re
 import subprocess
 import sys
@@ -132,3 +133,34 @@ def test_ui_kit_page(client):
     assert client.get("/static/vendor/htmx/htmx.min.js").status_code == 200
     font = client.get("/static/vendor/dseg/DSEG7Classic-Regular.woff2")
     assert font.status_code == 200 and font.content[:4] == b"wOF2"
+
+
+def test_ui_kit_shows_shared_components(client):
+    html = client.get("/ui-kit").text
+    for marker in [
+        'class="toolbar"',
+        'class="table" id="kit-mags"',
+        'class="bulkbar"',
+        'class="fold"',
+        'class="pager"',
+        'class="chart"',
+        'role="progressbar"',
+        'data-confirm-type="clear"',
+        'id="modal-body"',
+        'id="confirm"',
+        'id="toasts"',
+    ]:
+        assert marker in html, marker
+    # Static URLs carry a stamp that changes when the file changes.
+    assert "/static/css/theme.css?v=" in html
+
+
+def test_ui_kit_modal_and_toast(client):
+    modal = client.get("/ui-kit/modal")
+    assert (
+        modal.status_code == 200
+        and 'id="modal-title"' in modal.text
+        and 'role="tablist"' in modal.text
+    )
+    toast = client.post("/ui-kit/toast")
+    assert json.loads(toast.headers["HX-Trigger"])["toast"]["kind"] == "ok"
