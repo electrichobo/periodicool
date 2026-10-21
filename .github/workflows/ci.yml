@@ -43,23 +43,40 @@ jobs:
           context: .
           load: true
           tags: periodicool:ci
-      - name: Smoke test as a non-root user
+      - name: Start container as 1234:1234
         run: |
           mkdir -p /tmp/pc/config /tmp/pc/library /tmp/pc/downloads
           docker run -d --name pc -p 8383:8383 \
             -e PUID=1234 -e PGID=1234 -e TZ=America/Los_Angeles \
             -v /tmp/pc/config:/config -v /tmp/pc/library:/library -v /tmp/pc/downloads:/downloads \
             periodicool:ci
-          for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:8383/health; then break; fi
+      - name: Health endpoint answers
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8383/health | grep -q '"status":"ok"'; then exit 0; fi
             sleep 1
           done
-          echo
-          curl -fsS http://127.0.0.1:8383/health | grep -q '"status":"ok"'
+          exit 1
+      - name: App runs as 1234, not root
+        run: |
           docker top pc -eo uid,gid,args
-          test "$(docker top pc -eo uid,args | awk '/periodicool/ && !/entrypoint/ {print $1}' | sort -u)" = "1234"
-          test "$(stat -c %u /tmp/pc/config/periodicool.db)" = "1234"
-          docker logs pc
+          uids="$(docker top pc -eo uid,args | awk 'NR > 1 && /periodicool/ {print $1}' | sort -u)"
+          echo "uids: $uids"
+          test "$uids" = "1234"
+      - name: Database owned by 1234
+        run: test "$(stat -c %u /tmp/pc/config/periodicool.db)" = "1234"
+      - name: Container log as annotations (on failure)
+        if: failure()
+        run: |
+          annotate() {
+            local text="$2"
+            text="${text//'%'/'%25'}"; text="${text//$'\r'/'%0D'}"; text="${text//$'\n'/'%0A'}"
+            echo "::error title=$1::$text"
+          }
+          annotate "docker ps" "$(docker ps -a 2>&1)"
+          annotate "container log" "$(docker logs pc 2>&1 | tail -60)"
+          annotate "processes" "$(docker top pc -eo uid,gid,args 2>&1 || true)"
+          annotate "config dir" "$(ls -lan /tmp/pc/config 2>&1)"
       - name: Refuses to run as root
         run: |
           if docker run --rm -e PUID=0 -e PGID=0 periodicool:ci; then
