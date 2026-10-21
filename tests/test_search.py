@@ -123,6 +123,18 @@ def test_release_rules(session):
     )
 
 
+def test_global_release_rules(session):
+    from periodicool.decisions import MUST_CONTAIN_KEY, MUST_NOT_CONTAIN_KEY, load_options
+
+    title = "Linux Magazine USA - Issue 311, October 2026"
+    library.set_setting(session, MUST_NOT_CONTAIN_KEY, ["USA"])
+    e = ev(session, title, options=load_options(session))
+    assert not e.accepted and any("(all magazines)" in r for r in e.reasons)
+    library.set_setting(session, MUST_NOT_CONTAIN_KEY, [])
+    library.set_setting(session, MUST_CONTAIN_KEY, ["issue"])
+    assert ev(session, title, options=load_options(session)).accepted
+
+
 def test_issue_state_matters(session):
     linux = mag(session, "Linux Magazine")
     issue = Issue(magazine_id=linux.id, key="n311", cover_date=date(2026, 10, 1), issue_number=311)

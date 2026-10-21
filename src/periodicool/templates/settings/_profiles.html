@@ -1,0 +1,68 @@
+{% import "_macros.html" as ui %}
+{% set editing = editing | default({}) %}
+<div class="settings-layout">
+  <section class="panel" aria-labelledby="prof-title">
+    <h2 class="panel__label" id="prof-title">Format profiles</h2>
+    <p class="field__help">Each magazine uses one profile: which formats it accepts, in order of preference.</p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Name</th><th scope="col">Formats, best first</th><th scope="col">TruePDF first</th><th scope="col">Upgrades</th><th scope="col">Used by</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>
+          {% for p in profiles %}
+          <tr>
+            <td>{{ p.name }}</td>
+            <td>{% for f in p.formats %}<span class="tag">{{ f | upper }}</span> {% endfor %}</td>
+            <td>{{ ui.led("ok", "Yes") if p.prefer_true_pdf else ui.led("off", "No") }}</td>
+            <td>{{ ui.led("ok", "On") if p.upgrades else ui.led("off", "Off") }}</td>
+            <td>{{ used.get(p.id, 0) }} magazines</td>
+            <td>
+              <div class="cluster row-actions">
+                <a class="btn btn--small" href="/settings/profiles?edit={{ p.id }}#profile-form">Edit</a>
+                <button class="btn btn--small btn--danger" type="button" hx-post="/settings/profiles/{{ p.id }}/delete" hx-swap="none"
+                        hx-confirm="Delete the profile {{ p.name }}?"{% if used.get(p.id) %} disabled title="In use"{% endif %}>Delete</button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  {% set edit_id = request.query_params.get("edit", "") %}
+  {% set current = (profiles | selectattr("id", "equalto", edit_id | int) | first) if edit_id else none %}
+  <form class="panel stack" id="profile-form" method="post" action="/settings/profiles" aria-labelledby="pf-title">
+    <h2 class="panel__label" id="pf-title">{{ "Edit " ~ current.name if current else "New profile" }}</h2>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if current %}<input type="hidden" name="id" value="{{ current.id }}">{% elif editing.get("id") %}<input type="hidden" name="id" value="{{ editing.id }}">{% endif %}
+    <div class="field">
+      <label class="field__label" for="pf-name">Name</label>
+      <input class="input" id="pf-name" name="name" value="{{ current.name if current else editing.get('name', '') }}" required{% if errors.get('name') %} aria-invalid="true" aria-describedby="pf-name-err"{% endif %}>
+      {% if errors.get("name") %}<span class="field__error" id="pf-name-err">{{ errors["name"] }}</span>{% endif %}
+    </div>
+    <fieldset class="form-section">
+      <legend>Formats</legend>
+      <p class="field__help">Tick the accepted formats and number them, 1 for the best.</p>
+      {% if errors.get("formats") %}<p class="field__error" role="alert">{{ errors["formats"] }}</p>{% endif %}
+      {% for fmt in all_formats %}
+      {% set on = current and fmt in current.formats %}
+      <div class="cluster">
+        <label class="switch switch--compact"><input type="checkbox" role="switch" name="formats" value="{{ fmt }}"{% if on or (not current and fmt == "pdf") %} checked{% endif %}><span class="switch__state" aria-hidden="true"></span> {{ fmt | upper }}</label>
+        <label class="visually-hidden" for="rank-{{ fmt }}">Rank of {{ fmt | upper }}</label>
+        <input class="input input--tiny" id="rank-{{ fmt }}" name="rank_{{ fmt }}" inputmode="numeric" value="{{ (current.formats.index(fmt) + 1) if on else loop.index }}">
+      </div>
+      {% endfor %}
+    </fieldset>
+    <div class="field">
+      <label class="switch">Prefer TruePDF<input type="checkbox" role="switch" name="prefer_true_pdf"{% if not current or current.prefer_true_pdf %} checked{% endif %}><span class="switch__state" aria-hidden="true"></span></label>
+    </div>
+    <div class="field">
+      <label class="switch">Allow upgrades<input type="checkbox" role="switch" name="upgrades" aria-describedby="upgrades-help"{% if current and current.upgrades %} checked{% endif %}><span class="switch__state" aria-hidden="true"></span></label>
+    <span class="field__help" id="upgrades-help">Saved for later: PeriodiCool does not replace files with upgrades yet. Issues below the first format are listed under Wanted, Cutoff unmet.</span>
+    </div>
+    <div class="cluster">
+      <button class="btn btn--primary" type="submit">{{ "Save" if current else "Add profile" }}</button>
+      {% if current %}<a class="btn" href="/settings/profiles">Cancel</a>{% endif %}
+    </div>
+  </form>
+</div>

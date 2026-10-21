@@ -1,0 +1,7 @@
+{% if problem %}
+<p class="field__error" role="alert">{{ problem }}</p>
+{% else %}
+<dl class="summary summary--one">
+  {% for label, path in examples %}<div><dt>{{ label }}</dt><dd><code>{{ path }}</code></dd></div>{% endfor %}
+</dl>
+{% endif %}

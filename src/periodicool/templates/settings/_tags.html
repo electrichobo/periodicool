@@ -1,0 +1,33 @@
+{% import "_macros.html" as ui %}
+<section class="panel" aria-labelledby="tags-title">
+  <h2 class="panel__label" id="tags-title">Tags</h2>
+  {% if not tags %}
+  {{ ui.empty("No tags yet", "Add tags on a magazine or in the mass editor.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Tag</th><th scope="col" class="num">Magazines</th><th scope="col">Rename</th><th scope="col"><span class="visually-hidden">Delete</span></th></tr></thead>
+      <tbody>
+        {% for tag, count in tags %}
+        <tr>
+          <td><span class="tag tag--blue">{{ tag }}</span></td>
+          <td class="num">{{ count }}</td>
+          <td>
+            <form class="cluster" hx-post="/settings/tags/rename" hx-swap="none">
+              <input type="hidden" name="old" value="{{ tag }}">
+              <label class="visually-hidden" for="tag-{{ loop.index }}">New name for {{ tag }}</label>
+              <input class="input input--compact" id="tag-{{ loop.index }}" name="new" value="{{ tag }}">
+              <button class="btn btn--small" type="submit">Rename</button>
+            </form>
+          </td>
+          <td>
+            <button class="btn btn--small btn--danger" type="button" hx-post="/settings/tags/delete" hx-vals='{"tag": {{ tag | tojson }}}' hx-swap="none"
+                    hx-confirm="Remove the tag {{ tag }} from {{ count }} magazines?">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>

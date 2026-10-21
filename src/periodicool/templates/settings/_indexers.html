@@ -1,0 +1,22 @@
+{% import "_macros.html" as ui %}
+{% if error %}
+<p role="alert">{{ ui.led("bad", "Error") }} {{ error }}</p>
+{% elif not limits %}
+{{ ui.empty("No indexers", "Prowlarr answered, but has no usenet indexer with magazine categories.") }}
+{% else %}
+<p>{{ ui.led("ok", "Connected") }} {{ limits | length }} indexers.</p>
+<div class="indexer-list">
+  {% for lim in limits %}
+  <div class="indexer">
+    <div class="indexer__name">{{ lim.name }}</div>
+    {% if lim.query_limit %}
+    {{ ui.vu(lim.queries_today / lim.query_limit * 100, "Queries", lim.queries_today ~ " / " ~ lim.query_limit) }}
+    {% else %}
+    <p class="muted small">Queries today: {{ lim.queries_today }} (no limit set in Prowlarr)</p>
+    {% endif %}
+    <p class="small">Grabs today: {{ lim.grabs_today }}{% if lim.grab_limit %} of {{ lim.grab_limit }}{% else %} (no limit set){% endif %}</p>
+    {% if lim.disabled_until %}<p>{{ ui.led("bad", "Disabled") }} until {{ lim.disabled_until | when }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

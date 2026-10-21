@@ -19,6 +19,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - History of grabs, failures, imports and file moves; an event log table and a rotating log file in `/config/logs`, both with secrets redacted; file size, format and import date on issues; magazine tags and sidecar cover images; download size and time left; removing PeriodiCool's own jobs from SABnzbd (never other jobs).
 - Magazine screens: index with cards, table and overview views, filters and totals; add form with a live preview; detail page with years, issue rows, a chart and pop-ups for interactive search, issue details and scan-and-rename; mass editor. Deleting a magazine removes database rows only.
 - Activity (queue with progress and time left, history with details and mark-as-failed, blocklist), Wanted (missing, cutoff unmet), and a calendar with month, week and agenda views plus an iCal feed protected by the API key. Times show in the configured time zone.
+- Settings: media management with a naming template preview, format profiles, indexers with a Prowlarr test and limit meters, download client with an SABnzbd test and remote path mappings, tags, general (login mode, API key, logs, backups) and UI. Global release rules for all magazines.
 - Docker image (python:3.14-slim) that runs as PUID:PGID and never as root, with a health check; multi-arch (amd64, arm64) release workflow to GHCR on version tags; example compose file; `requirements.lock` pinning every runtime package.
 
 ### Changed

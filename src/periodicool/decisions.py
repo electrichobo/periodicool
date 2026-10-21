@@ -28,6 +28,8 @@ from periodicool.schedule import Reference, generation_range, identify
 
 MIN_SIZE_KEY = "release.min_size_mb"
 EARLY_DAYS_KEY = "search.early_days"
+MUST_CONTAIN_KEY = "release.must_contain"
+MUST_NOT_CONTAIN_KEY = "release.must_not_contain"
 DEFAULT_MIN_SIZE_MB = 1
 DEFAULT_EARLY_DAYS = 45
 # Irregular magazines on "new only" accept releases published this recently.
@@ -38,6 +40,9 @@ NEW_ONLY_DAYS = 60
 class Options:
     min_size_mb: float = DEFAULT_MIN_SIZE_MB
     early_days: int = DEFAULT_EARLY_DAYS
+    # Release rules for every magazine, on top of each magazine's own.
+    must_contain: tuple[str, ...] = ()
+    must_not_contain: tuple[str, ...] = ()
 
 
 def load_options(session: Session) -> Options:
@@ -46,6 +51,8 @@ def load_options(session: Session) -> Options:
     return Options(
         min_size_mb=get_setting(session, MIN_SIZE_KEY, DEFAULT_MIN_SIZE_MB),
         early_days=get_setting(session, EARLY_DAYS_KEY, DEFAULT_EARLY_DAYS),
+        must_contain=tuple(get_setting(session, MUST_CONTAIN_KEY, []) or ()),
+        must_not_contain=tuple(get_setting(session, MUST_NOT_CONTAIN_KEY, []) or ()),
     )
 
 
@@ -169,6 +176,12 @@ def evaluate(
     for term in mag.must_not_contain or []:
         if term.lower() in lowered:
             reasons.append(f"contains rejected term {term!r}")
+    for term in options.must_contain:
+        if term.lower() not in lowered:
+            reasons.append(f"missing required term {term!r} (all magazines)")
+    for term in options.must_not_contain:
+        if term.lower() in lowered:
+            reasons.append(f"contains rejected term {term!r} (all magazines)")
 
     profile = mag.format_profile
     if parsed.formats and profile and not set(parsed.formats) & set(profile.formats):

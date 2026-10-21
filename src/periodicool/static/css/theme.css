@@ -1643,3 +1643,43 @@ html[data-effects="off"] .led::before {
 .agenda-day.is-today .agenda-day__date {
   color: var(--amber-ink);
 }
+
+/* ---- Settings (P6) ---- */
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr);
+  gap: var(--gap);
+  align-items: start;
+  margin-top: var(--gap);
+}
+.input--mono {
+  font-family: var(--font-data);
+}
+.input--tiny {
+  width: 3.5rem;
+  min-width: 0;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+.indexer-list {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+}
+.indexer {
+  padding: 0.6rem;
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+}
+.indexer__name {
+  margin-bottom: 0.4rem;
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+@media (max-width: 720px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+}

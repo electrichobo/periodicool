@@ -67,3 +67,4 @@ known-local-folder = [
 # Reuses fixtures from other test modules; pytest injects them by name.
 "tests/test_parity.py" = ["F811"]
 "tests/test_web_activity.py" = ["F811"]
+"tests/test_web_settings.py" = ["F811"]

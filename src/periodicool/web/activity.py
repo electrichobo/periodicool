@@ -18,6 +18,16 @@ from periodicool.web.security import form_data, form_lists
 
 router = APIRouter(include_in_schema=False)
 
+WEEKDAYS = [
+    ("Mon", "Monday"),
+    ("Tue", "Tuesday"),
+    ("Wed", "Wednesday"),
+    ("Thu", "Thursday"),
+    ("Fri", "Friday"),
+    ("Sat", "Saturday"),
+    ("Sun", "Sunday"),
+]
+
 
 def _ids(form: dict[str, list[str]]) -> list[int]:
     return [int(i) for i in form.get("ids", []) if i.isdigit()]
@@ -286,7 +296,10 @@ def calendar_page(request: Request, view: str = "month", day: str = "") -> HTMLR
     view = view if view in ("month", "week", "agenda") else "month"
     today = _today(request)
     focus = _parse_day(day, today) if day else today
-    first_weekday = 0
+    with request.app.state.sessions() as session:
+        from periodicool.library import get_setting
+
+        first_weekday = 6 if str(get_setting(session, "ui.first_weekday", "0")) == "6" else 0
     if view == "month":
         weeks = activity.month_grid(focus.year, focus.month, first_weekday)
         start, end = weeks[0][0], weeks[-1][-1]
@@ -318,15 +331,7 @@ def calendar_page(request: Request, view: str = "month", day: str = "") -> HTMLR
             title=title,
             prev_day=prev_day,
             next_day=next_day,
-            weekday_names=[
-                ("Mon", "Monday"),
-                ("Tue", "Tuesday"),
-                ("Wed", "Wednesday"),
-                ("Thu", "Thursday"),
-                ("Fri", "Friday"),
-                ("Sat", "Saturday"),
-                ("Sun", "Sunday"),
-            ],
+            weekday_names=WEEKDAYS[first_weekday:] + WEEKDAYS[:first_weekday],
             api_key=auth.api_key(request.app.state.settings.config_dir),
         )
 
