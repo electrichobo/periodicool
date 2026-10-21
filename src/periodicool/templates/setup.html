@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Set up · PeriodiCool{% endblock %}
+{% block content %}
+<section class="panel gate" aria-labelledby="setup-title">
+  <h1 class="panel__label" id="setup-title">Create the admin login</h1>
+  <p>PeriodiCool has one login. You can turn login off for your local network later in Settings.</p>
+  {% if error %}<p class="field__error" role="alert">{{ error }}</p>{% endif %}
+  <form class="stack" method="post" action="/setup">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="field">
+      <label class="field__label" for="username">Username</label>
+      <input class="input" id="username" name="username" value="{{ username }}" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label class="field__label" for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required autofocus aria-describedby="password-help">
+      <span class="field__help" id="password-help">At least 8 characters.</span>
+    </div>
+    <div class="field">
+      <label class="field__label" for="confirm">Password again</label>
+      <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required>
+    </div>
+    <div class="cluster"><button class="btn btn--primary" type="submit">Create login</button></div>
+  </form>
+</section>
+{% endblock %}

@@ -19,6 +19,7 @@ python -m periodicool grab RELEASE_ID         send one release to SABnzbd
 python -m periodicool downloads               grabs and their status
 python -m periodicool monitor                 check downloads and import finished ones
 python -m periodicool blocklist [remove ID]
+python -m periodicool user reset-password [--username NAME]   new password, logs out everywhere
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
-from periodicool import db, downloads, library, search
+from periodicool import auth, db, downloads, library, search
 from periodicool.clients.base import ClientError
 from periodicool.config import Settings, load_settings
 from periodicool.jobs import today_in
@@ -419,6 +420,32 @@ def cmd_blocklist(session, settings, args, out) -> int:
     return 0
 
 
+def _read_password() -> tuple[str, str]:
+    import getpass
+
+    return getpass.getpass("New password: "), getpass.getpass("Again: ")
+
+
+# Tests replace this to avoid a terminal prompt.
+READ_PASSWORD = _read_password
+
+
+def cmd_user_reset(session, settings, args, out) -> int:
+    if not auth.has_user(session):
+        print("No login exists yet. Open the web UI to create one at /setup.", file=out)
+        return 1
+    password, confirm = READ_PASSWORD()
+    if problem := auth.password_problem(password, confirm):
+        print(problem, file=out)
+        return 2
+    user = auth.reset_password(session, args.username, password)
+    if user is None:
+        print(f"No user named {args.username!r}.", file=out)
+        return 1
+    print(f"Password changed for {user.username}. Every session was logged out.", file=out)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="periodicool")
     sub = p.add_subparsers(dest="command")
@@ -467,6 +494,10 @@ def build_parser() -> argparse.ArgumentParser:
     bl.add_argument("action", nargs="?", choices=["list", "remove"], default="list")
     bl.add_argument("id", nargs="?", type=int)
     bl.set_defaults(func=cmd_blocklist)
+    user = sub.add_parser("user").add_subparsers(dest="user_command", required=True)
+    reset = user.add_parser("reset-password")
+    reset.add_argument("--username")
+    reset.set_defaults(func=cmd_user_reset)
     return p
 
 

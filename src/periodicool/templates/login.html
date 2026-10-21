@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Log in · PeriodiCool{% endblock %}
+{% block content %}
+<section class="panel gate" aria-labelledby="login-title">
+  <h1 class="panel__label" id="login-title">Log in</h1>
+  {% if error %}<p class="field__error" role="alert">{{ error }}</p>{% endif %}
+  <form class="stack" method="post" action="/login">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="field">
+      <label class="field__label" for="username">Username</label>
+      <input class="input" id="username" name="username" value="{{ username }}" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label class="field__label" for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <div class="cluster"><button class="btn btn--primary" type="submit">Log in</button></div>
+  </form>
+  <p class="field__help">Locked out? Run <code>python -m periodicool user reset-password</code> inside the container.</p>
+</section>
+{% endblock %}

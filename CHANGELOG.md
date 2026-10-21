@@ -14,6 +14,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Prowlarr RSS sync and magazine search with an accept/reject reason for every candidate, per-indexer limits read from Prowlarr, request spacing, result cache, per-magazine backoff, and background jobs (RSS, Wanted search, library rescan, import folder).
 - Thirteen-per-year magazines: release names with an issue number but no month get an estimated month when the issue is newer than any known one; the estimate is flagged.
 - SABnzbd support: grab (NZB uploaded into PeriodiCool's category only), download monitor by job ID, import into the library, failed-download handling with blocklist and automatic retry of the next best release, and removal of the job's leftover folder after a verified import. Auto-grab is off by default.
+- Web UI groundwork: cassette-futurism theme at an 80% scale, vendored fonts and htmx, and shared parts (pop-up, toasts, confirm dialog, page toolbar, sortable and filterable tables with a column chooser and bulk select, tabs, collapsible years, pager, charts), shown at `/ui-kit`.
+- Login: first-run setup of one admin (scrypt password hash), 30-day sliding sessions stored as token hashes, CSRF tokens on every form and htmx request, backoff after failed logins, `auth.mode` (`required`, `local`, `off`), an API key in `/config/api.key`, and `user reset-password` on the command line.
 - Docker image (python:3.14-slim) that runs as PUID:PGID and never as root, with a health check; multi-arch (amd64, arm64) release workflow to GHCR on version tags; example compose file; `requirements.lock` pinning every runtime package.
 
 ### Changed

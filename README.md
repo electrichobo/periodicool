@@ -91,6 +91,27 @@ Only paths, process settings and secrets come from the environment. Everything e
 | `PROWLARR_API_KEY` | unset | Prowlarr API key |
 | `SABNZBD_API_KEY` | unset | SABnzbd API key |
 | `PERIODICOOL_JOBS` | `on` | `off` disables background jobs |
+| `PERIODICOOL_SECRET` | unset | Signing secret for CSRF tokens. When unset, one is generated into `/config/secret.key` |
+
+## Login
+
+The first visit to the web UI asks you to create the one admin login. Sessions last 30 days and renew while you use them. After 5 failed logins from one address, that address has to wait, starting at 30 seconds and doubling up to 15 minutes.
+
+The setting `auth.mode` controls who needs to log in:
+
+| Mode | Who logs in |
+| - | - |
+| `required` (default) | Everyone |
+| `local` | Only visitors from outside private and loopback addresses. `X-Forwarded-For` is ignored unless `auth.trust_proxy` is on |
+| `off` | Nobody. Only use this on a network you trust |
+
+Locked out? Run this inside the container and enter a new password; it also logs out every session:
+
+```
+python -m periodicool user reset-password
+```
+
+An API key is generated into `/config/api.key` on first start. For now only the calendar feed uses it.
 
 ## License
 

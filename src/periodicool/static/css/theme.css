@@ -102,6 +102,8 @@ html {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   margin: 0;
   min-height: 100vh;
   background:
@@ -213,8 +215,20 @@ a {
   background: var(--amber);
   border-color: var(--amber);
 }
+.logout {
+  margin-left: auto;
+}
+
+/* Login and setup: one narrow panel */
+.gate {
+  max-width: 26rem;
+  margin: 3rem auto;
+}
 
 main {
+  flex: 1 0 auto;
+  box-sizing: border-box;
+  width: 100%;
   max-width: 90rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;

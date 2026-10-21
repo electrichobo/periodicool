@@ -28,6 +28,12 @@
         {% endfor %}
       </ul>
     </nav>
+    {% if user %}
+    <form class="logout" method="post" action="/logout">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn--chassis btn--small" type="submit">Log out <span class="visually-hidden">{{ user.username }}</span></button>
+    </form>
+    {% endif %}
     {% endif %}
   </header>
   <main id="main" tabindex="-1">
