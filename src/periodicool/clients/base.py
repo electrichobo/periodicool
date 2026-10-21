@@ -29,6 +29,10 @@ class JobState:
     progress: float = 0.0  # 0 to 100
     storage_path: str | None = None  # as the client sees it
     fail_message: str | None = None
+    size_bytes: int | None = None
+    size_left_bytes: int | None = None
+    time_left_s: int | None = None
+    in_history: bool = False  # finished (or failed) rather than still in the queue
 
 
 class ClientError(Exception):
@@ -48,4 +52,11 @@ class DownloadClient(Protocol):
 
     def jobs(self, job_ids: list[str], category: str) -> list[JobState]:
         """State of our jobs only. Jobs that are not found are left out."""
+        ...
+
+    def remove(self, job_id: str, category: str) -> bool:
+        """Remove one of our jobs, after checking it is in our category.
+
+        Returns False when the job is not there (already gone).
+        """
         ...

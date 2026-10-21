@@ -25,6 +25,7 @@ from periodicool.library import (
     get_setting,
     plan_scan,
     process_import_folder,
+    refresh_file_info,
 )
 from periodicool.models import Job, ScanKind
 from periodicool.search import make_client, rss_sync, wanted_search
@@ -87,6 +88,7 @@ def run_downloads(session: Session, settings: Settings, now: datetime) -> str:
 def run_library(session: Session, settings: Settings, now: datetime) -> str:
     if not settings.library_dir.is_dir():
         return f"skipped: library folder {settings.library_dir} not found"
+    refresh_file_info(session, settings.library_dir)
     scan = plan_scan(session, settings.library_dir, ScanKind.LIBRARY)
     if not get_setting(session, FIRST_SCAN_KEY, False):
         return f"scan {scan.id} planned; waiting for the first scan to be applied by hand"

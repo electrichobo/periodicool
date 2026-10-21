@@ -53,4 +53,15 @@ src = ["src", "tests"]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "PTH"]
 
 [tool.ruff.lint.isort]
-known-local-folder = ["dev_magazines", "snapshot", "fake_prowlarr", "fake_sab"]
+known-local-folder = [
+    "dev_magazines",
+    "snapshot",
+    "fake_prowlarr",
+    "fake_sab",
+    "test_downloads",
+    "test_library",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Reuses fixtures from other test modules; pytest injects them by name.
+"tests/test_parity.py" = ["F811"]

@@ -23,11 +23,13 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from periodicool import history
 from periodicool.matching import match_title
 from periodicool.models import (
     FileMove,
     FormatProfile,
     Frequency,
+    HistoryEvent,
     ImportItem,
     Issue,
     IssueStatus,
@@ -418,7 +420,8 @@ def _fields_for_issue(item: ImportItem) -> dict:
     return out
 
 
-def _link_issue(session: Session, item: ImportItem) -> None:
+def _link_issue(session: Session, item: ImportItem) -> bool:
+    """Point the issue at the item's file. True when the link is new or changed."""
     issue = _issue(session, item.magazine_id, item.issue_key)
     if issue is None:
         issue = Issue(
@@ -429,8 +432,14 @@ def _link_issue(session: Session, item: ImportItem) -> None:
             **_fields_for_issue(item),
         )
         session.add(issue)
+    changed = issue.file_path != item.target_path
     issue.file_path = item.target_path
     issue.status = IssueStatus.IMPORTED
+    issue.file_size = item.size
+    issue.file_format = Path(item.target_path).suffix.lower().lstrip(".") or None
+    if changed or issue.imported_at is None:
+        issue.imported_at = datetime.now(UTC)
+    return changed
 
 
 def apply_scan(
@@ -469,7 +478,15 @@ def apply_item(session: Session, item: ImportItem, library_root: Path, result: d
         result["failed"] += 1
         return
     if item.action is ItemAction.KEEP:
-        _link_issue(session, item)
+        if _link_issue(session, item) and item.origin is not ScanKind.DOWNLOAD:
+            history.record(
+                session,
+                HistoryEvent.FILE_LINKED,
+                magazine_id=item.magazine_id,
+                issue_key=item.issue_key,
+                source_title=Path(item.source_path).name,
+                path=item.target_path,
+            )
         item.status = ItemStatus.DONE
         result["kept"] += 1
         return
@@ -502,6 +519,17 @@ def apply_item(session: Session, item: ImportItem, library_root: Path, result: d
     else:
         move.ok = True
         _link_issue(session, item)
+        if item.origin is not ScanKind.DOWNLOAD:  # downloads record "imported" instead
+            history.record(
+                session,
+                HistoryEvent.FILE_MOVED,
+                magazine_id=item.magazine_id,
+                issue_key=item.issue_key,
+                source_title=src.name,
+                source=str(src),
+                target=item.target_path,
+                method=move.method,
+            )
         item.status = ItemStatus.DONE
         result["moved"] += 1
         log.info("Moved (%s): %s -> %s", move.method, src, dst)
@@ -585,3 +613,48 @@ def process_import_folder(session: Session, import_root: Path, library_root: Pat
     if get_setting(session, AUTO_APPLY_KEY, True) and get_setting(session, FIRST_SCAN_KEY, False):
         apply_scan(session, scan.id, library_root)
     return scan
+
+
+# File details and covers
+
+COVER_NAMES = tuple(
+    f"{stem}.{ext}"
+    for stem in ("cover", "folder", "poster")
+    for ext in ("jpg", "jpeg", "png", "webp")
+)
+
+
+def refresh_file_info(session: Session, library_root: Path) -> dict:
+    """Fill in size, format and date for linked files, and find magazine cover images.
+
+    Reads the disk only; never changes a file.
+    """
+    root = Path(library_root)
+    counts = {"files": 0, "covers": 0}
+    folders: dict[int, str] = {}
+    for issue in session.scalars(select(Issue).where(Issue.file_path.is_not(None))):
+        folders.setdefault(issue.magazine_id, issue.file_path.split("/")[0])
+        if issue.file_size is not None:
+            continue
+        try:
+            st = (root / issue.file_path).stat()
+        except OSError:
+            continue
+        issue.file_size = st.st_size
+        issue.file_format = Path(issue.file_path).suffix.lower().lstrip(".") or None
+        issue.imported_at = issue.imported_at or datetime.fromtimestamp(st.st_mtime, UTC)
+        counts["files"] += 1
+    for mag in session.scalars(select(Magazine)):
+        if mag.cover_path and (root / mag.cover_path).is_file():
+            continue
+        folder = folders.get(mag.id)
+        found = None
+        if folder:
+            for name in COVER_NAMES:
+                if (root / folder / name).is_file():
+                    found = f"{folder}/{name}"
+                    break
+        if found != mag.cover_path:
+            mag.cover_path = found
+            counts["covers"] += bool(found)
+    return counts

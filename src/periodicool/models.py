@@ -7,6 +7,7 @@ from enum import StrEnum
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Date,
     DateTime,
     Enum,
@@ -119,6 +120,9 @@ class Magazine(Base):
     # Query sent to Prowlarr; None means the title without punctuation.
     search_term: Mapped[str | None] = mapped_column(String(200))
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    tags: Mapped[list[str]] = mapped_column(JSON, default=list, server_default="[]")
+    # A sidecar image in the magazine's folder, relative to the library root.
+    cover_path: Mapped[str | None] = mapped_column(String(1000))
 
     format_profile: Mapped[FormatProfile | None] = relationship()
     issues: Mapped[list[Issue]] = relationship(
@@ -162,6 +166,9 @@ class Issue(Base):
     status: Mapped[IssueStatus] = mapped_column(_enum(IssueStatus), default=IssueStatus.WANTED)
     # Relative to the library root, POSIX separators.
     file_path: Mapped[str | None] = mapped_column(String(1000))
+    file_size: Mapped[int | None] = mapped_column(BigInteger)
+    file_format: Mapped[str | None] = mapped_column(String(10))
+    imported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     magazine: Mapped[Magazine] = relationship(back_populates="issues")
 
@@ -364,6 +371,9 @@ class Grab(Base):
     status: Mapped[GrabStatus] = mapped_column(_enum(GrabStatus), default=GrabStatus.QUEUED)
     client_status: Mapped[str | None] = mapped_column(String(50))
     progress: Mapped[float] = mapped_column(Float, default=0.0)
+    size_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    size_left_bytes: Mapped[int | None] = mapped_column(BigInteger)
+    time_left_s: Mapped[int | None]
     storage_path: Mapped[str | None] = mapped_column(String(2000))
     error: Mapped[str | None] = mapped_column(String(2000))
     import_item_id: Mapped[int | None] = mapped_column(
@@ -418,3 +428,46 @@ class LoginSession(Base):
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     user: Mapped[User] = relationship()
+
+
+class HistoryEvent(StrEnum):
+    GRABBED = "grabbed"
+    DOWNLOAD_FAILED = "download_failed"
+    DOWNLOAD_REMOVED = "download_removed"
+    IMPORTED = "imported"
+    IMPORT_FAILED = "import_failed"
+    IMPORT_REVIEW = "import_review"
+    FILE_MOVED = "file_moved"
+    FILE_LINKED = "file_linked"
+    BLOCKLISTED = "blocklisted"
+
+
+class History(Base):
+    """What happened to each magazine and issue, newest first in the UI."""
+
+    __tablename__ = "history"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    date: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    event: Mapped[HistoryEvent] = mapped_column(_enum(HistoryEvent))
+    magazine_id: Mapped[int | None] = mapped_column(
+        ForeignKey("magazines.id", ondelete="SET NULL"), index=True
+    )
+    issue_key: Mapped[str | None] = mapped_column(String(100))
+    source_title: Mapped[str | None] = mapped_column(String(1000))
+    grab_id: Mapped[int | None] = mapped_column(ForeignKey("grabs.id", ondelete="SET NULL"))
+    data: Mapped[dict] = mapped_column(JSON, default=dict)
+
+    magazine: Mapped[Magazine | None] = relationship()
+
+
+class LogEvent(Base):
+    """INFO and above from PeriodiCool's loggers, redacted, pruned by age and count."""
+
+    __tablename__ = "log_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    level: Mapped[str] = mapped_column(String(10))
+    logger: Mapped[str] = mapped_column(String(100))
+    message: Mapped[str] = mapped_column(String(4000))

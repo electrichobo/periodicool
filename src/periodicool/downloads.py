@@ -24,6 +24,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from periodicool import history
 from periodicool.clients.base import ClientError, DownloadClient, JobStatus
 from periodicool.clients.sabnzbd import SabnzbdClient
 from periodicool.config import Settings
@@ -41,6 +42,7 @@ from periodicool.models import (
     BlockedRelease,
     Grab,
     GrabStatus,
+    HistoryEvent,
     ImportItem,
     Issue,
     IssueStatus,
@@ -157,6 +159,7 @@ def blocklist(
     issue_key,
     reason: str,
     indexer_id=None,
+    record: bool = True,
 ) -> BlockedRelease:
     row = BlockedRelease(
         guid=release.guid if release else None,
@@ -167,6 +170,15 @@ def blocklist(
         reason=reason[:1000],
     )
     session.add(row)
+    if record:
+        history.record(
+            session,
+            HistoryEvent.BLOCKLISTED,
+            magazine_id=magazine_id,
+            issue_key=issue_key,
+            source_title=title,
+            reason=reason[:1000],
+        )
     log.info("Blocklisted %s: %s", title, reason)
     return row
 
@@ -295,6 +307,14 @@ def grab(
     )
     session.add(result.grab)
     session.flush()
+    history.record_grab(
+        session,
+        HistoryEvent.GRABBED,
+        result.grab,
+        indexer_id=release.indexer_id,
+        size=release.size,
+        guid=release.guid,
+    )
     log.info("Grabbed %s for %s %s as job %s", release.title, mag.title, ev.issue_key, job_id)
     return result
 
@@ -396,9 +416,13 @@ def monitor(
                     continue
                 g.status, g.error = GrabStatus.REMOVED, "job no longer in the download client"
                 _issue_wanted(session, g)
+                history.record_grab(session, HistoryEvent.DOWNLOAD_REMOVED, g, reason=g.error)
                 result.removed.append(g)
                 continue
             g.client_status, g.progress = state.client_status, state.progress
+            if state.size_bytes is not None:
+                g.size_bytes = state.size_bytes
+            g.size_left_bytes, g.time_left_s = state.size_left_bytes, state.time_left_s
             result.updated += 1
             if state.status is JobStatus.FAILED:
                 reason = f"download failed: {state.fail_message or state.client_status}"
@@ -420,7 +444,10 @@ def _import(session, g, settings, prowlarr, client, today, result) -> None:
     if outcome == "imported":
         result.imported.append(g)
     elif outcome == "failed":
-        if new := fail(session, g, g.error or "import failed", prowlarr, client, today):
+        reason = g.error or "import failed"
+        if new := fail(
+            session, g, reason, prowlarr, client, today, event=HistoryEvent.IMPORT_FAILED
+        ):
             result.retried.append(new)
         result.failed.append(g)
     else:
@@ -440,11 +467,15 @@ def fail(
     prowlarr: ProwlarrClient | None,
     client: DownloadClient | None,
     today: date,
+    event: HistoryEvent = HistoryEvent.DOWNLOAD_FAILED,
 ) -> Grab | None:
     """Blocklist the release, free the issue, and grab the next best release once."""
-    blocklist(session, g.release, g.title, g.magazine_id, g.issue_key, reason, g.indexer_id)
+    blocklist(
+        session, g.release, g.title, g.magazine_id, g.issue_key, reason, g.indexer_id, record=False
+    )
     g.status, g.error = GrabStatus.FAILED, reason[:2000]
     _issue_wanted(session, g)
+    history.record_grab(session, event, g, reason=reason[:1000], blocklisted=True)
     session.flush()
     log.warning("Grab %s failed: %s", g.title, reason)
     if prowlarr is None or client is None or g.magazine_id is None:
@@ -464,9 +495,10 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     downloads = settings.downloads_dir.resolve()
     local = Path(map_path(g.storage_path or "", get_setting(session, PATH_MAP_KEY, []))).resolve()
     if local == downloads or not local.is_relative_to(downloads):
-        return _review(g, f"download path {local} is outside {downloads}; check sabnzbd.path_map")
+        why = f"download path {local} is outside {downloads}; check sabnzbd.path_map"
+        return _review(session, g, why)
     if not local.exists():
-        return _review(g, f"download path {local} not found; check sabnzbd.path_map")
+        return _review(session, g, f"download path {local} not found; check sabnzbd.path_map")
 
     files = [local] if local.is_file() else walk(local)[0]
     files = [f for f in files if f.suffix.lower().lstrip(".") in FORMATS]
@@ -476,7 +508,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     mag = session.get(Magazine, g.magazine_id)
     issue = _issue(session, g.magazine_id, g.issue_key)
     if mag is None or issue is None:
-        return _review(g, "magazine or issue no longer exists")
+        return _review(session, g, "magazine or issue no longer exists")
 
     def score(f: Path):
         parsed = parse_release(f.stem)
@@ -488,7 +520,8 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     if not parsed.reasons and match_title(parsed, mag.title_spec()).accepted:
         ident = identify(parsed, mag)
         if ident.confident and ident.key != g.issue_key:
-            return _review(g, f"file {best.name} looks like {ident.key}, grabbed for {g.issue_key}")
+            why = f"file {best.name} looks like {ident.key}, grabbed for {g.issue_key}"
+            return _review(session, g, why)
 
     ext = best.suffix.lower().lstrip(".")
     fields = {k: getattr(issue, k) for k in _ISSUE_FIELDS}
@@ -496,7 +529,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     try:
         target = render(template, mag, fields, ext, key=g.issue_key)
     except UnsafePathError as exc:
-        return _review(g, str(exc))
+        return _review(session, g, str(exc))
 
     scan = Scan(kind=ScanKind.DOWNLOAD, root=str(local), counts={})
     session.add(scan)
@@ -531,11 +564,20 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     library_root = settings.library_dir.resolve()
     apply_item(session, item, library_root, {"moved": 0, "kept": 0, "failed": 0, "review": 0})
     if item.status is not ItemStatus.DONE or item.action is ItemAction.REVIEW:
-        return _review(g, item.reason or "import did not complete")
+        return _review(session, g, item.reason or "import did not complete")
     final = library_root / item.target_path
     if not final.is_file() or final.stat().st_size != st.st_size:
-        return _review(g, f"imported file {final} missing or wrong size")
+        return _review(session, g, f"imported file {final} missing or wrong size")
     g.status, g.imported_at, g.error = GrabStatus.IMPORTED, datetime.now(UTC), None
+    history.record_grab(
+        session,
+        HistoryEvent.IMPORTED,
+        g,
+        path=item.target_path,
+        size=st.st_size,
+        format=ext,
+        source_path=str(best),
+    )
     log.info("Imported %s to %s", best, final)
     if get_setting(session, LEFTOVERS_KEY, True) and local.is_dir():
         if why := _safe_to_remove(local, downloads, library_root):
@@ -546,8 +588,9 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     return "imported"
 
 
-def _review(g: Grab, reason: str) -> str:
+def _review(session: Session, g: Grab, reason: str) -> str:
     g.status, g.error = GrabStatus.REVIEW, reason[:2000]
+    history.record_grab(session, HistoryEvent.IMPORT_REVIEW, g, reason=reason[:1000])
     log.warning("Grab %s needs review: %s", g.title, reason)
     return "review"
 
@@ -565,3 +608,45 @@ def _safe_to_remove(folder: Path, downloads: Path, library_root: Path) -> str | 
             if Path(dirpath, name).is_symlink():
                 return f"contains a symlink ({name})"
     return None
+
+
+def remove_grab(
+    session: Session, grab_id: int, client: DownloadClient, add_to_blocklist: bool = False
+) -> Grab:
+    """Remove one of our jobs from the download client (the queue's Remove button).
+
+    Only grabs PeriodiCool made are touched, and the client checks the category again.
+    """
+    g = session.get(Grab, grab_id)
+    if g is None:
+        raise ValueError(f"no grab {grab_id}")
+    if g.client != client.name:
+        raise ValueError(f"grab {grab_id} belongs to {g.client}, not {client.name}")
+    if g.status not in (*ACTIVE_GRAB, GrabStatus.REVIEW):
+        raise ValueError(f"grab {grab_id} is {g.status.value}; nothing to remove")
+    found = client.remove(g.job_id, g.category)
+    g.status, g.error = GrabStatus.REMOVED, "removed by user"
+    g.size_left_bytes = g.time_left_s = None
+    _issue_wanted(session, g)
+    if add_to_blocklist:
+        blocklist(
+            session,
+            g.release,
+            g.title,
+            g.magazine_id,
+            g.issue_key,
+            "removed by user",
+            g.indexer_id,
+            record=False,
+        )
+    history.record_grab(
+        session,
+        HistoryEvent.DOWNLOAD_REMOVED,
+        g,
+        reason="removed by user",
+        blocklisted=add_to_blocklist or None,
+        in_client=found,
+    )
+    session.flush()
+    log.info("Removed %s (job %s) from %s", g.title, g.job_id, client.name)
+    return g

@@ -14,6 +14,9 @@ FOREIGN_QUEUE = {
     "cat": "movies",
     "status": "Downloading",
     "percentage": "40",
+    "mb": "4000",
+    "mbleft": "2400",
+    "timeleft": "0:10:00",
 }
 FOREIGN_HISTORY = {
     "nzo_id": "SABnzbd_nzo_tv",
@@ -44,11 +47,13 @@ class FakeSab:
         self.added = []  # (category, nzbname, body)
         self.queue = {}  # nzo_id -> slot
         self.history = {}
+        self.deleted = []  # (mode, nzo_id, del_files)
         self._ids = itertools.count(1)
 
     def complete(self, job_id, storage, status="Completed", fail_message=""):
         slot = self.queue.pop(job_id)
         self.history[job_id] = {
+            "bytes": int(float(slot.get("mb", 0)) * 1024 * 1024),
             "nzo_id": job_id,
             "name": slot["filename"],
             "category": slot["cat"],
@@ -77,8 +82,16 @@ class FakeSab:
                 "cat": q["cat"],
                 "status": "Queued",
                 "percentage": "0",
+                "mb": "80.5",
+                "mbleft": "80.5",
+                "timeleft": "0:00:00",
             }
             return 200, json.dumps({"status": True, "nzo_ids": [job]}).encode()
+        if mode in ("queue", "history") and q.get("name") == "delete":
+            # Mirrors SAB: deletes whatever ID it is given, so the client must check first.
+            self.deleted.append((mode, q["value"], q.get("del_files")))
+            (self.queue if mode == "queue" else self.history).pop(q["value"], None)
+            return 200, json.dumps({"status": True, "nzo_ids": [q["value"]]}).encode()
         if mode == "queue":
             slots = [*self.queue.values(), FOREIGN_QUEUE]
             return 200, json.dumps({"queue": {"slots": slots}}).encode()

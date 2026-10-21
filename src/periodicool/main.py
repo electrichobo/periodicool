@@ -10,6 +10,8 @@ from fastapi import Depends, FastAPI
 
 from periodicool import __version__, auth, db
 from periodicool.config import Settings, load_settings
+from periodicool.library import get_setting, refresh_file_info
+from periodicool.logs import LogSetup
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -23,6 +25,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         auth.api_key(settings.config_dir)  # created on first start
         app.state.engine = db.make_engine(settings.db_url)
         app.state.sessions = db.make_session_factory(app.state.engine)
+        with app.state.sessions() as session:
+            level = get_setting(session, "log.level", "info")
+            if settings.library_dir.is_dir():
+                refresh_file_info(session, settings.library_dir)
+            session.commit()
+        app.state.logs = LogSetup(settings.config_dir, app.state.sessions, level)
         stop, task = asyncio.Event(), None
         if settings.jobs_enabled:
             from periodicool.jobs import Scheduler
@@ -34,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             stop.set()
             if task is not None:
                 await task
+            app.state.logs.detach()
             app.state.engine.dispose()
 
     from periodicool.web.security import auth_middleware, csrf_guard

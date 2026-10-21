@@ -1,9 +1,10 @@
 """SABnzbd client (stdlib only).
 
 SABnzbd usually serves other apps too. This client only ever calls:
-`version` and `get_cats` (read), `addfile` (into our category), and `queue`
-and `history` filtered to our category and our job IDs. Responses are
-filtered again here, so a job that is not ours is never returned.
+`version` and `get_cats` (read), `addfile` (into our category), `queue`
+and `history` filtered to our category and our job IDs, and `delete` for one
+of our job IDs after confirming it is in our category. Responses are
+filtered again here, so a job that is not ours is never returned or removed.
 """
 
 from __future__ import annotations
@@ -146,6 +147,9 @@ class SabnzbdClient:
                     status=status,
                     client_status=raw,
                     progress=_float(slot.get("percentage")),
+                    size_bytes=_mb(slot.get("mb")),
+                    size_left_bytes=_mb(slot.get("mbleft")),
+                    time_left_s=_duration(slot.get("timeleft")),
                 )
         history = self._call(
             {"mode": "history", "cat": category, "category": category, "nzo_ids": ids}
@@ -169,8 +173,54 @@ class SabnzbdClient:
                 progress=100.0,
                 storage_path=slot.get("storage") or None,
                 fail_message=slot.get("fail_message") or None,
+                size_bytes=_int(slot.get("bytes")),
+                size_left_bytes=0,
+                in_history=True,
             )
         return list(out.values())
+
+    def remove(self, job_id: str, category: str) -> bool:
+        # Look the job up through the category-filtered calls first: if it is not ours,
+        # it is not found, and nothing is deleted.
+        found = [s for s in self.jobs([job_id], category) if s.job_id == job_id]
+        if not found:
+            return False
+        if found[0].in_history:
+            # History entry only; files of a finished job stay where they are.
+            params = {"mode": "history", "name": "delete", "value": job_id, "del_files": 0}
+        else:
+            # Unfinished download: its partial files are useless, so SAB removes them.
+            params = {"mode": "queue", "name": "delete", "value": job_id, "del_files": 1}
+        self._call(params)
+        return True
+
+
+def _int(value) -> int | None:
+    try:
+        return int(value)
+    except TypeError, ValueError:
+        return None
+
+
+def _mb(value) -> int | None:
+    try:
+        return int(float(value) * 1024 * 1024)
+    except TypeError, ValueError:
+        return None
+
+
+def _duration(value) -> int | None:
+    """SAB's time left, "1:02:03" or "2:01:02:03" (days first), in seconds."""
+    try:
+        parts = [int(p) for p in str(value).split(":")]
+    except ValueError:
+        return None
+    if not 1 <= len(parts) <= 4:
+        return None
+    seconds = 0
+    for part, unit in zip(reversed(parts), (1, 60, 3600, 86400), strict=False):
+        seconds += part * unit
+    return seconds
 
 
 def _float(value) -> float:
