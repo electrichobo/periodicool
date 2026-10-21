@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-effects="on">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token | default('') }}">
+  <title>{% block title %}PeriodiCool{% endblock %}</title>
+  <link rel="stylesheet" href="{{ static('css/theme.css') }}">
+  <script src="{{ static('js/app.js') }}"></script>
+  <script src="{{ static('vendor/htmx/htmx.min.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="deck-bar">
+    <a class="brand" href="/">
+      <span class="brand__mark" aria-hidden="true">&#9673;</span>
+      PeriodiCool
+      <span class="brand__sub">magazine deck</span>
+    </a>
+    {% if nav is not defined or nav %}
+    <nav aria-label="Main">
+      <ul class="nav">
+        {% for href, label in [
+          ("/", "Magazines"), ("/wanted", "Wanted"), ("/activity", "Activity"),
+          ("/history", "History"), ("/library", "Library"), ("/settings", "Settings"),
+          ("/health/details", "Health")] %}
+        <li><a href="{{ href }}"{% if active == href %} aria-current="page"{% endif %}>{{ label }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+    {% endif %}
+  </header>
+  <main id="main" tabindex="-1">
+    {% for kind, text in flashes | default([]) %}
+    <div class="crt flash" role="status"><span class="led led--{{ kind }}">{{ kind }}</span> {{ text }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="deck-bar">
+    <label class="switch switch--on-chassis">
+      Effects
+      <input type="checkbox" id="effects-switch" role="switch" checked>
+      <span class="switch__state" aria-hidden="true"></span>
+    </label>
+    <span class="footer-version">v{{ version }}</span>
+  </footer>
+</body>
+</html>

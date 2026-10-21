@@ -33,13 +33,16 @@ version = { attr = "periodicool.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["periodicool.static*", "periodicool.templates*"]
 
 [tool.setuptools.package-data]
 "periodicool.migrations" = ["script.py.mako"]
+periodicool = ["templates/**/*", "static/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = ["slow: builds a wheel (a few seconds)"]
 
 [tool.ruff]
 line-length = 100

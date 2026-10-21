@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}UI kit · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">UI kit</h1>
+<p class="on-chassis-muted">Every component in every state. The screens are built from these.</p>
+
+<div class="stack">
+  <section class="panel" aria-labelledby="kit-buttons">
+    <h2 class="panel__label" id="kit-buttons">Transport buttons</h2>
+    <div class="cluster">
+      <button class="btn" type="button">Search</button>
+      <button class="btn btn--primary" type="button">&#9654; Grab</button>
+      <button class="btn btn--danger" type="button">Delete</button>
+      <button class="btn" type="button" aria-pressed="true">Pressed</button>
+      <button class="btn" type="button" disabled>Disabled</button>
+    </div>
+    <div class="cluster" style="margin-top: 1rem; padding: 0.75rem; background: var(--chassis); border-radius: 8px">
+      <button class="btn btn--chassis" type="button">&#9198; Rescan</button>
+      <button class="btn btn--chassis" type="button">&#9632; Stop</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-switches">
+    <h2 class="panel__label" id="kit-switches">Switches and LEDs</h2>
+    <div class="cluster">
+      <label class="switch">Auto-grab <input type="checkbox" role="switch"><span class="switch__state" aria-hidden="true"></span></label>
+      <label class="switch">Remove leftovers <input type="checkbox" role="switch" checked><span class="switch__state" aria-hidden="true"></span></label>
+    </div>
+    <div class="cluster" style="margin-top: 1rem">
+      <span class="led led--ok">Imported</span>
+      <span class="led led--info">Downloading</span>
+      <span class="led led--warn">Wanted</span>
+      <span class="led led--bad">Missing</span>
+      <span class="led led--off">Unmonitored</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-tags">
+    <h2 class="panel__label" id="kit-tags">Label-maker tags</h2>
+    <div class="cluster">
+      <span class="tag">Monthly</span>
+      <span class="tag tag--blue">TruePDF</span>
+      <span class="tag tag--red">Blocklisted</span>
+      <span class="tag tag--yellow">Estimated</span>
+      <span class="tag">13 / year</span>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-readouts">
+    <h2 class="panel__label" id="kit-readouts">Readouts and meters</h2>
+    <div class="grid">
+      <div class="crt">
+        <pre>NZBFinder   queries  no limit set
+NZBgeek     queries  no limit set
+NzbPlanet   queries  12 / 100 left</pre>
+        <span class="crt__dim">last RSS 19:28 · next 19:43</span>
+      </div>
+      <div class="stack">
+        <div>
+          <div class="field__label">Tape counter</div>
+          <span class="counter" aria-label="Issues: 437">
+            <span class="counter__ghost" aria-hidden="true">888</span>
+            <span class="counter__value" aria-hidden="true">437</span>
+          </span>
+        </div>
+        <div>
+          <div class="field__label" id="seg-label">Downloading · 64%</div>
+          <div class="segbar" role="progressbar" aria-labelledby="seg-label" aria-valuemin="0" aria-valuemax="100" aria-valuenow="64" style="--value: 64">
+            <div class="segbar__fill"></div>
+          </div>
+        </div>
+        <div>
+          <div class="field__label" id="seg-label-2">Nearly done · 95%</div>
+          <div class="segbar" role="progressbar" aria-labelledby="seg-label-2" aria-valuemin="0" aria-valuemax="100" aria-valuenow="95" style="--value: 95">
+            <div class="segbar__fill"></div>
+          </div>
+        </div>
+      </div>
+      <div class="vu" role="meter" aria-label="Indexer queries used today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70" style="--value: 70">
+        <span class="vu__label">QUERIES</span>
+        <span class="vu__value">70%</span>
+        <div class="vu__scale" aria-hidden="true"></div>
+        <div class="vu__needle" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="kit-cards">
+    <h2 class="page-title" id="kit-cards" style="font-size: 1.3rem">Magazine cards</h2>
+    <div class="grid">
+      {% for title, freq, stripe, have, wanted, missing, count in [
+        ("Fortean Times", "13 / year", "var(--orange)", 97, 1, 0, 475),
+        ("2600: The Hacker Quarterly", "Seasonal", "var(--tape-blue)", 12, 0, 1, 12),
+        ("Linux Magazine", "Monthly", "var(--amber)", 40, 2, 3, 311)] %}
+      <a class="cassette" href="#" style="--stripe: {{ stripe }}">
+        <div class="cassette__label">
+          <h3 class="cassette__title">{{ title }}</h3>
+          <div class="cassette__meta"><span class="tag">{{ freq }}</span></div>
+        </div>
+        <div class="cassette__window">
+          <span class="reel" aria-hidden="true"></span>
+          <span class="counter" aria-label="Latest issue: {{ count }}">
+            <span class="counter__ghost" aria-hidden="true">888</span>
+            <span class="counter__value" aria-hidden="true">{{ count }}</span>
+          </span>
+          <span class="reel" aria-hidden="true"></span>
+        </div>
+        <div class="cassette__leds">
+          <span class="led led--ok">{{ have }} have</span>
+          <span class="led led--warn">{{ wanted }} wanted</span>
+          <span class="led {{ 'led--bad' if missing else 'led--off' }}">{{ missing }} missing</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-table">
+    <h2 class="panel__label" id="kit-table">Interactive search table</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Decision</th><th scope="col">Release</th><th scope="col">Reasons</th><th scope="col"><span class="visually-hidden">Action</span></th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="led led--ok">Accept</span></td>
+            <td>Fortean.Times.No.475.2026.RETAIL.MAGAZINE.eBook-21A1 <span class="tag tag--yellow">Estimated</span></td>
+            <td class="muted">month 2026-10 estimated from issue 475</td>
+            <td><button class="btn btn--primary" type="button">Grab</button></td>
+          </tr>
+          <tr>
+            <td><span class="led led--bad">Reject</span></td>
+            <td>Fortean.Times.No.474.2026.RETAIL.MAGAZINE.eBook-21A1</td>
+            <td>before the monitored range (2026-10-01)</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td><span class="led led--bad">Reject</span></td>
+            <td>People.Australia.TruePDF-08.April.2019</td>
+            <td>People: region Australia, wanted USA</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-issues">
+    <h2 class="panel__label" id="kit-issues">Issue grid</h2>
+    <div class="table-wrap">
+      <div class="issue-grid" role="grid" aria-label="Issues by year and month">
+        <div class="issue-grid__head"></div>
+        {% for m in ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] %}<div class="issue-grid__head">{{ m }}</div>{% endfor %}
+        <div class="issue-grid__head">2026</div>
+        {% for state in ["ok","ok","ok","ok","ok","ok","ok","ok","bad","warn","info","off"] %}
+        <div class="issue-cell"><span class="led led--{{ state }}"><span class="visually-hidden">{{ {"ok": "imported", "bad": "missing", "warn": "wanted", "info": "downloading", "off": "upcoming"}[state] }}</span></span></div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="kit-form">
+    <h2 class="panel__label" id="kit-form">Form fields</h2>
+    <form class="stack" onsubmit="return false">
+      <div class="field">
+        <label class="field__label" for="kit-title">Title</label>
+        <input class="input" id="kit-title" value="2600: The Hacker Quarterly">
+        <span class="field__help">Folder name becomes "2600 - The Hacker Quarterly".</span>
+      </div>
+      <div class="field">
+        <label class="field__label" for="kit-freq">Frequency</label>
+        <select class="select" id="kit-freq"><option>Monthly</option><option selected>Seasonal</option><option>13 per year</option></select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="kit-anchor">Anchor issue number</label>
+        <input class="input" id="kit-anchor" value="abc" aria-invalid="true" aria-describedby="kit-anchor-err">
+        <span class="field__error" id="kit-anchor-err">Must be a number.</span>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

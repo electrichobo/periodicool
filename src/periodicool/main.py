@@ -37,6 +37,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="PeriodiCool", version=__version__, lifespan=lifespan)
     app.state.settings = settings
 
+    from fastapi.staticfiles import StaticFiles
+
+    from periodicool.web import STATIC_DIR
+    from periodicool.web import router as web_router
+
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    app.include_router(web_router)
+
     @app.get("/health")
     def health() -> dict[str, str]:
         return {"status": "ok", "version": __version__}
