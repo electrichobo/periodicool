@@ -1,0 +1,70 @@
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Interactive search · {{ mag.title }}{% if issue %} · {{ issue }}{% endif %}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  {% if error %}
+  <p role="alert">{{ ui.led("bad", "Error") }} {{ error }}</p>
+  {% else %}
+  <div class="toolbar toolbar--light">
+    <div class="toolbar__group">
+      {% if from_cache %}<span class="tag tag--yellow">From cache</span>{% else %}<span class="tag tag--blue">Fresh results</span>{% endif %}
+      <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive?force=true{% if issue %}&issue={{ issue | urlencode }}{% endif %}" hx-target="#modal-body"
+              hx-confirm="Search the indexers again now? This uses API hits.">Search again</button>
+      <span class="spinner" aria-hidden="true"></span>
+    </div>
+    <div class="toolbar__group">
+      <label class="visually-hidden" for="int-decision">Show</label>
+      <select class="select input--compact" id="int-decision" data-filter-for="int-table" data-filter-attr="decision">
+        <option value="">All</option><option value="accept">Accepted</option><option value="reject">Rejected</option>
+      </select>
+      <label class="visually-hidden" for="int-text">Filter</label>
+      <input class="input input--compact" id="int-text" type="search" placeholder="Filter" data-filter-for="int-table">
+    </div>
+  </div>
+  {% if skipped %}
+  <p class="muted">Left out: {% for name, why in skipped.items() %}{{ name }} ({{ why }}){% if not loop.last %}; {% endif %}{% endfor %}</p>
+  {% endif %}
+  {% if not rows %}
+  {{ ui.empty("No releases", "The indexers returned nothing for this search.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table" id="int-table">
+      <thead><tr>
+        <th scope="col"><button class="sort" type="button">Decision</button></th>
+        <th scope="col"><button class="sort" type="button">Release</button></th>
+        <th scope="col"><button class="sort" type="button">Issue</button></th>
+        <th scope="col"><button class="sort" type="button">Indexer</button></th>
+        <th scope="col" class="num" data-numeric><button class="sort" type="button">Size</button></th>
+        <th scope="col" data-numeric><button class="sort" type="button">Age</button></th>
+        <th scope="col">Format</th>
+        <th scope="col">Reasons</th>
+        <th scope="col"><span class="visually-hidden">Grab</span></th>
+      </tr></thead>
+      <tbody>
+        {% for r in rows %}
+        {% set rel, ev = r.rel, r.ev %}
+        <tr data-decision="{{ 'accept' if ev.accepted else 'reject' }}">
+          <td data-sort="{{ 0 if ev.accepted else 1 }}">{{ ui.led("ok", "Accept") if ev.accepted else ui.led("bad", "Reject") }}</td>
+          <td class="wrap">{{ rel.title }}</td>
+          <td>{{ ev.issue_key or "" }}{% if r.other_magazine %} <span class="tag tag--yellow">{{ ev.magazine.title }}</span>{% endif %}</td>
+          <td>{{ rel.indexer or "" }}</td>
+          <td class="num" data-sort="{{ rel.size or 0 }}">{{ (rel.size | filesize) if rel.size else "" }}</td>
+          <td data-sort="{{ r.age | replace(' d', '') | replace('today', '0') }}">{{ r.age }}</td>
+          <td>{% for f in r.formats %}<span class="tag">{{ f | upper }}</span> {% endfor %}{% if r.true_pdf %}<span class="tag tag--blue">TruePDF</span>{% endif %}</td>
+          <td class="wrap">
+            {% for reason in ev.reasons %}<div>{{ reason }}</div>{% endfor %}
+            {% for note in ev.notes %}<div class="muted">{{ note }}</div>{% endfor %}
+          </td>
+          <td>{% if ev.accepted %}<button class="btn btn--primary btn--small" type="button" hx-post="/releases/{{ rel.id }}/grab" hx-swap="none"
+                aria-label="Grab {{ rel.title }}">Grab</button>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% endif %}
+  <div class="modal__foot"><button class="btn" type="button" data-close-modal>Close</button></div>
+</div>

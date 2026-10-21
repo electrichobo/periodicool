@@ -1,0 +1,13 @@
+{# Edit pop-up. On errors the server returns this again into #modal-body. #}
+<form class="panel modal__panel stack" hx-post="/magazines/{{ mag.id }}/edit" hx-target="#modal-body">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Edit {{ mag.title }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+  {% include "magazines/_fields.html" %}
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </div>
+</form>

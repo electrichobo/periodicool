@@ -1141,6 +1141,7 @@ html[data-effects="off"] .led::before {
   border: 1px solid var(--panel-edge);
   border-radius: var(--radius-sm);
   background: var(--panel);
+  color: var(--ink);
 }
 .fold + .fold {
   margin-top: 0.5rem;
@@ -1299,8 +1300,215 @@ html[data-effects="off"] .led::before {
 /* Cover image on a cassette card */
 .cassette__cover {
   width: 100%;
+  height: 8rem;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 0.375rem;
+  background: var(--panel-recess);
+}
+
+/* ---- Magazine screens (P4) ---- */
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.page-head .page-title {
+  margin: 0;
+}
+.center {
+  text-align: center;
+}
+.input--compact {
+  width: auto;
+  min-width: 8rem;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+}
+
+/* Views: only the chosen one shows */
+.views[data-view="cards"] > .view:not(.view--cards),
+.views[data-view="table"] > .view:not(.view--table),
+.views[data-view="overview"] > .view:not(.view--overview) {
+  display: none;
+}
+[data-filter-row][hidden] {
+  display: none !important;
+}
+
+.cassette--off {
+  opacity: 0.75;
+}
+.cassette__count {
+  font-family: var(--font-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--on-chassis-muted);
+}
+
+.overview-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.overview-row__cover {
+  width: 6rem;
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border-radius: 0.375rem;
+}
+.overview-row__title {
+  margin: 0;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: 0.04em;
+}
+.overview-row__title a {
+  color: var(--ink);
+}
+
+.footer-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin: 1.25rem 0 0;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--chassis-edge);
+  color: var(--on-chassis-muted);
+}
+.footer-stats dt {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.footer-stats dd {
+  margin: 0;
+  color: var(--on-chassis);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Detail page */
+.detail-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.detail-head__cover {
+  width: 10rem;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.detail-head__title {
+  margin: 0;
+  color: var(--ink);
+}
+.section-title {
+  margin-top: 1.5rem;
+  font-size: 1.5rem;
+}
+.fold__tools {
+  margin-bottom: 0.5rem;
+}
+.switch--compact input {
+  width: 2.6rem;
+  height: 1.3rem;
+}
+.switch--compact input::before {
+  width: 1.05rem;
+}
+.switch--compact input:checked::before {
+  left: calc(100% - 1.05rem - 2px);
+}
+.row-actions {
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+}
+.table td.wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 12rem;
+}
+.summary--one {
+  grid-template-columns: 1fr;
+}
+.summary__wide {
+  grid-column: 1 / -1;
+}
+.toolbar--light {
   background: var(--panel-recess);
+  border-color: var(--panel-edge);
+}
+.toolbar__note {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Add form */
+.form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+  gap: var(--gap);
+  align-items: start;
+}
+.form-layout > aside {
+  position: sticky;
+  top: 1rem;
+}
+.form-section {
+  margin: 0;
+  padding: 0.75rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--panel-edge);
+}
+.form-section > legend {
+  padding-right: 0.5rem;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.form-section > * + * {
+  margin-top: 0.75rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem 1rem;
+}
+.form-row > * + * {
+  margin-top: 0;
+}
+
+/* Mass editor bar */
+.bulkbar--editor {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  align-items: end;
+}
+.bulkbar--editor .field__label {
+  color: var(--on-chassis-muted);
+}
+
+@media (max-width: 720px) {
+  .form-layout,
+  .detail-head,
+  .overview-row {
+    grid-template-columns: 1fr;
+  }
+  .form-layout > aside {
+    position: static;
+  }
 }

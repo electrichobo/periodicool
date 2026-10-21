@@ -1,0 +1,18 @@
+{% if preview.note %}<p class="muted">{{ preview.note }}</p>{% endif %}
+{% if preview.example %}
+<dl class="summary summary--one">
+  <div><dt>Folder</dt><dd><code>{{ preview.folder or "(library root)" }}</code></dd></div>
+  <div><dt>Example file</dt><dd><code>{{ preview.example }}</code></dd></div>
+</dl>
+{% endif %}
+{% if preview.issues %}
+<div class="table-wrap">
+  <table class="table">
+    <caption class="field__label">Expected issues (latest {{ preview.issues | length }})</caption>
+    <thead><tr><th scope="col">Key</th><th scope="col">Cover date</th></tr></thead>
+    <tbody>
+      {% for key, cover in preview.issues | reverse %}<tr><td>{{ key }}</td><td>{{ cover }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}

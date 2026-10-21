@@ -1,0 +1,59 @@
+{% import "_macros.html" as ui %}
+{% set i = row.issue %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">{{ mag.title }} · {{ row.label }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Issue details">
+    <button type="button" role="tab" id="iss-tab-1" aria-controls="iss-panel-1" aria-selected="true">Summary</button>
+    <button type="button" role="tab" id="iss-tab-2" aria-controls="iss-panel-2" aria-selected="false" tabindex="-1">History ({{ events | length }})</button>
+  </div>
+  <div role="tabpanel" id="iss-panel-1" aria-labelledby="iss-tab-1">
+    <dl class="summary">
+      <div><dt>Status</dt><dd>{{ ui.led(row.led, row.state_label) }}</dd></div>
+      <div><dt>Key</dt><dd>{{ i.key }}</dd></div>
+      <div><dt>Cover date</dt><dd>{{ i.cover_date or "Unknown" }}</dd></div>
+      {% if i.issue_number is not none %}<div><dt>Issue</dt><dd>No. {{ i.issue_number }}</dd></div>{% endif %}
+      {% if i.volume_number is not none %}<div><dt>Volume</dt><dd>{{ i.volume_number }}</dd></div>{% endif %}
+      <div><dt>Monitored</dt><dd>{{ "Yes" if i.monitored else "No" }}</dd></div>
+      <div><dt>Source</dt><dd>{{ "Expected from the schedule" if i.expected else "Found in releases or files" }}</dd></div>
+      {% if i.file_path %}
+      <div><dt>Format</dt><dd>{{ (i.file_format or "") | upper }}</dd></div>
+      <div><dt>Size</dt><dd>{{ (i.file_size | filesize) if i.file_size else "Unknown" }}</dd></div>
+      <div><dt>Imported</dt><dd>{{ i.imported_at.strftime("%Y-%m-%d %H:%M") if i.imported_at else "Unknown" }}</dd></div>
+      <div class="summary__wide"><dt>Path</dt><dd><code>{{ i.file_path }}</code></dd></div>
+      {% endif %}
+    </dl>
+  </div>
+  <div role="tabpanel" id="iss-panel-2" aria-labelledby="iss-tab-2" hidden>
+    {% if not events %}
+    {{ ui.empty("No history", "Nothing has happened to this issue yet.") }}
+    {% else %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Event</th><th scope="col">Date</th><th scope="col">Source</th><th scope="col">Details</th></tr></thead>
+        <tbody>
+          {% for h in events %}
+          <tr>
+            <td>{{ ui.led(event_leds.get(h.event.value, "info"), event_labels.get(h.event.value, h.event.value)) }}</td>
+            <td>{{ h.date.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td class="wrap">{{ h.source_title or "" }}</td>
+            <td class="wrap">{{ h.data.get("reason") or h.data.get("path") or h.data.get("target") or "" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+  <div class="modal__foot">
+    {% if i.file_path %}
+    <button class="btn btn--danger" type="button" hx-post="/issues/{{ i.id }}/unlink" hx-swap="none"
+            hx-confirm="Forget this file in PeriodiCool? The file stays in the library; the issue goes back to wanted.">Unlink file</button>
+    {% else %}
+    <button class="btn" type="button" hx-get="/magazines/{{ mag.id }}/interactive?issue={{ i.key | urlencode }}" hx-target="#modal-body">Interactive search</button>
+    {% endif %}
+    <button class="btn" type="button" data-close-modal>Close</button>
+  </div>
+</div>

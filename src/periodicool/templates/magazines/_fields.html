@@ -1,0 +1,83 @@
+{# Every Magazine field. Expects: values, errors, frequencies, numberings, modes, profiles. #}
+{% macro text(name, label, help=none, type="text", attrs="") -%}
+<div class="field">
+  <label class="field__label" for="f-{{ name }}">{{ label }}</label>
+  <input class="input" id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ values.get(name, '') }}" {{ attrs | safe }}
+    {%- if errors.get(name) %} aria-invalid="true"{% endif %}
+    {%- if help or errors.get(name) %} aria-describedby="{% if help %}f-{{ name }}-help{% endif %}{% if errors.get(name) %} f-{{ name }}-err{% endif %}"{% endif %}>
+  {% if help %}<span class="field__help" id="f-{{ name }}-help">{{ help }}</span>{% endif %}
+  {% if errors.get(name) %}<span class="field__error" id="f-{{ name }}-err">{{ errors[name] }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro choice(name, label, options, help=none, blank=none) -%}
+<div class="field">
+  <label class="field__label" for="f-{{ name }}">{{ label }}</label>
+  <select class="select" id="f-{{ name }}" name="{{ name }}"
+    {%- if errors.get(name) %} aria-invalid="true" aria-describedby="f-{{ name }}-err"{% elif help %} aria-describedby="f-{{ name }}-help"{% endif %}>
+    {% if blank %}<option value="">{{ blank }}</option>{% endif %}
+    {% for value, text in options %}
+    <option value="{{ value }}"{% if values.get(name, '') | string == value | string %} selected{% endif %}>{{ text }}</option>
+    {% endfor %}
+  </select>
+  {% if help %}<span class="field__help" id="f-{{ name }}-help">{{ help }}</span>{% endif %}
+  {% if errors.get(name) %}<span class="field__error" id="f-{{ name }}-err">{{ errors[name] }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro toggle(name, label, help=none) -%}
+<div class="field">
+  <label class="switch">{{ label }}
+    <input type="checkbox" role="switch" name="{{ name }}"{% if values.get(name) %} checked{% endif %}{% if help %} aria-describedby="f-{{ name }}-help"{% endif %}>
+    <span class="switch__state" aria-hidden="true"></span>
+  </label>
+  {% if help %}<span class="field__help" id="f-{{ name }}-help">{{ help }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+<fieldset class="form-section">
+  <legend>Title and matching</legend>
+  {{ text("title", "Title", "As printed on the cover. The folder name comes from this.", attrs="required autocomplete=off") }}
+  {{ text("aliases", "Other names", "Comma separated, for example Linux Pro Magazine.") }}
+  {{ text("search_term", "Search term", "Sent to Prowlarr. Leave empty to use the title.") }}
+  <div class="form-row">
+    {{ text("region", "Region or edition", "For example USA or UK. Releases for other regions are rejected.") }}
+    {{ text("languages", "Languages", "Comma separated. Releases in other languages are rejected.") }}
+  </div>
+  <div class="form-row">
+    {{ text("must_contain", "Must contain", "Comma separated terms a release name needs.") }}
+    {{ text("must_not_contain", "Must not contain", "Comma separated terms that reject a release.") }}
+  </div>
+  <div class="form-row">
+    {{ toggle("filler_optional", "Words like Magazine optional", "Accept \"Linux\" for Linux Magazine.") }}
+    {{ toggle("special_prefix", "Accept specials", "Accept names like \"Special: Best of\".") }}
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend>Schedule</legend>
+  <div class="form-row">
+    {{ choice("frequency", "Frequency", frequencies) }}
+    {{ choice("numbering", "Numbering", numberings, "How issues are named: by date, issue number, volume or season.") }}
+  </div>
+  <div class="form-row">
+    {{ text("anchor_date", "Known issue date", "YYYY-MM-DD of one known issue. Expected issues are counted from it.", type="date") }}
+    {{ text("anchor_number", "Known issue number", "The number of that issue, for numbered magazines.", attrs="inputmode=numeric") }}
+  </div>
+  <div class="form-row">
+    {{ text("schedule_start", "Schedule starts", "When the current cadence began. Nothing is expected before it.", type="date") }}
+    {{ text("publish_weekday", "Publish day", "Weeklies only: 0 Monday to 6 Sunday.", attrs="inputmode=numeric") }}
+    {{ text("grace_days", "Grace days", "Days after the cover date before a missing issue counts as missing.", attrs="inputmode=numeric") }}
+  </div>
+</fieldset>
+
+<fieldset class="form-section">
+  <legend>Monitoring</legend>
+  {{ toggle("monitored", "Monitored", "Search for and grab wanted issues of this magazine.") }}
+  <div class="form-row">
+    {{ choice("monitor_mode", "Monitor", modes) }}
+    {{ text("monitor_from_year", "From year", "With \"From a year on\".", attrs="inputmode=numeric") }}
+    {{ choice("format_profile_id", "Format profile", profile_options, blank="Any format") }}
+  </div>
+  {{ text("tags", "Tags", "Comma separated labels for filtering and the mass editor.") }}
+</fieldset>

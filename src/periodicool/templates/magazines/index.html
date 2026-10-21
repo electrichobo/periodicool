@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Magazines · PeriodiCool{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Magazines</h1>
+  <a class="btn btn--primary" href="/magazines/add">+ Add magazine</a>
+</div>
+{% if saved %}<div class="crt flash" role="status">{{ ui.led("ok", "Done") }} {{ saved }}</div>{% endif %}
+
+<div class="toolbar">
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/refresh-all" hx-swap="none">&#8635; Update all</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/tasks/rss" hx-swap="none">RSS sync</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/search-missing" hx-swap="none"
+            hx-confirm="Search for missing issues now? This uses indexer API hits (five magazines at most, oldest first).">Search missing</button>
+    <a class="btn btn--chassis btn--small" href="/magazines/editor">Mass editor</a>
+    <span class="spinner" aria-hidden="true"></span>
+  </div>
+  <div class="toolbar__group">
+    <div class="segmented" role="group" aria-label="View">
+      {% for v in ["cards", "table", "overview"] %}
+      <button type="button" data-view-switch="{{ v }}" aria-controls="mag-views" aria-pressed="{{ 'true' if v == 'cards' else 'false' }}">{{ v | capitalize }}</button>
+      {% endfor %}
+    </div>
+    <label class="visually-hidden" for="mag-filter">Filter by text</label>
+    <input class="input input--compact" id="mag-filter" type="search" placeholder="Filter" data-filter-for="mag-list">
+    <label class="visually-hidden" for="mag-state">Show</label>
+    <select class="select input--compact" id="mag-state" data-filter-for="mag-list" data-filter-attr="state">
+      <option value="">All</option>
+      <option value="monitored">Monitored</option>
+      <option value="unmonitored">Unmonitored</option>
+      <option value="missing">Missing issues</option>
+    </select>
+    {% if tags %}
+    <label class="visually-hidden" for="mag-tag">Tag</label>
+    <select class="select input--compact" id="mag-tag" data-filter-for="mag-list" data-filter-attr="tags">
+      <option value="">Any tag</option>
+      {% for t in tags %}<option value="{{ t | lower }}">{{ t }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <details class="menu" data-columns-for="mag-table">
+      <summary class="btn btn--chassis btn--small">Columns</summary>
+      <div class="menu__list">
+        {% for col, label in [("frequency", "Frequency"), ("numbering", "Numbering"), ("profile", "Format profile"), ("latest", "Latest issue"), ("next", "Next expected"), ("size", "Size on disk"), ("tags", "Tags"), ("added", "Added")] %}
+        <label><input type="checkbox" data-col="{{ col }}"> {{ label }}</label>
+        {% endfor %}
+      </div>
+    </details>
+  </div>
+</div>
+
+{% if not summaries %}
+<section class="panel">
+  {{ ui.empty("No magazines yet", "Add your first magazine to start tracking issues.") }}
+  <p class="center"><a class="btn btn--primary" href="/magazines/add">+ Add magazine</a></p>
+</section>
+{% else %}
+{# The filter controls target "mag-list"; every view marks its rows with data-filter-row="mag-list". #}
+<div id="mag-views" class="views" data-view="cards" data-remember="periodicool.view.magazines">
+  <div class="view view--cards">
+    <div class="grid">
+      {% for s in summaries %}
+      {% set m = s.mag %}
+      <a class="cassette{% if not m.monitored %} cassette--off{% endif %}" href="/magazines/{{ m.id }}"
+         style="--stripe: {{ ['var(--orange)', 'var(--tape-blue)', 'var(--amber)'][loop.index0 % 3] }}"
+         data-filter-row="mag-list"
+         data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}"
+         data-tags="|{{ m.tags | map('lower') | join('|') }}|">
+        {% if m.cover_path %}<img class="cassette__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
+        <div class="cassette__label">
+          <h2 class="cassette__title">{{ m.title }}</h2>
+          <div class="cassette__meta">
+            <span class="tag">{{ s.frequency_label }}</span>
+            {% if not m.monitored %}<span class="tag tag--red">Unmonitored</span>{% endif %}
+            {% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span>{% endfor %}
+          </div>
+        </div>
+        <div class="cassette__window">
+          <span class="reel" aria-hidden="true"></span>
+          {{ ui.counter(s.have, 3, s.have ~ " issues in the library") }}
+          <span class="reel" aria-hidden="true"></span>
+        </div>
+        <div class="stack" style="--gap: 0.3rem">
+          <span class="cassette__count" id="have-{{ m.id }}">{{ s.have }} / {{ s.total }} issues</span>
+          {{ ui.segbar(s.percent, "have-" ~ m.id, plain=true) }}
+        </div>
+        <div class="cassette__leds">
+          {% if s.downloading %}{{ ui.led("info", s.downloading ~ " downloading") }}{% endif %}
+          {{ ui.led("warn", s.wanted ~ " wanted") }}
+          {{ ui.led("bad" if s.missing else "off", s.missing ~ " missing") }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="view view--table panel">
+    <div class="table-wrap">
+      <table class="table" id="mag-table">
+        <thead><tr>
+          <th scope="col"><button class="sort" type="button">Monitored</button></th>
+          <th scope="col" aria-sort="ascending"><button class="sort" type="button">Title</button></th>
+          <th scope="col" data-col="frequency"><button class="sort" type="button">Frequency</button></th>
+          <th scope="col" data-col="numbering"><button class="sort" type="button">Numbering</button></th>
+          <th scope="col" data-col="profile"><button class="sort" type="button">Format profile</button></th>
+          <th scope="col" data-col="latest"><button class="sort" type="button">Latest issue</button></th>
+          <th scope="col" data-col="next"><button class="sort" type="button">Next expected</button></th>
+          <th scope="col" data-numeric><button class="sort" type="button">Issues</button></th>
+          <th scope="col" class="num" data-col="size" data-numeric><button class="sort" type="button">Size</button></th>
+          <th scope="col" data-col="tags">Tags</th>
+          <th scope="col" data-col="added"><button class="sort" type="button">Added</button></th>
+        </tr></thead>
+        <tbody>
+          {% for s in summaries %}
+          {% set m = s.mag %}
+          <tr data-filter-row="mag-list" data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}" data-tags="|{{ m.tags | map('lower') | join('|') }}|">
+            <td data-sort="{{ 0 if m.monitored else 1 }}">{{ ui.led("ok", "On") if m.monitored else ui.led("off", "Off") }}</td>
+            <td><a href="/magazines/{{ m.id }}">{{ m.title }}</a></td>
+            <td>{{ s.frequency_label }}</td>
+            <td>{{ s.numbering_label }}</td>
+            <td>{{ m.format_profile.name if m.format_profile else "Any" }}</td>
+            <td data-sort="{{ (s.latest.issue.cover_date or '') if s.latest else '' }}">{{ s.latest.label if s.latest else "None" }}</td>
+            <td data-sort="{{ (s.next.issue.cover_date or '') if s.next else '' }}">{{ (s.next.label ~ " (" ~ s.next.issue.cover_date ~ ")") if s.next else "Not scheduled" }}</td>
+            <td data-sort="{{ s.percent }}">
+              <div class="stack" style="--gap: 0.2rem; min-width: 7rem">
+                <span id="have-t-{{ m.id }}">{{ s.have }} / {{ s.total }}</span>
+                {{ ui.segbar(s.percent, "have-t-" ~ m.id, plain=true) }}
+              </div>
+            </td>
+            <td class="num" data-sort="{{ s.size }}">{{ s.size | filesize }}</td>
+            <td>{% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span> {% endfor %}</td>
+            <td data-sort="{{ m.added_at.isoformat() }}">{{ m.added_at.strftime("%Y-%m-%d") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="view view--overview stack">
+    {% for s in summaries %}
+    {% set m = s.mag %}
+    <section class="panel overview-row" data-filter-row="mag-list" data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}" data-tags="|{{ m.tags | map('lower') | join('|') }}|" aria-labelledby="ov-{{ m.id }}">
+      {% if m.cover_path %}<img class="overview-row__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
+      <div class="stack" style="--gap: 0.5rem">
+        <h2 class="overview-row__title" id="ov-{{ m.id }}"><a href="/magazines/{{ m.id }}">{{ m.title }}</a>
+          {% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span>{% endfor %}</h2>
+        <dl class="summary">
+          <div><dt>Monitored</dt><dd>{{ ui.led("ok", "Yes") if m.monitored else ui.led("off", "No") }}</dd></div>
+          <div><dt>Frequency</dt><dd>{{ s.frequency_label }}</dd></div>
+          <div><dt>Latest</dt><dd>{{ s.latest.label if s.latest else "None" }}</dd></div>
+          <div><dt>Next expected</dt><dd>{{ s.next.label if s.next else "Not scheduled" }}</dd></div>
+          <div><dt>Size on disk</dt><dd>{{ s.size | filesize }}</dd></div>
+          <div><dt>Issues</dt><dd>{{ s.have }} / {{ s.total }}{% if s.missing %} · {{ ui.led("bad", s.missing ~ " missing") }}{% endif %}</dd></div>
+        </dl>
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+</div>
+
+<dl class="footer-stats" aria-label="Library totals">
+  <div><dt>Magazines</dt><dd>{{ totals.magazines }}</dd></div>
+  <div><dt>Monitored</dt><dd>{{ totals.monitored }}</dd></div>
+  <div><dt>Issues</dt><dd>{{ totals.issues }}</dd></div>
+  <div><dt>Files</dt><dd>{{ totals.files }}</dd></div>
+  <div><dt>Missing</dt><dd>{{ totals.missing }}</dd></div>
+  <div><dt>Size on disk</dt><dd>{{ totals.size | filesize }}</dd></div>
+</dl>
+{% endif %}
+{% endblock %}

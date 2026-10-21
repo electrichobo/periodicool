@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}{{ mag.title }} · PeriodiCool{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/scan" hx-target="#modal-body">Scan &amp; rename</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/{{ mag.id }}/search" hx-swap="none"
+            hx-confirm="Search for {{ mag.title }} and grab the best release for each wanted issue?">Search monitored</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive" hx-target="#modal-body">Interactive search</button>
+    <span class="spinner" aria-hidden="true"></span>
+  </div>
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/edit" hx-target="#modal-body">Edit</button>
+    <button class="btn btn--danger btn--small" type="button" hx-post="/magazines/{{ mag.id }}/delete" hx-swap="none"
+            hx-confirm="Remove {{ mag.title }} and its issue list from PeriodiCool? Files in the library are kept." data-confirm-type="delete">Delete</button>
+  </div>
+</div>
+
+<section class="panel detail-head" aria-labelledby="mag-title">
+  {% if has_cover %}<img class="detail-head__cover" src="/covers/{{ mag.id }}" alt="Cover of {{ mag.title }}">{% endif %}
+  <div class="stack">
+    <div class="cluster">
+      <h1 class="page-title detail-head__title" id="mag-title">{{ mag.title }}</h1>
+      <label class="switch">Monitored
+        <input type="checkbox" role="switch" hx-post="/magazines/{{ mag.id }}/monitor" hx-trigger="change" hx-swap="none"{% if mag.monitored %} checked{% endif %}>
+        <span class="switch__state" aria-hidden="true"></span>
+      </label>
+    </div>
+    <div class="cluster">
+      <span class="tag">{{ s.frequency_label }}</span>
+      <span class="tag">{{ s.numbering_label }}</span>
+      {% if mag.region %}<span class="tag tag--yellow">{{ mag.region }}</span>{% endif %}
+      {% for t in mag.tags %}<span class="tag tag--blue">{{ t }}</span>{% endfor %}
+    </div>
+    <dl class="summary">
+      <div><dt>Format profile</dt><dd>{{ mag.format_profile.name if mag.format_profile else "Any format" }}</dd></div>
+      <div><dt>Folder</dt><dd>{{ folder or "Set by the naming template" }}</dd></div>
+      <div><dt>Size on disk</dt><dd>{{ s.size | filesize }} ({{ s.files }} files)</dd></div>
+      <div><dt>Latest issue</dt><dd>{{ s.latest.label if s.latest else "None yet" }}</dd></div>
+      <div><dt>Next expected</dt><dd>{{ (s.next.label ~ " (" ~ s.next.issue.cover_date ~ ")") if s.next else "Not scheduled" }}</dd></div>
+      <div><dt>Grace window</dt><dd>{{ mag.grace_days }} days</dd></div>
+      <div><dt>Search term</dt><dd>{{ mag.search_term or mag.title }}</dd></div>
+      <div><dt>Added</dt><dd>{{ mag.added_at.strftime("%Y-%m-%d") }}</dd></div>
+    </dl>
+    <div class="stack" style="--gap: 0.3rem; max-width: 32rem">
+      <span class="field__label" id="have-detail">{{ s.have }} / {{ s.total }} issues in the library
+        {% if s.missing %}· {{ s.missing }} missing{% endif %}{% if s.downloading %} · {{ s.downloading }} downloading{% endif %}</span>
+      {{ ui.segbar(s.percent, "have-detail", plain=true) }}
+    </div>
+  </div>
+</section>
+
+{% if chart %}
+<section class="panel" aria-labelledby="chart-title">
+  <h2 class="panel__label" id="chart-title">Issues per year</h2>
+  {{ ui.year_chart(chart, mag.title ~ ": issues per year") }}
+</section>
+{% endif %}
+
+<section aria-labelledby="years-title">
+  <h2 class="page-title section-title" id="years-title">Issues</h2>
+  {% if not groups %}
+  <div class="panel">{{ ui.empty("No issues yet", "Expected issues appear from the schedule. Irregular magazines get issues from releases and library files.") }}</div>
+  {% endif %}
+  {% for g in groups %}
+  <details class="fold"{% if loop.index <= 2 %} open{% endif %}>
+    <summary>
+      <span>{{ g.year or "No date" }}</span>
+      <span class="fold__spacer"></span>
+      {{ ui.led("ok" if g.have == g.total and g.total else ("warn" if g.have else "off"), g.have ~ " / " ~ g.total) }}
+    </summary>
+    <div class="fold__body">
+      {% if g.year %}
+      <form class="cluster fold__tools" hx-post="/magazines/{{ mag.id }}/years/{{ g.year }}/monitor" hx-trigger="change" hx-swap="none">
+        <label class="switch">Monitor {{ g.year }}
+          <input type="checkbox" role="switch" name="monitored"{% if g.monitored %} checked{% endif %}>
+          <span class="switch__state" aria-hidden="true"></span>
+        </label>
+      </form>
+      {% endif %}
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr>
+            <th scope="col">Monitored</th>
+            <th scope="col">Issue</th>
+            <th scope="col">Number</th>
+            <th scope="col">Cover date</th>
+            <th scope="col">Status</th>
+            <th scope="col">Format</th>
+            <th scope="col" class="num">Size</th>
+            <th scope="col"><span class="visually-hidden">Actions</span></th>
+          </tr></thead>
+          <tbody>
+            {% for r in g.rows %}
+            {% set i = r.issue %}
+            <tr>
+              <td>
+                <label class="switch switch--compact"><span class="visually-hidden">Monitor {{ r.label }}</span>
+                  <input type="checkbox" role="switch" hx-post="/issues/{{ i.id }}/monitor" hx-trigger="change" hx-swap="none"{% if i.monitored %} checked{% endif %}>
+                  <span class="switch__state" aria-hidden="true"></span>
+                </label>
+              </td>
+              <td>{{ r.label }}{% if i.special %} <span class="tag tag--yellow">Special</span>{% endif %}</td>
+              <td>{{ ("No " ~ i.issue_number) if i.issue_number is not none else (("Vol " ~ i.volume_number) if i.volume_number is not none else "") }}</td>
+              <td>{{ i.cover_date or "" }}</td>
+              <td>{{ ui.led(r.led, r.state_label) }}</td>
+              <td>{{ (i.file_format or "") | upper }}</td>
+              <td class="num">{{ (i.file_size | filesize) if i.file_size else "" }}</td>
+              <td>
+                <div class="cluster row-actions">
+                  {% if not i.file_path %}
+                  <button class="btn btn--small" type="button" hx-post="/magazines/{{ mag.id }}/search" hx-vals='{"issue": "{{ i.key }}"}' hx-swap="none"
+                          title="Automatic search" aria-label="Automatic search for {{ r.label }}">&#9906; Search</button>
+                  <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive?issue={{ i.key | urlencode }}" hx-target="#modal-body"
+                          aria-label="Interactive search for {{ r.label }}">&#9776; Pick</button>
+                  {% endif %}
+                  <button class="btn btn--small" type="button" hx-get="/issues/{{ i.id }}" hx-target="#modal-body" aria-label="Details for {{ r.label }}">Details</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+</section>
+{% endblock %}

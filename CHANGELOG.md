@@ -17,6 +17,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Web UI groundwork: cassette-futurism theme at an 80% scale, vendored fonts and htmx, and shared parts (pop-up, toasts, confirm dialog, page toolbar, sortable and filterable tables with a column chooser and bulk select, tabs, collapsible years, pager, charts), shown at `/ui-kit`.
 - Login: first-run setup of one admin (scrypt password hash), 30-day sliding sessions stored as token hashes, CSRF tokens on every form and htmx request, backoff after failed logins, `auth.mode` (`required`, `local`, `off`), an API key in `/config/api.key`, and `user reset-password` on the command line.
 - History of grabs, failures, imports and file moves; an event log table and a rotating log file in `/config/logs`, both with secrets redacted; file size, format and import date on issues; magazine tags and sidecar cover images; download size and time left; removing PeriodiCool's own jobs from SABnzbd (never other jobs).
+- Magazine screens: index with cards, table and overview views, filters and totals; add form with a live preview; detail page with years, issue rows, a chart and pop-ups for interactive search, issue details and scan-and-rename; mass editor. Deleting a magazine removes database rows only.
 - Docker image (python:3.14-slim) that runs as PUID:PGID and never as root, with a health check; multi-arch (amd64, arm64) release workflow to GHCR on version tags; example compose file; `requirements.lock` pinning every runtime package.
 
 ### Changed

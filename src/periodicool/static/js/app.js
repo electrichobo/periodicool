@@ -202,8 +202,11 @@
     });
   }
 
-  // Text and attribute filters: <input data-filter-for="table-id">,
-  // <select data-filter-for="table-id" data-filter-attr="status">
+  // Text and attribute filters: <input data-filter-for="list-id">,
+  // <select data-filter-for="list-id" data-filter-attr="state">. The rows are elements
+  // marked data-filter-row="list-id" (so cards, table and overview filter together),
+  // or else the rows of the table with that id. Attribute values hold tokens split by
+  // spaces, or by "|" when they start with one (tags may contain spaces).
   document.addEventListener("input", function (e) {
     var id = e.target.getAttribute && e.target.getAttribute("data-filter-for");
     if (id) filterTable(id);
@@ -212,18 +215,26 @@
     var id = e.target.getAttribute && e.target.getAttribute("data-filter-for");
     if (id) filterTable(id);
   });
+  function tokens(value) {
+    value = (value || "").toLowerCase();
+    return value.charAt(0) === "|" ? value.split("|") : value.split(/\s+/);
+  }
   function filterTable(id) {
-    var table = document.getElementById(id);
-    if (!table) return;
+    var rows = document.querySelectorAll('[data-filter-row="' + id + '"]');
+    if (!rows.length) {
+      var table = document.getElementById(id);
+      if (!table) return;
+      rows = table.tBodies[0].rows;
+    }
     var controls = document.querySelectorAll('[data-filter-for="' + id + '"]');
-    Array.prototype.forEach.call(table.tBodies[0].rows, function (row) {
+    Array.prototype.forEach.call(rows, function (row) {
       var show = true;
       controls.forEach(function (c) {
         var v = (c.value || "").trim().toLowerCase();
         if (!v) return;
         var attr = c.getAttribute("data-filter-attr");
         if (attr) {
-          if ((row.getAttribute("data-" + attr) || "") !== v) show = false;
+          if (tokens(row.getAttribute("data-" + attr)).indexOf(v) === -1) show = false;
         } else if (row.textContent.toLowerCase().indexOf(v) === -1) {
           show = false;
         }
@@ -260,18 +271,27 @@
     });
   }
 
-  // ---- View switcher (client-side demo; pages may also use ?view=) ----
+  // ---- View switcher: cards / table / overview, remembered per page ----
+  function showView(box, view) {
+    box.setAttribute("data-view", view);
+    document.querySelectorAll('[data-view-switch][aria-controls="' + box.id + '"]').forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-view-switch") === view ? "true" : "false");
+    });
+  }
   document.addEventListener("click", function (e) {
     var btn = e.target.closest("[data-view-switch]");
     if (!btn) return;
     var box = document.getElementById(btn.getAttribute("aria-controls"));
-    if (box) box.setAttribute("data-view", btn.getAttribute("data-view-switch"));
-    btn.parentElement.querySelectorAll("[data-view-switch]").forEach(function (b) {
-      b.setAttribute("aria-pressed", b === btn ? "true" : "false");
-    });
+    if (!box) return;
+    showView(box, btn.getAttribute("data-view-switch"));
+    if (box.dataset.remember) store(box.dataset.remember, btn.getAttribute("data-view-switch"));
   });
 
   function init(scope) {
+    (scope || document).querySelectorAll("[data-remember]").forEach(function (box) {
+      var saved = store(box.dataset.remember);
+      if (saved) showView(box, saved);
+    });
     (scope || document).querySelectorAll("table.table").forEach(initTable);
     (scope || document).querySelectorAll('[role="tablist"]').forEach(initTabs);
   }

@@ -61,11 +61,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     from periodicool.web import STATIC_DIR
     from periodicool.web import router as web_router
+    from periodicool.web.magazines import router as magazines_router
     from periodicool.web.security import router as security_router
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(security_router)
     app.include_router(web_router)
+    app.include_router(magazines_router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

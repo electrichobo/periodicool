@@ -1,0 +1,44 @@
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Scan &amp; rename · {{ mag.title }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  {% if scan is none %}
+  {{ ui.empty("Folder not found", "There is no " ~ (folder or "magazine") ~ " folder in the library yet. Files move there when they are imported or organized.") }}
+  {% else %}
+  <p>Preview only: nothing has moved yet. Files are moved and renamed into the standard layout; nothing is deleted or overwritten.</p>
+  <div class="cluster">
+    {{ ui.led("info", scan.counts.get("move", 0) ~ " to move or rename") }}
+    {{ ui.led("ok", scan.counts.get("keep", 0) ~ " already in place") }}
+    {{ ui.led("warn", scan.counts.get("review", 0) ~ " need review") }}
+  </div>
+  {% set changes = items | selectattr("action.value", "ne", "keep") | list %}
+  {% if changes %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Action</th><th scope="col">From</th><th scope="col">To</th><th scope="col">Why</th></tr></thead>
+      <tbody>
+        {% for it in changes %}
+        <tr>
+          <td>{{ ui.led("info", "Move") if it.action.value == "move" else ui.led("warn", "Review") }}</td>
+          <td class="wrap"><code>{{ it.source_path | relative_to(library) }}</code></td>
+          <td class="wrap">{% if it.target_path %}<code>{{ it.target_path }}</code>{% endif %}</td>
+          <td class="wrap">{{ it.reason or "" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {{ ui.empty("Nothing to change", "Every file is already named and placed correctly.") }}
+  {% endif %}
+  {% endif %}
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Close</button>
+    {% if scan is not none and scan.counts.get("move", 0) %}
+    <button class="btn btn--primary" type="button" hx-post="/scans/{{ scan.id }}/apply" hx-swap="none"
+            hx-confirm="Move and rename {{ scan.counts.get('move', 0) }} files now? Every move is logged.">Apply {{ scan.counts.get("move", 0) }} moves</button>
+    {% endif %}
+  </div>
+</div>

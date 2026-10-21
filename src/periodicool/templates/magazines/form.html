@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Add magazine · PeriodiCool{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Add magazine</h1>
+  <a class="btn btn--chassis" href="/">Cancel</a>
+</div>
+<div class="form-layout">
+  <form class="panel stack" method="post" action="/magazines/add"
+        hx-post="/magazines/preview" hx-trigger="input changed delay:400ms, change" hx-target="#preview" hx-swap="innerHTML">
+    <h2 class="panel__label">Magazine</h2>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+    {% include "magazines/_fields.html" %}
+    <div class="field">
+      <label class="switch">Search for wanted issues after adding
+        <input type="checkbox" role="switch" name="search_now"><span class="switch__state" aria-hidden="true"></span>
+      </label>
+    </div>
+    <div class="cluster">
+      {# A normal submit: the form's hx-post only fires on input and change, for the preview. #}
+      <button class="btn btn--primary" type="submit">+ Add magazine</button>
+    </div>
+  </form>
+  <aside class="panel" aria-labelledby="preview-title">
+    <h2 class="panel__label" id="preview-title">Preview</h2>
+    <div id="preview" aria-live="polite" hx-post="/magazines/preview" hx-trigger="load" hx-include="closest .form-layout form">
+      <p class="muted">Fill in the form to see the folder name and expected issues.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

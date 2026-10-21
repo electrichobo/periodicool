@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Mass editor · PeriodiCool{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Mass editor</h1>
+  <a class="btn btn--chassis" href="/">Back to magazines</a>
+</div>
+{% if saved %}<div class="crt flash" role="status">{{ ui.led("ok", "Done") }} {{ saved }}</div>{% endif %}
+
+<form id="editor-form" hx-post="/magazines/editor" hx-swap="none">
+  <div class="toolbar">
+    <div class="toolbar__group">
+      <label class="visually-hidden" for="ed-filter">Filter</label>
+      <input class="input input--compact" id="ed-filter" type="search" placeholder="Filter" data-filter-for="ed-table">
+    </div>
+    <p class="on-chassis-muted toolbar__note">Select magazines, then choose what to change. Fields left on "No change" stay as they are.</p>
+  </div>
+
+  <div class="bulkbar bulkbar--editor" data-bulk-for="ed-table" hidden>
+    <span class="bulkbar__count">0 selected</span>
+    <div class="field">
+      <label class="field__label" for="ed-monitored">Monitored</label>
+      <select class="select input--compact" id="ed-monitored" name="monitored">
+        <option value="">No change</option><option value="yes">Monitored</option><option value="no">Unmonitored</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field__label" for="ed-mode">Monitor</label>
+      <select class="select input--compact" id="ed-mode" name="monitor_mode">
+        <option value="">No change</option>
+        {% for value, text in modes %}<option value="{{ value }}">{{ text }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label class="field__label" for="ed-profile">Format profile</label>
+      <select class="select input--compact" id="ed-profile" name="format_profile_id">
+        <option value="">No change</option>
+        {% for value, text in profile_options %}<option value="{{ value }}">{{ text }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label class="field__label" for="ed-add">Add tags</label>
+      <input class="input input--compact" id="ed-add" name="add_tags" placeholder="comma separated">
+    </div>
+    <div class="field">
+      <label class="field__label" for="ed-remove">Remove tags</label>
+      <input class="input input--compact" id="ed-remove" name="remove_tags" placeholder="comma separated">
+    </div>
+    <div class="cluster">
+      <button class="btn btn--primary btn--small" type="submit" name="action" value="save">Apply</button>
+      <button class="btn btn--danger btn--small" type="button"
+              hx-post="/magazines/editor" hx-include="#editor-form" hx-vals='{"action": "delete"}'
+              hx-confirm="Remove the selected magazines and their issue lists from PeriodiCool? Files in the library are kept." data-confirm-type="delete">Delete</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="table-wrap">
+      <table class="table" id="ed-table">
+        <thead><tr>
+          <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all shown"></th>
+          <th scope="col"><button class="sort" type="button">Title</button></th>
+          <th scope="col"><button class="sort" type="button">Monitored</button></th>
+          <th scope="col"><button class="sort" type="button">Monitor</button></th>
+          <th scope="col"><button class="sort" type="button">Format profile</button></th>
+          <th scope="col">Tags</th>
+          <th scope="col" class="num" data-numeric><button class="sort" type="button">Size</button></th>
+        </tr></thead>
+        <tbody>
+          {% for s in summaries %}
+          {% set m = s.mag %}
+          <tr>
+            <td><input type="checkbox" class="row-select" name="ids" value="{{ m.id }}" aria-label="Select {{ m.title }}"></td>
+            <td><a href="/magazines/{{ m.id }}">{{ m.title }}</a></td>
+            <td data-sort="{{ 0 if m.monitored else 1 }}">{{ ui.led("ok", "On") if m.monitored else ui.led("off", "Off") }}</td>
+            <td>{{ dict(modes)[m.monitor_mode.value] }}{% if m.monitor_from_year %} {{ m.monitor_from_year }}{% endif %}</td>
+            <td>{{ m.format_profile.name if m.format_profile else "Any" }}</td>
+            <td>{% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span> {% endfor %}</td>
+            <td class="num" data-sort="{{ s.size }}">{{ s.size | filesize }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ ui.empty("No magazines", "Add a magazine first.") }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+{% endblock %}

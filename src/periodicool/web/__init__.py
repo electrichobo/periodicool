@@ -6,10 +6,10 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from periodicool import __version__
+from periodicool import __version__, overview
 
 PACKAGE = Path(__file__).resolve().parent.parent
 STATIC_DIR = PACKAGE / "static"
@@ -29,6 +29,8 @@ def static_url(path: str) -> str:
 
 
 templates.env.globals["static"] = static_url
+templates.env.globals["event_labels"] = overview.EVENT_LABELS
+templates.env.globals["event_leds"] = overview.EVENT_LEDS
 
 
 def filesize(num) -> str:
@@ -41,6 +43,17 @@ def filesize(num) -> str:
 
 
 templates.env.filters["filesize"] = filesize
+
+
+def relative_to(path, root) -> str:
+    """A path shown relative to a root folder, or as given when it is outside it."""
+    try:
+        return Path(path).resolve().relative_to(Path(root).resolve()).as_posix()
+    except ValueError, OSError:
+        return str(path)
+
+
+templates.env.filters["relative_to"] = relative_to
 # Sum of the numeric parts of a chart row (label, have, wanted, missing).
 templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
 
@@ -51,12 +64,6 @@ def render(request: Request, name: str, **context) -> HTMLResponse:
     context.setdefault("csrf_token", getattr(request.state, "csrf_token", ""))
     context.setdefault("user", getattr(request.state, "user", None))
     return templates.TemplateResponse(request, name, context)
-
-
-@router.get("/", include_in_schema=False)
-def home() -> RedirectResponse:
-    # The magazine overview arrives with the screens (8c); the kit is the preview until then.
-    return RedirectResponse("/ui-kit", status_code=307)
 
 
 @router.get("/ui-kit", response_class=HTMLResponse, include_in_schema=False)
