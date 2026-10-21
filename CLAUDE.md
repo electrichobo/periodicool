@@ -19,13 +19,18 @@ Self-hosted *arr-style manager for magazines: track titles, find new and back is
 - License GPL-3.0 (matches the *arr ecosystem). Include README, CONTRIBUTING, CODE_OF_CONDUCT (Contributor Covenant), issue templates, CHANGELOG, semantic versioning.
 - README states that PeriodiCool ships no content and no indexers; users bring their own.
 - GitHub Actions: run tests and lint on every push; on version tags build a multi-arch image (amd64 + arm64) and push to GHCR with `latest` and the version tag.
-- Self-host fonts and assets inside the image. No CDNs, no telemetry, no outbound calls except to the user's configured services.
+- Self-host fonts and assets inside the image. No CDNs, no telemetry, no outbound calls except to the user's configured services and the opt-in metadata lookups below.
 
 ## Scope
 
 **MVP:** track magazines, generate expected issues, find releases (RSS + search), send to SABnzbd, import, organize the library, web UI.
 
-**Non-goals for now:** built-in reader; torrents (keep the download-client layer pluggable for NZBGet/qBittorrent later); external metadata providers; multi-user roles; cloud services.
+**Non-goals for now:** built-in reader; torrents (keep the download-client layer pluggable for NZBGet/qBittorrent later); scraping storefronts (Zinio, Readly, PressReader and the like); any central PeriodiCool server or user-contributed metadata; multi-user roles; cloud services.
+
+**Opt-in metadata lookups (off by default):** public sources such as Library of Congress MARC records, Wikidata and the Internet Archive may be queried to confirm or fill in a magazine's facts (ISSN, canonical title, aliases, publisher, start year, frequency) and back-issue lists. Rules:
+- Each source has its own switch in Settings, off by default. The install notes and every metadata page say clearly that turning them on improves matching.
+- Send only what the lookup needs (an ISSN or a title). Cache results in the local database; one lookup per magazine on add or refresh, not ongoing traffic.
+- Lookups raise or lower confidence and suggest values; the user confirms before anything changes. Never download content (scans, PDFs) from these sources.
 
 ## Safety rules (critical)
 
@@ -41,7 +46,7 @@ The download client and library usually serve other apps and already hold conten
 Everything in the library follows one structure, whether PeriodiCool downloaded it, it was already there, or the user drops it in later.
 
 - Default layout: `{Title}/{Year}/{Title} - {YYYY-MM}.{ext}` (append `-DD` for weeklies). Naming template is configurable.
-- **Library scan:** walk the library, parse every file (names first, PDF text if needed), match it to a magazine and issue, and propose moves into the standard layout. The first scan shows a full preview before anything moves.
+- **Library scan:** walk the library, parse every file (names first, then a quick read of the PDF's first pages for ISSN, title and date when the name is not enough; never at the cost of scan speed or reliability), match it to a magazine and issue, and propose moves into the standard layout. The first scan shows a full preview before anything moves.
 - **Ongoing:** periodic rescan plus an optional drop-in import folder. New files are parsed and moved automatically when confidence is high.
 - **Manual import queue** (like Sonarr's): anything unparseable, low-confidence, duplicate or colliding waits for the user to match or skip. Never guess.
 - Duplicates of one issue: keep the better format per the format profile; the other goes to the review queue, never deleted.

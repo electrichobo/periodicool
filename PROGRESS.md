@@ -30,7 +30,9 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 **Found while testing (open):** files PeriodiCool names itself for "2600: The Hacker Quarterly" (`2600 - The Hacker Quarterly - 2026-Autumn.pdf`) go to review on a rescan: "no tracked magazine matches 'The Hacker Quarterly'". The leading 2600 is probably read as an issue number. Needs a parser fix with fixtures (step 3 area) before the first real library scan.
 
-**Next:** fix the 2600 rescan bug above; deploy the image to the server (needs a v0.1.0 tag, maintainer's OK) and run the first library scan as a preview; then step 10 (REST API, Discord notifications, docs, Unraid template).
+**Decisions, 2026-10-21 (maintainer):** opt-in metadata lookups (Library of Congress MARC, Wikidata, Internet Archive) are allowed, off by default, with a clear note at install and on metadata pages; no storefront scraping, no central server, no user-contributed metadata (CLAUDE.md updated). PDF text extraction is approved (`pypdf`, pinned) for a quick read during download import and library scan, never at the cost of reliability. Order: parser rework first (title first, then clues from the rest, agreement scoring), since confident matching is the main hurdle.
+
+**Next:** plan and build the parser rework, which also fixes the 2600 rescan bug above; deploy the image to the server (needs a v0.1.0 tag, maintainer's OK) and run the first library scan as a preview; then step 10 (REST API, Discord notifications, docs, Unraid template).
 - Step 8: web UI (cassette futurism) and login. Include the Health clock check (see notes) and screens for Wanted, interactive search with reasons, downloads, blocklist and the manual import queue.
 - First real grab: only after the container exists (step 9), since the SAB completed folder is not reachable from the dev machine. Set `sabnzbd.category`, `sabnzbd.path_map` (SAB's completed path to the container's `/downloads`), grab one release by hand, run `monitor`, check the library, then decide on `grab.auto`.
 
