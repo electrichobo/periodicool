@@ -41,7 +41,7 @@
       <div><dt>Next expected</dt><dd>{{ (s.next.label ~ " (" ~ s.next.issue.cover_date ~ ")") if s.next else "Not scheduled" }}</dd></div>
       <div><dt>Grace window</dt><dd>{{ mag.grace_days }} days</dd></div>
       <div><dt>Search term</dt><dd>{{ mag.search_term or mag.title }}</dd></div>
-      <div><dt>Added</dt><dd>{{ mag.added_at.strftime("%Y-%m-%d") }}</dd></div>
+      <div><dt>Added</dt><dd>{{ (mag.added_at | when("%Y-%m-%d")) }}</dd></div>
     </dl>
     <div class="stack" style="--gap: 0.3rem; max-width: 32rem">
       <span class="field__label" id="have-detail">{{ s.have }} / {{ s.total }} issues in the library

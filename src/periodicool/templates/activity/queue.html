@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Queue · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">Activity</h1>
+{% include "activity/_tabs.html" %}
+<div class="toolbar">
+  <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/tasks/downloads" hx-swap="none">&#8635; Check downloads</button>
+    <span class="spinner" aria-hidden="true"></span>
+  </div>
+  <p class="on-chassis-muted toolbar__note">Only PeriodiCool's own downloads are listed. Jobs from other apps are never shown or touched.</p>
+</div>
+<section class="panel" aria-label="Queue">
+  <div id="queue" hx-get="/activity/queue/table" hx-trigger="refreshQueue from:body" hx-swap="innerHTML">
+    {% include "activity/_queue_table.html" %}
+  </div>
+</section>
+{% endblock %}

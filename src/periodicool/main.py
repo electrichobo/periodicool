@@ -54,6 +54,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         dependencies=[Depends(csrf_guard)],
     )
     app.state.settings = settings
+    from periodicool import web
+
+    web.DISPLAY_TZ["name"] = settings.tz
     app.state.login_throttle = auth.LoginThrottle()
     app.middleware("http")(auth_middleware)
 
@@ -61,6 +64,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     from periodicool.web import STATIC_DIR
     from periodicool.web import router as web_router
+    from periodicool.web.activity import router as activity_router
     from periodicool.web.magazines import router as magazines_router
     from periodicool.web.security import router as security_router
 
@@ -68,6 +72,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(security_router)
     app.include_router(web_router)
     app.include_router(magazines_router)
+    app.include_router(activity_router)
 
     @app.get("/health")
     def health() -> dict[str, str]:

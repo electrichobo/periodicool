@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Missing · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">Wanted</h1>
+{% include "wanted/_tabs.html" %}
+<form id="wanted-form" hx-post="/wanted/search" hx-swap="none">
+  <div class="toolbar">
+    <div class="toolbar__group">
+      <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/search-missing" hx-swap="none"
+              hx-confirm="Search for missing issues now? This uses indexer API hits (five magazines at most, oldest first).">Search all missing</button>
+      <span class="spinner" aria-hidden="true"></span>
+    </div>
+    <p class="on-chassis-muted toolbar__note">{{ result.total }} monitored issues without a file. Issues past their grace window show as missing.</p>
+  </div>
+  <div class="bulkbar" data-bulk-for="wanted-table" hidden>
+    <span class="bulkbar__count">0 selected</span>
+    <button class="btn btn--primary btn--small" type="submit">Search selected</button>
+    <button class="btn btn--small" type="button" hx-post="/wanted/unmonitor" hx-include="#wanted-form" hx-swap="none">Unmonitor selected</button>
+  </div>
+  <section class="panel" aria-label="Missing issues">
+    {% if not result.rows %}
+    {{ ui.empty("Nothing missing", "Every monitored issue that is out is in the library.") }}
+    {% else %}
+    <div class="table-wrap">
+      <table class="table" id="wanted-table">
+        <thead><tr>
+          <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all on this page"></th>
+          <th scope="col"><button class="sort" type="button">Magazine</button></th>
+          <th scope="col"><button class="sort" type="button">Issue</button></th>
+          <th scope="col"><button class="sort" type="button">Cover date</button></th>
+          <th scope="col"><button class="sort" type="button">Status</button></th>
+          <th scope="col"><button class="sort" type="button">Last search</button></th>
+          <th scope="col"><span class="visually-hidden">Actions</span></th>
+        </tr></thead>
+        <tbody>
+          {% for r in result.rows %}
+          <tr>
+            <td><input type="checkbox" class="row-select" name="ids" value="{{ r.issue.id }}" aria-label="Select {{ r.mag.title }} {{ r.label }}"></td>
+            <td><a href="/magazines/{{ r.mag.id }}">{{ r.mag.title }}</a></td>
+            <td>{{ r.label }}</td>
+            <td>{{ r.issue.cover_date or "" }}</td>
+            <td data-sort="{{ r.state }}">{{ ui.led(r.led, r.state_label) }}</td>
+            <td data-sort="{{ r.last_search.isoformat() if r.last_search else '' }}">{{ (r.last_search | when("%Y-%m-%d %H:%M")) if r.last_search else "Never" }}</td>
+            <td>
+              <div class="cluster row-actions">
+                <button class="btn btn--small" type="button" hx-post="/magazines/{{ r.mag.id }}/search" hx-vals='{"issue": "{{ r.issue.key }}"}' hx-swap="none" aria-label="Automatic search for {{ r.mag.title }} {{ r.label }}">&#9906; Search</button>
+                <button class="btn btn--small" type="button" hx-get="/magazines/{{ r.mag.id }}/interactive?issue={{ r.issue.key | urlencode }}" hx-target="#modal-body" aria-label="Interactive search for {{ r.mag.title }} {{ r.label }}">&#9776; Pick</button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ ui.pager(result.page, result.pages, "?") }}
+    {% endif %}
+  </section>
+</form>
+{% endblock %}

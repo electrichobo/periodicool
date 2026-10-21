@@ -1,0 +1,5 @@
+<nav class="tabs tabs--nav" aria-label="Wanted">
+  {% for key, href, label in [("missing", "/wanted/missing", "Missing"), ("cutoff", "/wanted/cutoff", "Cutoff unmet")] %}
+  <a href="{{ href }}"{% if tab == key %} aria-current="page"{% endif %}>{{ label }}</a>
+  {% endfor %}
+</nav>

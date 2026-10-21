@@ -1,0 +1,42 @@
+{% import "_macros.html" as ui %}
+{# While something is downloading, this fragment asks for itself again every 5 seconds. #}
+<div {% if downloading %}hx-get="/activity/queue/table" hx-trigger="every 5s" hx-target="#queue" hx-swap="innerHTML"{% endif %}>
+{% if not grabs %}
+{{ ui.empty("Queue is empty", "Nothing is downloading. Grabs from searches and RSS show up here.") }}
+{% else %}
+<div class="table-wrap">
+  <table class="table" id="queue-table">
+    <thead><tr>
+      <th scope="col">Status</th>
+      <th scope="col">Magazine</th>
+      <th scope="col">Issue</th>
+      <th scope="col">Release</th>
+      <th scope="col">Indexer</th>
+      <th scope="col" class="num">Size</th>
+      <th scope="col">Progress</th>
+      <th scope="col">Time left</th>
+      <th scope="col"><span class="visually-hidden">Actions</span></th>
+    </tr></thead>
+    <tbody>
+      {% for g in grabs %}
+      {% set led, label = leds[g.status] %}
+      <tr>
+        <td>{{ ui.led(led, label) }}{% if g.client_status %}<div class="muted small">{{ g.client_status }}</div>{% endif %}</td>
+        <td>{% if g.magazine %}<a href="/magazines/{{ g.magazine.id }}">{{ g.magazine.title }}</a>{% else %}(removed){% endif %}</td>
+        <td>{{ g.issue_key }}</td>
+        <td class="wrap">{{ g.title }}{% if g.error %}<div class="field__error">{{ g.error }}</div>{% endif %}</td>
+        <td>{{ g.release.indexer if g.release and g.release.indexer else "" }}</td>
+        <td class="num">{{ (g.size_bytes | filesize) if g.size_bytes else "" }}</td>
+        <td style="min-width: 8rem">
+          <span class="small" id="q-{{ g.id }}">{{ g.progress | round(0) | int }}%{% if g.size_left_bytes %} · {{ g.size_left_bytes | filesize }} left{% endif %}</span>
+          {{ ui.segbar(g.progress, "q-" ~ g.id) }}
+        </td>
+        <td>{{ fmt_seconds(g.time_left_s) }}</td>
+        <td><button class="btn btn--small" type="button" hx-get="/activity/queue/{{ g.id }}/remove" hx-target="#modal-body" aria-label="Remove {{ g.title }}">Remove</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+</div>

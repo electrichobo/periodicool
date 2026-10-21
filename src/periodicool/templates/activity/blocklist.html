@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Blocklist · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">Activity</h1>
+{% include "activity/_tabs.html" %}
+<form id="bl-form" hx-post="/activity/blocklist/remove" hx-swap="none">
+  <div class="toolbar">
+    <div class="toolbar__group">
+      <button class="btn btn--danger btn--small" type="button" hx-post="/activity/blocklist/clear" hx-swap="none"
+              hx-confirm="Clear the whole blocklist? Every release on it could be grabbed again." data-confirm-type="clear"{% if not rows %} disabled{% endif %}>Clear all</button>
+    </div>
+    <p class="on-chassis-muted toolbar__note">{{ total }} blocklisted releases. They are never grabbed again.</p>
+  </div>
+  <div class="bulkbar" data-bulk-for="bl-table" hidden>
+    <span class="bulkbar__count">0 selected</span>
+    <button class="btn btn--small" type="submit">Remove from blocklist</button>
+  </div>
+  <section class="panel" aria-label="Blocklist">
+    {% if not rows %}
+    {{ ui.empty("Blocklist is empty", "Failed or rejected releases are added here so they are not grabbed again.") }}
+    {% else %}
+    <div class="table-wrap">
+      <table class="table" id="bl-table">
+        <thead><tr>
+          <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all"></th>
+          <th scope="col">Release</th>
+          <th scope="col">Magazine</th>
+          <th scope="col">Issue</th>
+          <th scope="col">Reason</th>
+          <th scope="col">Date</th>
+        </tr></thead>
+        <tbody>
+          {% for b in rows %}
+          <tr>
+            <td><input type="checkbox" class="row-select" name="ids" value="{{ b.id }}" aria-label="Select {{ b.title }}"></td>
+            <td class="wrap">{{ b.title }}</td>
+            <td>{{ titles.get(b.magazine_id, "") }}</td>
+            <td>{{ b.issue_key or "" }}</td>
+            <td class="wrap">{{ b.reason }}</td>
+            <td>{{ (b.created_at | when("%Y-%m-%d %H:%M")) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ ui.pager(page, pages, "?") }}
+    {% endif %}
+  </section>
+</form>
+{% endblock %}

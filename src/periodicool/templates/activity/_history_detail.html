@@ -1,0 +1,24 @@
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">{{ event_labels.get(h.event.value, h.event.value) }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <dl class="summary">
+    <div><dt>Event</dt><dd>{{ ui.led(event_leds.get(h.event.value, "info"), event_labels.get(h.event.value, h.event.value)) }}</dd></div>
+    <div><dt>Date</dt><dd>{{ (h.date | when("%Y-%m-%d %H:%M:%S")) }}</dd></div>
+    <div><dt>Magazine</dt><dd>{{ h.magazine.title if h.magazine else "(removed)" }}</dd></div>
+    <div><dt>Issue</dt><dd>{{ h.issue_key or "" }}</dd></div>
+    {% if h.source_title %}<div class="summary__wide"><dt>Source</dt><dd>{{ h.source_title }}</dd></div>{% endif %}
+    {% for key, value in h.data.items() %}
+    <div{% if value is string and value | length > 40 %} class="summary__wide"{% endif %}><dt>{{ key | replace("_", " ") }}</dt><dd>{% if key == "size" %}{{ value | filesize }}{% else %}{{ value }}{% endif %}</dd></div>
+    {% endfor %}
+  </dl>
+  <div class="modal__foot">
+    {% if g and g.status.value == "imported" %}
+    <button class="btn btn--danger" type="button" hx-post="/history/{{ h.id }}/fail" hx-swap="none"
+            hx-confirm="Mark this download as failed? The release is blocklisted. The imported file stays in the library.">Mark as failed</button>
+    {% endif %}
+    <button class="btn" type="button" data-close-modal>Close</button>
+  </div>
+</div>

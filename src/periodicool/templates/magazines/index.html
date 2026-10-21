@@ -130,7 +130,7 @@
             </td>
             <td class="num" data-sort="{{ s.size }}">{{ s.size | filesize }}</td>
             <td>{% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span> {% endfor %}</td>
-            <td data-sort="{{ m.added_at.isoformat() }}">{{ m.added_at.strftime("%Y-%m-%d") }}</td>
+            <td data-sort="{{ m.added_at.isoformat() }}">{{ (m.added_at | when("%Y-%m-%d")) }}</td>
           </tr>
           {% endfor %}
         </tbody>

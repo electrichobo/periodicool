@@ -54,6 +54,27 @@ def relative_to(path, root) -> str:
 
 
 templates.env.filters["relative_to"] = relative_to
+
+# Times are stored in UTC and shown in the TZ setting; create_app sets this.
+DISPLAY_TZ = {"name": "UTC"}
+
+
+def when(moment, fmt: str = "%Y-%m-%d %H:%M") -> str:
+    if moment is None:
+        return ""
+    from datetime import UTC
+    from zoneinfo import ZoneInfo
+
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=UTC)
+    try:
+        zone = ZoneInfo(DISPLAY_TZ["name"])
+    except KeyError, ValueError:
+        zone = UTC
+    return moment.astimezone(zone).strftime(fmt)
+
+
+templates.env.filters["when"] = when
 # Sum of the numeric parts of a chart row (label, have, wanted, missing).
 templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
 

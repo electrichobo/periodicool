@@ -21,9 +21,9 @@
     <nav aria-label="Main">
       <ul class="nav">
         {% for href, label in [
-          ("/", "Magazines"), ("/wanted", "Wanted"), ("/activity", "Activity"),
-          ("/history", "History"), ("/library", "Library"), ("/settings", "Settings"),
-          ("/health/details", "Health")] %}
+          ("/", "Magazines"), ("/calendar", "Calendar"), ("/activity", "Activity"),
+          ("/wanted", "Wanted"), ("/library", "Library"), ("/settings", "Settings"),
+          ("/system", "System")] %}
         <li><a href="{{ href }}"{% if active == href %} aria-current="page"{% endif %}>{{ label }}</a></li>
         {% endfor %}
       </ul>

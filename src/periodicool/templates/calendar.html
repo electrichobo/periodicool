@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}Calendar · PeriodiCool{% endblock %}
+{% macro entry(e) -%}
+<a class="cal-entry cal-entry--{{ e.led }}" href="/magazines/{{ e.mag.id }}">
+  {{ ui.led(e.led, e.state_label) }}
+  <span class="cal-entry__text">{{ e.mag.title }} <span class="muted">{{ e.label }}</span></span>
+</a>
+{%- endmacro %}
+{% block content %}
+<div class="page-head">
+  <h1 class="page-title">Calendar</h1>
+  <details class="menu">
+    <summary class="btn btn--chassis btn--small">iCal feed</summary>
+    <div class="menu__list menu__list--wide">
+      <p>Subscribe in your calendar app to see expected issues (30 days back, 90 ahead):</p>
+      <label class="field__label" for="ical-url">Feed address</label>
+      <input class="input" id="ical-url" readonly value="{{ request.base_url }}feed/calendar.ics?apikey={{ api_key }}" onclick="this.select()">
+      <p class="field__help">The address holds your API key. Regenerate the key in Settings if it leaks.</p>
+    </div>
+  </details>
+</div>
+
+<div class="toolbar">
+  <div class="toolbar__group">
+    <a class="btn btn--chassis btn--small" href="?view={{ view }}&day={{ prev_day.isoformat() }}" aria-label="Previous">&lsaquo;</a>
+    <a class="btn btn--chassis btn--small" href="?view={{ view }}">Today</a>
+    <a class="btn btn--chassis btn--small" href="?view={{ view }}&day={{ next_day.isoformat() }}" aria-label="Next">&rsaquo;</a>
+    <h2 class="toolbar__title">{{ title }}</h2>
+  </div>
+  <div class="toolbar__group">
+    <div class="segmented" role="group" aria-label="View">
+      {% for v in ["month", "week", "agenda"] %}
+      <a href="?view={{ v }}&day={{ focus.isoformat() }}"{% if v == view %} aria-current="true"{% endif %}>{{ v | capitalize }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% if view == "agenda" %}
+<section class="panel" aria-label="Agenda">
+  {% if not by_day %}
+  {{ ui.empty("Nothing expected", "No issues are expected in this range.") }}
+  {% endif %}
+  {% for day, items in by_day | dictsort %}
+  <div class="agenda-day{% if day == today %} is-today{% endif %}">
+    <h3 class="agenda-day__date">{{ day.strftime("%a %d %b %Y") }}{% if day == today %} · Today{% endif %}</h3>
+    <div class="stack" style="--gap: 0.3rem">{% for e in items %}{{ entry(e) }}{% endfor %}</div>
+  </div>
+  {% endfor %}
+</section>
+{% else %}
+<div class="table-wrap">
+  <table class="cal cal--{{ view }}">
+    <caption class="visually-hidden">{{ title }}</caption>
+    <thead><tr>{% for short, long in weekday_names %}<th scope="col"><abbr title="{{ long }}">{{ short }}</abbr></th>{% endfor %}</tr></thead>
+    <tbody>
+      {% for week in weeks %}
+      <tr>
+        {% for day in week %}
+        <td class="cal__day{% if view == 'month' and day.month != focus.month %} is-other{% endif %}{% if day == today %} is-today{% endif %}">
+          <div class="cal__num">{{ day.day }}{% if day == today %}<span class="visually-hidden"> (today)</span>{% endif %}</div>
+          {% for e in by_day.get(day, []) %}{{ entry(e) }}{% endfor %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+<p class="on-chassis-muted small">Dates are cover dates. Issues often go on sale before them; each magazine's grace window decides when one counts as missing.</p>
+{% endblock %}

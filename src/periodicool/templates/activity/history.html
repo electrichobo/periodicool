@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+{% block title %}History · PeriodiCool{% endblock %}
+{% block content %}
+<h1 class="page-title">Activity</h1>
+{% include "activity/_tabs.html" %}
+<div class="toolbar">
+  <form class="toolbar__group" method="get" action="/activity/history">
+    <label class="visually-hidden" for="hist-event">Event</label>
+    <select class="select input--compact" id="hist-event" name="event" onchange="this.form.submit()">
+      <option value="">All events</option>
+      {% for key, label in event_labels.items() %}<option value="{{ key }}"{% if event == key %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <noscript><button class="btn btn--small" type="submit">Filter</button></noscript>
+  </form>
+  <p class="on-chassis-muted toolbar__note">{{ result.total }} events</p>
+</div>
+<section class="panel" aria-label="History">
+  {% if not result.rows %}
+  {{ ui.empty("No history yet", "Grabs, imports, failures and file moves are recorded here.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr>
+        <th scope="col">Event</th>
+        <th scope="col">Magazine</th>
+        <th scope="col">Issue</th>
+        <th scope="col">Source</th>
+        <th scope="col">Date</th>
+        <th scope="col"><span class="visually-hidden">Details</span></th>
+      </tr></thead>
+      <tbody>
+        {% for h in result.rows %}
+        <tr>
+          <td>{{ ui.led(event_leds.get(h.event.value, "info"), event_labels.get(h.event.value, h.event.value)) }}</td>
+          <td>{% if h.magazine %}<a href="/magazines/{{ h.magazine.id }}">{{ h.magazine.title }}</a>{% endif %}</td>
+          <td>{{ h.issue_key or "" }}</td>
+          <td class="wrap">{{ h.source_title or "" }}</td>
+          <td>{{ (h.date | when("%Y-%m-%d %H:%M")) }}</td>
+          <td><button class="btn btn--small" type="button" hx-get="/history/{{ h.id }}" hx-target="#modal-body" aria-label="Details of this event">Details</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ ui.pager(result.page, result.pages, pager_url) }}
+  {% endif %}
+</section>
+{% endblock %}

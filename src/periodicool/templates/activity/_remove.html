@@ -1,0 +1,16 @@
+<form class="panel modal__panel stack" hx-post="/activity/queue/{{ g.id }}/remove" hx-swap="none">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Remove from queue</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <p class="wrap">{{ g.title }}</p>
+  <p>This removes the job from {{ g.client }} (PeriodiCool's job only). An unfinished download's partial files are removed by {{ g.client }}; a finished download keeps its files.</p>
+  <label class="switch">Add to blocklist
+    <input type="checkbox" role="switch" name="blocklist"><span class="switch__state" aria-hidden="true"></span>
+  </label>
+  <span class="field__help">A blocklisted release is never grabbed again.</span>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--danger" type="submit">Remove</button>
+  </div>
+</form>

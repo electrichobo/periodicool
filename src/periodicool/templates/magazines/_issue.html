@@ -21,7 +21,7 @@
       {% if i.file_path %}
       <div><dt>Format</dt><dd>{{ (i.file_format or "") | upper }}</dd></div>
       <div><dt>Size</dt><dd>{{ (i.file_size | filesize) if i.file_size else "Unknown" }}</dd></div>
-      <div><dt>Imported</dt><dd>{{ i.imported_at.strftime("%Y-%m-%d %H:%M") if i.imported_at else "Unknown" }}</dd></div>
+      <div><dt>Imported</dt><dd>{{ (i.imported_at | when("%Y-%m-%d %H:%M")) if i.imported_at else "Unknown" }}</dd></div>
       <div class="summary__wide"><dt>Path</dt><dd><code>{{ i.file_path }}</code></dd></div>
       {% endif %}
     </dl>
@@ -37,7 +37,7 @@
           {% for h in events %}
           <tr>
             <td>{{ ui.led(event_leds.get(h.event.value, "info"), event_labels.get(h.event.value, h.event.value)) }}</td>
-            <td>{{ h.date.strftime("%Y-%m-%d %H:%M") }}</td>
+            <td>{{ (h.date | when("%Y-%m-%d %H:%M")) }}</td>
             <td class="wrap">{{ h.source_title or "" }}</td>
             <td class="wrap">{{ h.data.get("reason") or h.data.get("path") or h.data.get("target") or "" }}</td>
           </tr>
