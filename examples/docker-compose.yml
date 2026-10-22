@@ -17,12 +17,15 @@ services:
       TZ: "Etc/UTC"     # your time zone, for example America/Los_Angeles
       PROWLARR_API_KEY: ${PROWLARR_API_KEY}
       SABNZBD_API_KEY: ${SABNZBD_API_KEY}
+      # The download client's downloads, mounted exactly as the client (and Sonarr
+      # or Radarr) sees them, so no path mapping is needed.
+      PERIODICOOL_DOWNLOADS_DIR: /data
       # PERIODICOOL_IMPORT_DIR: /import   # optional drop-in folder
     volumes:
       - /path/to/appdata/periodicool:/config
       - /path/to/magazines:/library
-      # The download client's completed folder for PeriodiCool's category.
-      # If the client sees it at another path, set sabnzbd.path_map, e.g.
-      #   python -m periodicool config set sabnzbd.path_map '[["/data/complete/magazines", "/downloads"]]'
-      - /path/to/downloads/complete/magazines:/downloads
+      # Same host folder and container path as in the download client's own stack.
+      # Mount an existing folder: Docker creates a missing one owned by root, and
+      # the download client then cannot write into it.
+      - /path/to/downloads:/data
       # - /path/to/magazine-dropbox:/import

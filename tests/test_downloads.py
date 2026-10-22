@@ -461,3 +461,49 @@ def test_missing_articles_still_blocklist(env):
     )
     downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
     assert e.session.scalars(select(BlockedRelease)).one().title == L311
+
+
+def test_retry_import_after_the_cause_is_fixed(env, monkeypatch):
+    """A move refused by the library (a folder owned by another user) leaves the grab
+    in review; once fixed, Retry import finishes it."""
+    from periodicool import library as library_module
+
+    e = env
+    g = downloads.grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY).grab
+    finish(e, g, {"Linux311.pdf": b"magazine"})
+    real_move = library_module._move
+
+    def refused(src, dst, allow_copy):
+        raise PermissionError(13, "Permission denied", str(dst.parent))
+
+    monkeypatch.setattr(library_module, "_move", refused)
+    downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
+    assert g.status is GrabStatus.REVIEW and "Permission denied" in g.error
+    assert e.session.scalars(select(BlockedRelease)).all() == []
+
+    monkeypatch.setattr(library_module, "_move", real_move)
+    outcome = downloads.retry_import(e.session, g.id, e.settings, e.prowlarr, e.sab, TODAY)
+    assert outcome == "imported"
+    assert g.status is GrabStatus.IMPORTED
+    assert (e.settings.library_dir / TARGET).read_bytes() == b"magazine"
+    with pytest.raises(ValueError, match="waiting in review"):
+        downloads.retry_import(e.session, g.id, e.settings, e.prowlarr, e.sab, TODAY)
+
+
+def test_cli_drops_root(monkeypatch, tmp_path):
+    import os
+
+    from periodicool import cli
+
+    calls = []
+    monkeypatch.setattr(os, "geteuid", lambda: 0, raising=False)
+    monkeypatch.setattr(os, "setgroups", lambda g: calls.append(("groups", g)), raising=False)
+    monkeypatch.setattr(os, "setgid", lambda g: calls.append(("gid", g)), raising=False)
+    monkeypatch.setattr(os, "setuid", lambda u: calls.append(("uid", u)), raising=False)
+    monkeypatch.setattr(os, "umask", lambda m: calls.append(("umask", m)) or 0)
+    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path), "PUID": "99", "PGID": "100"})
+    cli.drop_root(settings)
+    assert calls == [("groups", []), ("gid", 100), ("uid", 99), ("umask", 0o002)]
+    root = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path), "PUID": "0", "PGID": "0"})
+    with pytest.raises(SystemExit, match="Refusing to run as root"):
+        cli.drop_root(root)

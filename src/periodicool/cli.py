@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from contextlib import contextmanager
 from datetime import UTC, date, datetime
@@ -501,10 +502,30 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def drop_root(settings: Settings, out=None) -> None:
+    """Become PUID:PGID when started as root, as the container's entrypoint does.
+
+    `docker exec` runs commands as root and skips the entrypoint; without this, a
+    command would create library folders and files owned by root that the server
+    (running as PUID:PGID) cannot write to afterwards.
+    """
+    if not hasattr(os, "geteuid") or os.geteuid() != 0:
+        return
+    if settings.puid == 0 or settings.pgid == 0:
+        raise SystemExit("Refusing to run as root: set PUID and PGID to a normal user.")
+    os.setgroups([])
+    os.setgid(settings.pgid)
+    os.setuid(settings.puid)
+    os.umask(settings.umask)
+    if out is not None:
+        print(f"Running as {settings.puid}:{settings.pgid}", file=sys.stderr)
+
+
 def main(argv: list[str] | None = None, settings: Settings | None = None, out=None) -> int:
     args = build_parser().parse_args(argv)
     settings = settings or load_settings()
     out = out or sys.stdout
+    drop_root(settings, out)
     if args.command is None:
         import uvicorn
 

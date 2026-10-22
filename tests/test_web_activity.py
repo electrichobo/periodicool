@@ -249,3 +249,16 @@ def test_times_show_in_the_configured_zone():
         assert web.when(datetime(2026, 10, 21, 23, 11, tzinfo=UTC)) == "2026-10-21 23:11"
     finally:
         web.DISPLAY_TZ["name"] = "UTC"
+
+
+def test_retry_import_button_and_route(client, mags):
+    grab_id = _grab(client, mags["Linux Magazine"], status=GrabStatus.REVIEW)
+    assert "Retry import" not in client.get("/activity/queue").text  # no finished files yet
+    with session(client) as s:
+        s.get(Grab, grab_id).storage_path = "/data/complete/mags/x"
+        s.commit()
+    assert "Retry import" in client.get("/activity/queue").text
+    resp = client.post(f"/activity/queue/{grab_id}/import")
+    assert toast(resp)["kind"] == "bad"  # the folder is not there in this test
+    other = _grab(client, mags["Linux Magazine"], job="SABnzbd_nzo_2")
+    assert "waiting in review" in toast(client.post(f"/activity/queue/{other}/import"))["text"]

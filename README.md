@@ -125,6 +125,10 @@ PeriodiCool can ask three public sources about your magazines. Each one is off u
 
 Requests go straight from your PeriodiCool to the source; there is no PeriodiCool server. Answers are kept in your database for 30 days. Nothing about a magazine changes until you tick it and press Apply in its Metadata pop-up. Other names found for magazines that have an ISSN also help recognize files in your library; searches and grabs only ever use your own titles. Only metadata is read: no issues or files are downloaded from these sources.
 
+## Running commands in the container
+
+`docker exec periodicool python -m periodicool <command>` works for every command (`scan`, `apply`, `user reset-password` and the rest). `docker exec` starts as root, so PeriodiCool switches to `PUID`:`PGID` before doing anything; files and folders it creates belong to the same user as the server's.
+
 ## Reading PDFs
 
 When a file name is not enough to place a file, PeriodiCool reads the text of the PDF's first pages (two by default) with [pypdf](https://pypi.org/project/pypdf/) and looks for an ISSN, a cover date and an issue number. It never sends anything anywhere, gives up after a few seconds, and skips encrypted, damaged or image-only files. A file only moves when the PDF's ISSN matches a magazine or a PDF clue agrees with the name; otherwise it waits in the manual import queue with a suggestion. Set a magazine's ISSN (printed near the barcode or masthead) to make this reliable and to catch wrong editions on import. Turn it off or change the page count in Settings, Media management.

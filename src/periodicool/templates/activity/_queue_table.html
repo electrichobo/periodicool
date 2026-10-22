@@ -32,7 +32,15 @@
           {{ ui.segbar(g.progress, "q-" ~ g.id) }}
         </td>
         <td>{{ fmt_seconds(g.time_left_s) }}</td>
-        <td><button class="btn btn--small" type="button" hx-get="/activity/queue/{{ g.id }}/remove" hx-target="#modal-body" aria-label="Remove {{ g.title }}">Remove</button></td>
+        <td>
+          <div class="cluster row-actions">
+            {% if g.status.value == "review" and g.storage_path %}
+            <button class="btn btn--small btn--primary" type="button" hx-post="/activity/queue/{{ g.id }}/import" hx-swap="none"
+                    aria-label="Retry the import of {{ g.title }}">Retry import</button>
+            {% endif %}
+            <button class="btn btn--small" type="button" hx-get="/activity/queue/{{ g.id }}/remove" hx-target="#modal-body" aria-label="Remove {{ g.title }}">Remove</button>
+          </div>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

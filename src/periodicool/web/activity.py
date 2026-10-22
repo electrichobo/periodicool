@@ -92,6 +92,29 @@ def remove_modal(request: Request, grab_id: int) -> HTMLResponse:
         return _render(request, "activity/_remove.html", g=g)
 
 
+@router.post("/activity/queue/{grab_id:int}/import")
+def retry_import(request: Request, grab_id: int) -> Response:
+    """Import a finished download again, once whatever stopped it is fixed."""
+    with request.app.state.sessions() as session:
+        try:
+            outcome = downloads.retry_import(
+                session,
+                grab_id,
+                request.app.state.settings,
+                prowlarr_client(request, session),
+                sab_client(request, session),
+                _today(request),
+            )
+        except ValueError as exc:
+            return _toast(str(exc), "warn")
+        g = session.get(Grab, grab_id)
+        error = g.error
+        session.commit()
+    if outcome == "imported":
+        return _toast("Imported.", refreshQueue=True)
+    return _toast(f"Still not imported: {error}", "bad", refreshQueue=True)
+
+
 @router.post("/activity/queue/{grab_id:int}/remove")
 async def remove_submit(request: Request, grab_id: int) -> Response:
     form = await form_data(request)

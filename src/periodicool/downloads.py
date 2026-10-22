@@ -462,6 +462,30 @@ def _import(session, g, settings, prowlarr, client, today, result) -> None:
         result.review.append(g)
 
 
+def retry_import(
+    session: Session,
+    grab_id: int,
+    settings: Settings,
+    prowlarr: ProwlarrClient | None,
+    client: DownloadClient | None,
+    today: date,
+) -> str:
+    """Try the import again for a finished download waiting in review (after the
+    cause, such as a folder permission, was fixed). Returns imported, review or failed."""
+    g = session.get(Grab, grab_id)
+    if g is None:
+        raise ValueError(f"no grab {grab_id}")
+    if g.status is not GrabStatus.REVIEW or not g.storage_path:
+        raise ValueError("only a finished download waiting in review can be imported again")
+    g.status, g.error = GrabStatus.COMPLETED, None
+    result = MonitorResult()
+    _import(session, g, settings, prowlarr, client, today, result)
+    session.flush()
+    if result.imported:
+        return "imported"
+    return "failed" if result.failed else "review"
+
+
 def _issue_wanted(session: Session, g: Grab) -> None:
     issue = _issue(session, g.magazine_id, g.issue_key) if g.magazine_id else None
     if issue is not None and not issue.file_path:

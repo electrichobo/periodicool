@@ -4,6 +4,18 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Retry import: a finished download waiting in review (for example after a folder permission problem) can be imported again from Activity, Queue once the cause is fixed.
+
+### Fixed
+
+- Commands run with `docker exec` now switch to `PUID`:`PGID` first. They used to run as root, so a library apply created folders the server could not write into afterwards.
+
+### Changed
+
+- The example compose file mounts the download client's folder exactly as the client sees it (`/data`), like Sonarr and Radarr.
+
 ## [0.1.2] - 2026-10-21
 
 ### Fixed
