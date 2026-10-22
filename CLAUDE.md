@@ -25,9 +25,11 @@ Self-hosted *arr-style manager for magazines: track titles, find new and back is
 
 **MVP:** track magazines, generate expected issues, find releases (RSS + search), send to SABnzbd, import, organize the library, web UI.
 
-**Non-goals for now:** built-in reader; torrents (keep the download-client layer pluggable for NZBGet/qBittorrent later); scraping storefronts (Zinio, Readly, PressReader and the like); any central PeriodiCool server or user-contributed metadata; multi-user roles; cloud services.
+**Non-goals for now:** built-in reader; scraping storefronts (Zinio, Readly, PressReader and the like); any central PeriodiCool server or user-contributed metadata; multi-user roles; cloud services.
 
-**Indexers and download clients are user-entered lists, as in Sonarr and Radarr:** the user adds, names, tests, orders and turns off each one. Prowlarr and SABnzbd are the first kinds; direct Newznab indexers and NZBGet (later qBittorrent) follow. Keep both layers pluggable behind one interface each, and never hard-code a single indexer or client into the rest of the app.
+**Indexers and download clients are user-entered lists, as in Sonarr and Radarr:** the user adds, names, tests, orders and turns off each one. Prowlarr and SABnzbd are the first kinds; direct Newznab indexers and NZBGet follow. Every indexer and client has a protocol (usenet or torrent).
+
+**Torrents (planned, after the lists):** Torznab indexers (through Prowlarr or direct) and torrent clients, qBittorrent first. A torrent keeps seeding from the client's folder, so imports hard-link or copy, never move, and PeriodiCool never removes a torrent's files. Seed goals (ratio, time) per indexer. The download-client safety rules apply unchanged: own category or label, only torrents PeriodiCool added. Keep both layers pluggable behind one interface each, and never hard-code a single indexer or client into the rest of the app.
 
 **Opt-in metadata lookups (off by default):** public sources such as Library of Congress MARC records, Wikidata and the Internet Archive may be queried to confirm or fill in a magazine's facts (ISSN, canonical title, aliases, publisher, start year, frequency) and back-issue lists. Rules:
 - Each source has its own switch in Settings, off by default. The install notes and every metadata page say clearly that turning them on improves matching.
