@@ -564,15 +564,30 @@ def fail(
     return res.grab if res and res.ok else None
 
 
+_PATH_HINT = (
+    "Mount the download client's folder in PeriodiCool at the same path the client "
+    "uses (for example the same host folder at /data in both containers), or set a "
+    "remote path mapping in Settings, Download clients. Then press Retry import."
+)
+
+
 def import_download(session: Session, g: Grab, settings: Settings) -> str:
     """Move the finished file into the library. Returns imported, review or failed."""
     downloads = settings.downloads_dir.resolve()
     local = Path(map_path(g.storage_path or "", get_setting(session, PATH_MAP_KEY, []))).resolve()
     if local == downloads or not local.is_relative_to(downloads):
-        why = f"download path {local} is outside {downloads}; check sabnzbd.path_map"
+        why = (
+            f"{g.client} put the download at {local}, which is outside the downloads folder "
+            f"{downloads}. {_PATH_HINT}"
+        )
         return _review(session, g, why)
     if not local.exists():
-        return _review(session, g, f"download path {local} not found; check sabnzbd.path_map")
+        return _review(
+            session,
+            g,
+            f"{g.client} reports the download at {g.storage_path}, but PeriodiCool cannot "
+            f"see {local}. {_PATH_HINT}",
+        )
 
     files = [local] if local.is_file() else walk(local)[0]
     files = [f for f in files if f.suffix.lower().lstrip(".") in FORMATS]

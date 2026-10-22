@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Changed
+
+- When a finished download cannot be found, the review message explains how to mount the download client's folder (or set a remote path mapping) and to press Retry import, instead of naming an internal setting.
+
 ## [0.1.3] - 2026-10-21
 
 ### Added

@@ -507,3 +507,13 @@ def test_cli_drops_root(monkeypatch, tmp_path):
     root = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path), "PUID": "0", "PGID": "0"})
     with pytest.raises(SystemExit, match="Refusing to run as root"):
         cli.drop_root(root)
+
+
+def test_missing_download_path_explains_the_mount(env):
+    e = env
+    g = downloads.grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY).grab
+    e.fake_s.complete(g.job_id, "/data/complete/mags/Not.Mounted")
+    downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
+    assert g.status is GrabStatus.REVIEW
+    assert "/data/complete/mags/Not.Mounted" in g.error and "same path the client" in g.error
+    assert "path_map" not in g.error and "Retry import" in g.error
