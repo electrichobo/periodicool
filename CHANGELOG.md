@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-10-21
+
 ### Added
 
 - Indexer and download client lists, as in Sonarr and Radarr. Settings, Indexers and Settings, Download clients list every entry with its status; Add opens a pop-up to pick the kind, then name, address, API key, priority and on/off, with a Test button. Each entry can be tested, edited and deleted.
@@ -87,7 +89,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/electrichobo/periodicool/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/electrichobo/periodicool/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/electrichobo/periodicool/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/electrichobo/periodicool/compare/v0.1.0...v0.1.1
