@@ -11,6 +11,7 @@
     <span class="spinner" aria-hidden="true"></span>
   </div>
   <div class="toolbar__group">
+    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/metadata" hx-target="#modal-body">Metadata</button>
     <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/edit" hx-target="#modal-body">Edit</button>
     <button class="btn btn--danger btn--small" type="button" hx-post="/magazines/{{ mag.id }}/delete" hx-swap="none"
             hx-confirm="Remove {{ mag.title }} and its issue list from PeriodiCool? Files in the library are kept." data-confirm-type="delete">Delete</button>

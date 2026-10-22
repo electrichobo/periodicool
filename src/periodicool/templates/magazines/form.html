@@ -27,6 +27,12 @@
     <div id="preview" aria-live="polite" hx-post="/magazines/preview" hx-trigger="load" hx-include="closest .form-layout form">
       <p class="muted">Fill in the form to see the folder name and expected issues.</p>
     </div>
+    <h2 class="subhead" id="lookup-title">Look up</h2>
+    <div class="cluster">
+      <button class="btn btn--small" type="button" hx-post="/magazines/lookup" hx-include="closest .form-layout form" hx-target="#lookup">Look up title or ISSN</button>
+      <span class="spinner" aria-hidden="true"></span>
+    </div>
+    <div id="lookup" aria-live="polite"></div>
   </aside>
 </div>
 {% endblock %}

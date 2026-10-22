@@ -39,6 +39,7 @@ DEFAULT_INTERVALS = {
     "import": 5 * 60,
     "downloads": 60,
     "backup": 7 * 86400,
+    "metadata": 30 * 86400,
 }
 LABELS = {
     "rss": "RSS sync",
@@ -47,6 +48,7 @@ LABELS = {
     "import": "Import folder",
     "downloads": "Check downloads",
     "backup": "Backup",
+    "metadata": "Metadata lookups",
 }
 # One lock for every scheduler instance, so "Run now" never overlaps a scheduled run.
 RUN_LOCK = threading.Lock()
@@ -122,6 +124,31 @@ def run_backup(session: Session, settings: Settings, now: datetime) -> str:
     return f"made {made.name}"
 
 
+MAX_LOOKUPS_PER_RUN = 20
+
+
+def run_metadata(session: Session, settings: Settings, now: datetime) -> str:
+    """Refresh cached lookups for magazines with an ISSN. Off unless a source is on."""
+    from sqlalchemy import select
+
+    from periodicool.lookups import any_enabled
+    from periodicool.lookups import service as lookups
+    from periodicool.models import Magazine
+
+    if not any_enabled(session):
+        return "skipped: metadata lookups are off"
+    asked = refreshed = 0
+    for mag in session.scalars(select(Magazine).where(Magazine.issn.is_not(None))):
+        for answer in lookups.records(session, mag).values():
+            if not answer.off and not answer.cached:
+                refreshed += 1
+        asked += 1
+        if refreshed >= MAX_LOOKUPS_PER_RUN:
+            break
+    pruned = lookups.prune(session)
+    return f"{asked} magazines checked, {refreshed} lookups, {pruned} old answers removed"
+
+
 RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "rss": run_rss,
     "wanted": run_wanted,
@@ -129,6 +156,7 @@ RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "import": run_import,
     "downloads": run_downloads,
     "backup": run_backup,
+    "metadata": run_metadata,
 }
 
 

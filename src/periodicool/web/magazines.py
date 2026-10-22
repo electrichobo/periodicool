@@ -13,6 +13,8 @@ from sqlalchemy.orm import selectinload
 from periodicool import downloads, library, magazines, overview, search
 from periodicool.clients.base import ClientError
 from periodicool.jobs import today_in
+from periodicool.lookups import NOTICE_KEY as LOOKUP_NOTICE_KEY
+from periodicool.lookups import any_enabled as lookups_any_enabled
 from periodicool.models import (
     FormatProfile,
     Frequency,
@@ -104,6 +106,8 @@ def index(request: Request) -> HTMLResponse:
             "totals": overview.totals(summaries),
             "tags": overview.all_tags(session),
             "saved": SAVED_MESSAGES.get(request.query_params.get("saved", "")),
+            "lookup_notice": not lookups_any_enabled(session)
+            and not library.get_setting(session, LOOKUP_NOTICE_KEY, False),
         }
         return _render(request, "magazines/index.html", active="/", **context)
 
@@ -163,6 +167,19 @@ def search_missing(request: Request) -> Response:
 # Add and edit
 
 
+def _lookup_new_issn(request, session, mag, old_issn) -> None:
+    """One lookup when a magazine gets a new ISSN, for the sources that are on.
+
+    The answer goes to the cache only; it helps recognize files and fills the
+    Metadata pop-up. Failures are cached quietly.
+    """
+    if not mag.issn or mag.issn == old_issn or not lookups_any_enabled(session):
+        return
+    from periodicool.lookups.service import records
+
+    records(session, mag, transport=getattr(request.app.state, "lookup_transport", None))
+
+
 def _form_page(request, session, *, mag=None, parsed=None, status_code=200, modal=False):
     values = parsed.raw if parsed else magazines.form_values(mag)
     if parsed:
@@ -198,6 +215,7 @@ async def add_submit(request: Request) -> Response:
         mag = magazines.apply_values(Magazine(issues=[]), parsed.values)
         session.add(mag)
         session.flush()
+        _lookup_new_issn(request, session, mag, None)
         from periodicool.schedule import sync_expected_issues
 
         sync_expected_issues(session, mag, _today(request))
@@ -238,7 +256,9 @@ async def edit_submit(request: Request, mag_id: int) -> Response:
         parsed = magazines.parse_form(session, form)
         if not parsed.ok:
             return _form_page(request, session, mag=mag, parsed=parsed, modal=True)
+        old_issn = mag.issn
         magazines.apply_values(mag, parsed.values)
+        _lookup_new_issn(request, session, mag, old_issn)
         from periodicool.schedule import sync_expected_issues
 
         sync_expected_issues(session, mag, _today(request))

@@ -68,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web import router as web_router
     from periodicool.web.activity import router as activity_router
     from periodicool.web.magazines import router as magazines_router
+    from periodicool.web.metadata import router as metadata_router
     from periodicool.web.security import router as security_router
     from periodicool.web.settings import router as settings_router
     from periodicool.web.system import router as system_router
@@ -76,6 +77,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(security_router)
     app.include_router(web_router)
     app.include_router(magazines_router)
+    app.include_router(metadata_router)
     app.include_router(activity_router)
     app.include_router(settings_router)
     app.include_router(system_router)

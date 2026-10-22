@@ -23,6 +23,7 @@ TABS = (
     ("profiles", "Profiles"),
     ("indexers", "Indexers"),
     ("downloads", "Download clients"),
+    ("metadata", "Metadata"),
     ("connect", "Connect"),
     ("tags", "Tags"),
     ("general", "General"),

@@ -113,6 +113,18 @@ python -m periodicool user reset-password
 
 An API key is generated into `/config/api.key` on first start. For now only the calendar feed uses it.
 
+## Metadata lookups (off by default)
+
+PeriodiCool can ask three public sources about your magazines. Each one is off until you turn it on in Settings, Metadata. Turning them on is worth it: they help recognize magazines and editions, check frequencies, and find past issues.
+
+| Source | What it gives | What is sent |
+| - | - | - |
+| Library of Congress catalog | Title, other titles, publisher, frequency, first issue | The ISSN (or the title when there is none) |
+| Wikidata | Title, other names, ISSN, start year, language, country, website | The ISSN (or the title when there is none) |
+| Internet Archive | Lists of past issues, read from item titles | The title |
+
+Requests go straight from your PeriodiCool to the source; there is no PeriodiCool server. Answers are kept in your database for 30 days. Nothing about a magazine changes until you tick it and press Apply in its Metadata pop-up. Other names found for magazines that have an ISSN also help recognize files in your library; searches and grabs only ever use your own titles. Only metadata is read: no issues or files are downloaded from these sources.
+
 ## Reading PDFs
 
 When a file name is not enough to place a file, PeriodiCool reads the text of the PDF's first pages (two by default) with [pypdf](https://pypi.org/project/pypdf/) and looks for an ISSN, a cover date and an issue number. It never sends anything anywhere, gives up after a few seconds, and skips encrypted, damaged or image-only files. A file only moves when the PDF's ISSN matches a magazine or a PDF clue agrees with the name; otherwise it waits in the manual import queue with a suggestion. Set a magazine's ISSN (printed near the barcode or masthead) to make this reliable and to catch wrong editions on import. Turn it off or change the page count in Settings, Media management.

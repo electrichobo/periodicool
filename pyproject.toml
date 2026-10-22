@@ -63,6 +63,7 @@ known-local-folder = [
     "test_library",
     "test_web_magazines",
     "pdfgen",
+    "fake_lookups",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -72,3 +73,4 @@ known-local-folder = [
 "tests/test_web_settings.py" = ["F811"]
 "tests/test_web_system.py" = ["F811"]
 "tests/test_pdf.py" = ["F811"]
+"tests/test_lookups.py" = ["F811"]

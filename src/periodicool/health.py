@@ -110,6 +110,27 @@ def local_checks(session: Session, settings: Settings, now: datetime | None = No
                 "Library: run a scan, read the preview, then apply.",
             )
         )
+    from periodicool.lookups import any_enabled
+    from periodicool.lookups.service import frequency_mismatch
+    from periodicool.models import Magazine
+
+    if not any_enabled(session):
+        checks.append(
+            Check(
+                "Metadata lookups",
+                "info",
+                "Off. Turning them on helps recognize magazines and editions.",
+                "Settings, Metadata (optional; each source is opt-in).",
+            )
+        )
+    else:
+        for mag in session.scalars(select(Magazine).where(Magazine.issn.is_not(None))):
+            if note := frequency_mismatch(session, mag):
+                checks.append(
+                    Check(
+                        f"Frequency of {mag.title}", "warn", note, "Check the magazine's schedule."
+                    )
+                )
     jobs = session.scalar(select(func.count()).select_from(Job)) or 0
     if not settings.jobs_enabled:
         checks.append(Check("Background tasks", "warn", "Turned off by PERIODICOOL_JOBS."))

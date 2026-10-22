@@ -475,3 +475,18 @@ class LogEvent(Base):
     level: Mapped[str] = mapped_column(String(10))
     logger: Mapped[str] = mapped_column(String(100))
     message: Mapped[str] = mapped_column(String(4000))
+
+
+class LookupCache(Base):
+    """A cached answer from a metadata source (or a cached failure, data None)."""
+
+    __tablename__ = "lookup_cache"
+    __table_args__ = (UniqueConstraint("source", "query", name="uq_lookup_cache_source_query"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    source: Mapped[str] = mapped_column(String(20))
+    query: Mapped[str] = mapped_column(String(300))
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    data: Mapped[dict | None] = mapped_column(JSON)
+    error: Mapped[str | None] = mapped_column(String(300))

@@ -115,6 +115,23 @@
       <p>PeriodiCool adds jobs only in its own category, reads and removes only the jobs it created, and never changes SABnzbd's settings.</p>
       <p class="field__help">The SABnzbd API key comes from the SABNZBD_API_KEY environment variable and is never shown.</p>
     </section>
+    {% elif section == "metadata" %}
+    <section class="panel stack" aria-labelledby="md-title">
+      <h2 class="panel__label" id="md-title">What this does</h2>
+      <p><strong>Off by default, and worth turning on.</strong> These public sources help PeriodiCool recognize your magazines and their editions, check their frequency, and list past issues.</p>
+      <ul class="plain-list">
+        <li>Only an ISSN (or a title when there is none) is sent, straight from this PeriodiCool to the source.</li>
+        <li>Answers are kept in your database for 30 days. Nothing changes until you apply it in a magazine's Metadata pop-up.</li>
+        <li>Other names found for magazines with an ISSN also help recognize files in the library. Searches and grabs use only your own titles.</li>
+        <li>Only metadata is read. No issues or files are ever downloaded from these sources.</li>
+      </ul>
+      <div class="cluster">
+        {% for key, label in [("loc", "Test Library of Congress"), ("wikidata", "Test Wikidata"), ("archive", "Test Internet Archive")] %}
+        <button class="btn btn--small" type="button" hx-post="/settings/metadata/test/{{ key }}" hx-swap="none">{{ label }}</button>
+        {% endfor %}
+        <span class="spinner" aria-hidden="true"></span>
+      </div>
+    </section>
     {% elif section == "general" %}
     <section class="panel stack" aria-labelledby="key-title">
       <h2 class="panel__label" id="key-title">API key</h2>

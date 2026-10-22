@@ -7,6 +7,12 @@
   <a class="btn btn--primary" href="/magazines/add">+ Add magazine</a>
 </div>
 {% if saved %}<div class="crt flash" role="status">{{ ui.led("ok", "Done") }} {{ saved }}</div>{% endif %}
+{% if lookup_notice %}
+<div class="note-box note-box--banner" id="lookup-notice" role="note">
+  <p>{{ ui.led("info", "Tip") }} Metadata lookups are off. Turning them on helps PeriodiCool recognize magazines and editions, check frequencies and find past issues. Each source is opt-in: <a href="/settings/metadata">Settings, Metadata</a>.</p>
+  <button class="btn btn--small" type="button" hx-post="/lookups/dismiss" hx-target="#lookup-notice" hx-swap="outerHTML">Dismiss</button>
+</div>
+{% endif %}
 
 <div class="toolbar">
   <div class="toolbar__group">

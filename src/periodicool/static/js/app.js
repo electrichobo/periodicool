@@ -287,6 +287,23 @@
     if (box.dataset.remember) store(box.dataset.remember, btn.getAttribute("data-view-switch"));
   });
 
+  // "Use" buttons in lookup suggestions: copy a value into a form field.
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-fill]");
+    if (!btn) return;
+    var field = document.getElementById(btn.getAttribute("data-fill"));
+    if (!field) return;
+    var value = btn.getAttribute("data-value") || "";
+    if (btn.hasAttribute("data-append") && field.value.trim()) {
+      var parts = field.value.split(",").map(function (p) { return p.trim().toLowerCase(); });
+      if (parts.indexOf(value.toLowerCase()) === -1) field.value = field.value.replace(/\s*$/, "") + ", " + value;
+    } else {
+      field.value = value;
+    }
+    field.dispatchEvent(new Event("change", { bubbles: true }));
+    btn.setAttribute("aria-pressed", "true");
+  });
+
   function init(scope) {
     (scope || document).querySelectorAll("[data-remember]").forEach(function (box) {
       var saved = store(box.dataset.remember);

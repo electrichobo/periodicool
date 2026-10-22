@@ -219,6 +219,35 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
             ),
         ],
     ),
+    "metadata": (
+        "Metadata",
+        [
+            Field(
+                "lookups.loc",
+                "Library of Congress",
+                "bool",
+                False,
+                "Catalog records: title, other titles, publisher, frequency, first issue. "
+                "Sends the ISSN (or the title when there is none).",
+            ),
+            Field(
+                "lookups.wikidata",
+                "Wikidata",
+                "bool",
+                False,
+                "Title, other names, ISSN, start year, language, country, website. "
+                "Sends the ISSN (or the title when there is none).",
+            ),
+            Field(
+                "lookups.archive",
+                "Internet Archive",
+                "bool",
+                False,
+                "Lists of past issues, for magazines you monitor back to a year. "
+                "Sends the title. Only titles and dates are read, never files.",
+            ),
+        ],
+    ),
     "general": (
         "General",
         [

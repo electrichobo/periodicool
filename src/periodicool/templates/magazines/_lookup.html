@@ -1,0 +1,24 @@
+{% import "_macros.html" as ui %}
+{% if not (states.loc or states.wikidata) %}
+<p class="field__help">Metadata lookups are off. Turning them on in <a href="/settings/metadata">Settings, Metadata</a> lets this form suggest the ISSN, other names and frequency. Only the ISSN or title is sent.</p>
+{% elif not asked %}
+<p class="field__help">Enter a title or ISSN first.</p>
+{% else %}
+{% for source, error in errors.items() %}<p role="alert">{{ ui.led("bad", sources[source]) }} {{ error }}</p>{% endfor %}
+{% for source, r in records.items() %}
+<div class="stack lookup-source" style="--gap: 0.3rem">
+  <div class="field__label">{{ sources[source] }}</div>
+  {% if not r %}
+  <p class="muted small">Nothing found.</p>
+  {% else %}
+  <p>{{ r.title }}{% if r.publisher %} <span class="muted small">({{ r.publisher }})</span>{% endif %}</p>
+  <div class="cluster">
+    {% for code in r.issns %}<button class="btn btn--small" type="button" data-fill="f-issn" data-value="{{ code }}">Use ISSN {{ code }}</button>{% endfor %}
+    {% for alt in r.alt_titles %}<button class="btn btn--small" type="button" data-fill="f-aliases" data-append data-value="{{ alt }}">Add name "{{ alt }}"</button>{% endfor %}
+    {% if r.frequency %}<button class="btn btn--small" type="button" data-fill="f-frequency" data-value="{{ r.frequency }}">Use {{ r.frequency_text }}</button>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+<p class="field__help">Suggestions only. Nothing is saved until you add the magazine.</p>
+{% endif %}

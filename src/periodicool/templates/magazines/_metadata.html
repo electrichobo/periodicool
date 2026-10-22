@@ -1,0 +1,145 @@
+{% import "_macros.html" as ui %}
+{% set any_record = records.get("loc") or records.get("wikidata") %}
+<div class="panel modal__panel">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Metadata · {{ mag.title }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+
+  {% if not (states.loc or states.wikidata or states.archive) %}
+  <div class="note-box">
+    <p><strong>Metadata lookups are off.</strong> Turning them on helps PeriodiCool recognize this magazine and its editions, check its frequency, and find past issues.</p>
+    <p>Each source is a separate switch in <a href="/settings/metadata">Settings, Metadata</a>. Only the ISSN (or the title) is sent; answers are kept for 30 days, and nothing changes here until you apply it.</p>
+  </div>
+  {% else %}
+  <p class="field__help">
+    {% for key, name in sources.items() %}{{ name }}: {{ "on" if states[key] else "off" }}{% if not loop.last %} · {% endif %}{% endfor %}.
+    Looked up by {{ "ISSN " ~ mag.issn if mag.issn else "title (set an ISSN for exact matches)" }}. Nothing changes until you apply it.
+    <a href="#" hx-get="/magazines/{{ mag.id }}/metadata?refresh=true" hx-target="#modal-body">Look up again</a>
+  </p>
+  {% for source, error in errors.items() %}<p role="alert">{{ ui.led("bad", sources[source]) }} {{ error }}</p>{% endfor %}
+
+  {% if states.loc or states.wikidata %}
+  {% if not any_record %}
+  {{ ui.empty("Nothing found", "The sources that are on have no record for this magazine.") }}
+  {% else %}
+  <form hx-post="/magazines/{{ mag.id }}/metadata/apply" hx-swap="none">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr>
+          <th scope="col">Field</th>
+          <th scope="col">Yours</th>
+          {% for source in ("loc", "wikidata") if states[source] %}<th scope="col">{{ sources[source] }}</th>{% endfor %}
+        </tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">Title</th>
+            <td>{{ mag.title }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{% if r and r.title %}{{ r.title }}{% if r.title | lower != mag.title | lower %}
+              <label class="pick"><input type="checkbox" name="apply" value="alias:{{ r.title }}"> add as other name</label>{% endif %}{% endif %}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">Other names</th>
+            <td>{{ (mag.aliases or []) | join(", ") or "None" }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{% if r %}{% for alt in r.alt_titles %}
+              <label class="pick"><input type="checkbox" name="apply" value="alias:{{ alt }}"{% if alt | lower in ((mag.aliases or []) | map("lower") | list) %} disabled checked{% endif %}> {{ alt }}</label>
+            {% endfor %}{% endif %}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">ISSN</th>
+            <td>{{ mag.issn or "Not set" }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{% if r %}{% for code in r.issns %}
+              <label class="pick"><input type="checkbox" name="apply" value="issn:{{ code }}"{% if code == mag.issn %} disabled checked{% endif %}> {{ code }}</label>
+            {% endfor %}{% endif %}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">Frequency</th>
+            <td>{{ frequency_labels[mag.frequency.value] }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{% if r and r.frequency_text %}{{ r.frequency_text }}
+              {% if r.former_frequency_text %}<div class="muted small">Before: {{ r.former_frequency_text }}</div>{% endif %}
+              {% if r.frequency and r.frequency != mag.frequency.value and not (r.frequency == "quarterly" and mag.frequency.value == "seasonal") %}
+              <label class="pick"><input type="checkbox" name="apply" value="frequency:{{ r.frequency }}"> use {{ frequency_labels[r.frequency] }}</label>{% endif %}
+            {% endif %}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">First issue</th>
+            <td>{{ mag.schedule_start or "" }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{{ (r.start or r.start_year or "") if r else "" }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">Language</th>
+            <td>{{ (mag.languages or []) | join(", ") }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{% if r and r.language %}{{ r.language }}{% if r.language | lower not in (mag.languages or []) %}
+              <label class="pick"><input type="checkbox" name="apply" value="language:{{ r.language }}"> add</label>{% endif %}{% endif %}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">Publisher</th>
+            <td></td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}<td>{{ (r.publisher or "") if r else "" }}</td>{% endfor %}
+          </tr>
+          <tr>
+            <th scope="row">Country, website</th>
+            <td>{{ mag.region or "" }}</td>
+            {% for source in ("loc", "wikidata") if states[source] %}{% set r = records.get(source) %}
+            <td>{{ (r.country or "") if r else "" }}{% if r and r.website %} · <code>{{ r.website }}</code>{% endif %}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal__foot"><button class="btn btn--primary" type="submit">Apply ticked</button></div>
+  </form>
+  {% endif %}
+  {% endif %}
+
+  {% if states.archive %}
+  <h3 class="subhead">Past issues (Internet Archive)</h3>
+  {% if back is none %}
+  <p class="field__help">Shown when this magazine is monitored for all issues or from a year on.</p>
+  {% elif back.error %}
+  <p role="alert">{{ ui.led("bad", "Internet Archive") }} {{ back.error }}</p>
+  {% elif not back.issues %}
+  {{ ui.empty("No new past issues", "Nothing found that is not already in the issue list" ~ (" (" ~ back.skipped ~ " items could not be read with confidence)." if back.skipped else ".")) }}
+  {% else %}
+  <form hx-post="/magazines/{{ mag.id }}/metadata/back-issues" hx-swap="none">
+    <p class="field__help">Found from item titles only; check them before adding. {% if back.skipped %}{{ back.skipped }} items could not be read with confidence and are left out.{% endif %}</p>
+    <div class="table-wrap">
+      <table class="table" id="back-table">
+        <thead><tr>
+          <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all"></th>
+          <th scope="col">Issue</th><th scope="col">Cover date</th><th scope="col">Number</th><th scope="col">From the title</th>
+          {% if numbered %}<th scope="col">Known issue</th>{% endif %}
+        </tr></thead>
+        <tbody>
+          {% for b in back.issues %}
+          <tr>
+            <td><input type="checkbox" class="row-select" name="keys" value="{{ b.key }}" aria-label="Add {{ b.label }}"></td>
+            <td>{{ b.label }}</td>
+            <td>{{ b.cover_date or "" }}</td>
+            <td>{% if b.volume_number is not none %}Vol {{ b.volume_number }}{% endif %}{% if b.issue_number is not none %} No {{ b.issue_number }}{% endif %}</td>
+            <td class="wrap">{{ b.source_title }}</td>
+            {% if numbered %}<td>{% if b.cover_date and (b.issue_number is not none or b.volume_number is not none) %}<label class="pick"><input type="radio" name="anchor" value="{{ b.key }}"> use</label>{% endif %}</td>{% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal__foot"><button class="btn btn--primary" type="submit">Add selected as expected issues</button></div>
+  </form>
+  {% endif %}
+  {% endif %}
+  {% endif %}
+  <div class="modal__foot"><button class="btn" type="button" data-close-modal>Close</button></div>
+</div>

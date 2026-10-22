@@ -4,6 +4,7 @@
 <section class="panel gate" aria-labelledby="setup-title">
   <h1 class="panel__label" id="setup-title">Create the admin login</h1>
   <p>PeriodiCool has one login. You can turn login off for your local network later in Settings.</p>
+  <p class="field__help">Optional, later: metadata lookups (Library of Congress, Wikidata, Internet Archive) help recognize magazines and find past issues. They are off until you turn them on in Settings, Metadata.</p>
   {% if error %}<p class="field__error" role="alert">{{ error }}</p>{% endif %}
   <form class="stack" method="post" action="/setup">
     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">

@@ -16,7 +16,7 @@ import logging
 import os
 import re
 import shutil
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 
@@ -153,11 +153,20 @@ def classify(
     magazines,
     template: str,
     pdf: PdfOptions | None = None,
+    extras: dict | None = None,
 ) -> Decision:
     """Decide where a file goes, from its name; then, only if the name is not enough
-    and `pdf` allows it, from the text of the PDF's first pages."""
+    and `pdf` allows it, from the text of the PDF's first pages.
+
+    `extras` maps magazine ids to extra (name, source) pairs from cached metadata
+    lookups. They help recognize files only; releases never use them.
+    """
     ext = path.suffix.lower().lstrip(".")
-    d, parsed = _classify_name(path, scan_root, magazines, ext, library_root, template)
+    extras = extras or {}
+    specs = _specs(magazines, extras)
+    d, parsed = _classify_name(
+        path, scan_root, magazines, ext, library_root, template, specs, extras
+    )
     if (
         pdf is not None
         and pdf.enabled
@@ -165,18 +174,39 @@ def classify(
         and d.action is ItemAction.REVIEW
         and d.reason_code in _PDF_HELPS
     ):
-        d = _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf)
+        d = _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf, specs)
     return d
 
 
-def _classify_name(path, scan_root, magazines, ext, library_root, template):
+def _specs(magazines, extras: dict) -> dict:
+    """Title specs per magazine id, with any extra names added as aliases."""
+    out = {}
+    for m in magazines:
+        spec = m.title_spec()
+        names = tuple(name for name, _ in extras.get(m.id, ()))
+        out[m.id] = replace(spec, aliases=spec.aliases + names) if names else spec
+    return out
+
+
+def _via_extra(parsed, mag, extras_for) -> str | None:
+    """A note when the name matched one of the extra names, not the user's own."""
+    from periodicool.matching import normalize_title
+
+    got = normalize_title(parsed.title)
+    for name, source in extras_for:
+        if normalize_title(name) == got:
+            return f"matched via {source} alternate title {name!r}"
+    return None
+
+
+def _classify_name(path, scan_root, magazines, ext, library_root, template, specs, extras):
     first = None
     near: list[str] = []
-    titles = TitleIndex.from_magazines(magazines)
+    titles = TitleIndex(specs.values())
     for name in _candidates(path, scan_root):
         parsed = parse_release(name, titles)
         first = first or parsed
-        results = [(m, match_title(parsed, m.title_spec())) for m in magazines]
+        results = [(m, match_title(parsed, specs[m.id])) for m in magazines]
         matches = [m for m, r in results if r.accepted]
         # Title matched but region or language did not: say so instead of "no magazine".
         near += [f"{m.title}: {r.reason}" for m, r in results if not r.accepted
@@ -187,7 +217,11 @@ def _classify_name(path, scan_root, magazines, ext, library_root, template):
             d.review(ReasonCode.AMBIGUOUS_MAGAZINE, f"matches {names}")
             return d, parsed
         if matches:
-            return _decide(parsed, name, matches[0], ext, library_root, template), parsed
+            mag = matches[0]
+            d = _decide(parsed, name, mag, ext, library_root, template)
+            if note := _via_extra(parsed, mag, extras.get(mag.id, [])):
+                d.parsed = dict(d.parsed) | {"notes": [*d.parsed.get("notes", []), note]}
+            return d, parsed
     d = Decision(ItemAction.REVIEW, parsed={"name": path.stem, "title": first.title})
     if not first.title:
         d.review(ReasonCode.UNPARSED, "no title in the name")
@@ -201,7 +235,7 @@ def _classify_name(path, scan_root, magazines, ext, library_root, template):
 _CLUES = ("year", "month", "month_end", "season", "issue", "volume")
 
 
-def _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf) -> Decision:
+def _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf, specs) -> Decision:
     """Use the PDF's own text to finish a decision the name could not make.
 
     The file only moves when the result is confident and the PDF's ISSN matched,
@@ -227,7 +261,7 @@ def _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf) -> D
     elif d.magazine is not None:
         mag = d.magazine
     else:
-        hits = [m for m in magazines if TitleIndex.from_magazines([m]).spans(clues.text)]
+        hits = [m for m in magazines if TitleIndex([specs[m.id]]).spans(clues.text)]
         if len(hits) == 1:
             mag, via = hits[0], "title"
     if mag is None:
@@ -433,6 +467,9 @@ def plan_scan(
     template = get_setting(session, TEMPLATE_KEY, DEFAULT_TEMPLATE)
     magazines = list(session.scalars(select(Magazine)))
     pdf = pdf_options(session)
+    from periodicool.lookups.service import extra_names
+
+    extras = extra_names(session, magazines)  # from the cache only; no network
     scan = Scan(kind=kind, root=str(root), counts={})
     session.add(scan)
     session.flush()
@@ -463,7 +500,7 @@ def plan_scan(
             item.scan_id = scan.id
             counts["unchanged"] += 1
             continue
-        d = classify(path, library_root, root, magazines, template, pdf)
+        d = classify(path, library_root, root, magazines, template, pdf, extras)
         if d.action is ItemAction.MOVE and _same_file(path, library_root / d.target):
             d.action = ItemAction.KEEP
         decisions.append((src, d))
