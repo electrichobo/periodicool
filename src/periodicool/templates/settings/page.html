@@ -38,6 +38,7 @@
 {% if saved %}<div class="crt flash" role="status">{{ ui.led("ok", "Done") }} {{ saved }}</div>{% endif %}
 {% if errors %}<div class="crt flash" role="alert">{{ ui.led("bad", "Error") }} Nothing was saved. Check the fields marked below.</div>{% endif %}
 
+{% if section in ("indexers", "downloads") %}{% include "settings/_source_lists.html" %}{% endif %}
 {% if fields is defined %}
 <form class="settings-layout" method="post" action="/settings/{{ section }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -45,36 +46,8 @@
     <h2 class="panel__label" id="sec-title">{{ title }}</h2>
     {% for f in fields %}{{ field(f) }}{% endfor %}
 
-    {% if section == "downloads" %}
-    <fieldset class="form-section">
-      <legend>Remote path mappings</legend>
-      <p class="field__help">Only needed when SABnzbd sees the download folder under a different path than PeriodiCool does.</p>
-      {% if errors.get("path_map") %}<p class="field__error" role="alert">{{ errors["path_map"] }}</p>{% endif %}
-      <div class="table-wrap">
-        <table class="table">
-          <thead><tr><th scope="col">SABnzbd's path</th><th scope="col">PeriodiCool's path</th></tr></thead>
-          <tbody>
-            {% for remote, local in path_map %}
-            <tr>
-              <td><label class="visually-hidden" for="mr-{{ loop.index }}">SABnzbd's path {{ loop.index }}</label><input class="input input--mono" id="mr-{{ loop.index }}" name="map_remote" value="{{ remote }}" placeholder="/data/complete/mags"></td>
-              <td><label class="visually-hidden" for="ml-{{ loop.index }}">PeriodiCool's path {{ loop.index }}</label><input class="input input--mono" id="ml-{{ loop.index }}" name="map_local" value="{{ local }}" placeholder="/downloads"></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </fieldset>
-    {% endif %}
-
     <div class="cluster">
       <button class="btn btn--primary" type="submit">Save</button>
-      {% if section == "indexers" %}
-      <button class="btn" type="button" hx-post="/settings/indexers/test" hx-target="#indexer-test">Test Prowlarr</button>
-      <span class="spinner" aria-hidden="true"></span>
-      {% elif section == "downloads" %}
-      <button class="btn" type="button" hx-post="/settings/downloads/test" hx-swap="none">Test SABnzbd</button>
-      <span class="spinner" aria-hidden="true"></span>
-      {% endif %}
     </div>
   </section>
 
@@ -104,16 +77,16 @@
       {% endfor %}
     </section>
     {% elif section == "indexers" %}
-    <section class="panel" aria-labelledby="idx-title">
-      <h2 class="panel__label" id="idx-title">Indexers in Prowlarr</h2>
-      <div id="indexer-test" aria-live="polite"><p class="muted">Press Test Prowlarr to list indexers with what is left of today's limits.</p></div>
-      <p class="field__help">The Prowlarr API key comes from the PROWLARR_API_KEY environment variable and is never shown.</p>
+    <section class="panel stack" aria-labelledby="idx-title">
+      <h2 class="panel__label" id="idx-title">Keys</h2>
+      <p>API keys are stored in PeriodiCool's database, are never shown again, and are scrubbed from the logs. Backups contain them.</p>
+      <p class="field__help">The PROWLARR_API_KEY environment variable still works for the first Prowlarr entry when it has no key of its own.</p>
     </section>
     {% elif section == "downloads" %}
-    <section class="panel">
+    <section class="panel stack">
       <h2 class="panel__label">Safety</h2>
-      <p>PeriodiCool adds jobs only in its own category, reads and removes only the jobs it created, and never changes SABnzbd's settings.</p>
-      <p class="field__help">The SABnzbd API key comes from the SABNZBD_API_KEY environment variable and is never shown.</p>
+      <p>PeriodiCool adds jobs only in each client's own category, reads and removes only the jobs it created, and never changes the client's settings.</p>
+      <p class="field__help">API keys are stored in PeriodiCool's database and never shown again. The SABNZBD_API_KEY environment variable still works for the first SABnzbd entry when it has no key of its own.</p>
     </section>
     {% elif section == "metadata" %}
     <section class="panel stack" aria-labelledby="md-title">

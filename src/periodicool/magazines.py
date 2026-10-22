@@ -273,7 +273,7 @@ def automatic_search(
     result = search_magazine(session, prowlarr, mag, today)
     out.found = sum(1 for _, ev in result.candidates if ev.accepted)
     if client is None:
-        out.problems.append("SABnzbd is not set up, so nothing was sent")
+        out.problems.append("no download client is set up, so nothing was sent")
         return out
     keys = [issue_key] if issue_key else [i.key for i in wanted_issues(session, mag, today)]
     candidates = downloads._candidates(session)

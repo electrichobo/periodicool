@@ -95,3 +95,83 @@ def test_downgrade_keeps_undated_issues(tmp_path):
         rows = conn.execute(text("SELECT key, cover_date FROM issues")).all()
     engine.dispose()
     assert rows == [("v5", "1900-01-01")]
+
+
+def test_single_prowlarr_and_sab_become_list_rows(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    cfg = db.alembic_config(url)
+    command.upgrade(cfg, "0009")
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        for key, value in [
+            ("prowlarr.url", '"http://prowlarr:9696"'),
+            ("prowlarr.backoff_seconds", "300"),
+            ("sabnzbd.url", '"http://sab:8080"'),
+            ("sabnzbd.category", '"mags"'),
+            ("sabnzbd.path_map", '[["/data/complete/mags", "/downloads"]]'),
+            ("grab.auto", "false"),
+        ]:
+            conn.execute(
+                text("INSERT INTO settings (key, value) VALUES (:k, :v)"), {"k": key, "v": value}
+            )
+        conn.execute(
+            text(
+                "INSERT INTO releases (guid, title, categories, source, first_seen_at,"
+                " last_seen_at, accepted, reasons, rank)"
+                " VALUES ('g1', 'T', '[]', 'rss', '2026-10-01', '2026-10-01', 0, '[]', '[]')"
+            )
+        )
+        conn.execute(
+            text(
+                "INSERT INTO grabs (issue_key, title, client, job_id, category, status, progress,"
+                " grabbed_at, updated_at) VALUES ('n1', 'T', 'sabnzbd', 'J1', 'mags', 'queued', 0,"
+                " '2026-10-01', '2026-10-01')"
+            )
+        )
+        conn.execute(
+            text("INSERT INTO api_calls (at, kind, ok) VALUES ('2026-10-01', 'search', 1)")
+        )
+    engine.dispose()
+
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        ix = conn.execute(
+            text("SELECT id, name, kind, url, api_key, backoff_s FROM indexers")
+        ).all()
+        cl = conn.execute(
+            text("SELECT id, name, kind, url, category, path_map FROM download_clients")
+        ).all()
+        assert [(r.name, r.kind, r.url, r.api_key, r.backoff_s) for r in ix] == [
+            ("Prowlarr", "prowlarr", "http://prowlarr:9696", None, 300)
+        ]
+        assert [(r.name, r.kind, r.url, r.category) for r in cl] == [
+            ("SABnzbd", "sabnzbd", "http://sab:8080", "mags")
+        ]
+        assert "/downloads" in cl[0].path_map
+        assert conn.execute(text("SELECT source_id FROM releases")).scalar() == ix[0].id
+        assert conn.execute(text("SELECT source_id FROM api_calls")).scalar() == ix[0].id
+        assert conn.execute(text("SELECT client_id FROM grabs")).scalar() == cl[0].id
+        keys = set(conn.execute(text("SELECT key FROM settings")).scalars())
+        assert "prowlarr.url" not in keys and "sabnzbd.url" not in keys and "grab.auto" in keys
+    engine.dispose()
+
+    command.downgrade(cfg, "0009")
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        restored = dict(conn.execute(text("SELECT key, value FROM settings")).all())
+    engine.dispose()
+    assert restored["prowlarr.url"] == '"http://prowlarr:9696"'
+    assert restored["sabnzbd.category"] == '"mags"'
+
+
+def test_fresh_install_has_empty_lists(tmp_path):
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT count(*) FROM indexers")).scalar() == 0
+        assert conn.execute(text("SELECT count(*) FROM download_clients")).scalar() == 0
+    engine.dispose()

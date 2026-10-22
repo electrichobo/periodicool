@@ -25,6 +25,7 @@ from periodicool.models import (
     Release,
 )
 from periodicool.prowlarr import ProwlarrClient, ProwlarrError
+from rows import add_client, add_indexer
 
 from fake_prowlarr import KEY, URL, FakeProwlarr
 from fake_sab import SAB_KEY, SAB_URL, FakeSab, make_nzb
@@ -55,12 +56,10 @@ def env(tmp_path):
         mag = magazine_from_dict(entry)
         mag.format_profile = profile
         session.add(mag)
-    library.set_setting(session, search.URL_KEY, URL)
-    library.set_setting(session, downloads.SAB_URL_KEY, SAB_URL)
-    library.set_setting(session, downloads.CATEGORY_KEY, "mags")
+    add_indexer(session, URL)
     complete = settings.downloads_dir / "complete" / "mags"
     complete.mkdir(parents=True)
-    library.set_setting(session, downloads.PATH_MAP_KEY, [["/data/complete/mags", str(complete)]])
+    e_client = add_client(session, SAB_URL, path_map=[["/data/complete/mags", str(complete)]])
     session.flush()
 
     fake_p, fake_s = FakeProwlarr(), FakeSab()
@@ -75,6 +74,7 @@ def env(tmp_path):
     e = Env()
     e.settings, e.session, e.prowlarr, e.sab = settings, session, prowlarr, sab
     e.fake_p, e.fake_s, e.complete = fake_p, fake_s, complete
+    e.client_row = e_client
     yield e
     session.close()
     engine.dispose()
@@ -210,7 +210,7 @@ def test_grab_refusals(env):
 
 def test_grab_refused_without_category(env):
     e = env
-    library.set_setting(e.session, downloads.CATEGORY_KEY, None)
+    e.sab.category = ""
     res = downloads.grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY)
     assert not res.ok and "category" in res.reasons[0] and e.fake_s.added == []
 
@@ -299,7 +299,7 @@ def test_file_for_another_issue_goes_to_review(env):
 
 def test_path_outside_downloads_is_not_touched(env, tmp_path):
     e = env
-    library.set_setting(e.session, downloads.PATH_MAP_KEY, [])
+    e.client_row.path_map = []
     outside = tmp_path / "elsewhere"
     outside.mkdir()
     (outside / "Linux311.pdf").write_bytes(b"x")

@@ -1,4 +1,4 @@
-"""Settings tabs, Sonarr style. Secrets are never shown or edited here."""
+"""Settings tabs, Sonarr style. Indexer and client entries are in web/sources.py."""
 
 from __future__ import annotations
 
@@ -7,13 +7,11 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from sqlalchemy import func, select
 
 from periodicool import auth, naming_preview, preferences
-from periodicool.clients.base import ClientError
-from periodicool.downloads import CATEGORY_KEY
 from periodicool.library import get_setting
 from periodicool.models import FormatProfile, Magazine
 from periodicool.parser import FORMATS
-from periodicool.prowlarr import ProwlarrError
-from periodicool.web.magazines import _render, _toast, prowlarr_client, sab_client
+from periodicool.web import sources as sources_ui
+from periodicool.web.magazines import _render, _toast
 from periodicool.web.security import form_data, form_lists
 
 router = APIRouter(include_in_schema=False)
@@ -29,7 +27,12 @@ TABS = (
     ("general", "General"),
     ("ui", "UI"),
 )
-SAVED = {"1": "Saved.", "key": "New API key made. Update your calendar app's feed address."}
+SAVED = {
+    "1": "Saved.",
+    "deleted": "Deleted.",
+    "deleted-kept": "Deleted. Releases found through it stay in history.",
+    "key": "New API key made. Update your calendar app's feed address.",
+}
 
 
 def _page(request, session, section: str, *, errors=None, form=None, status_code=200, **extra):
@@ -60,8 +63,10 @@ def _page(request, session, section: str, *, errors=None, form=None, status_code
             "examples": naming_preview.examples(template),
             "paths": _paths(settings),
         }
+    if section == "indexers":
+        context |= sources_ui.indexer_context(session)
     if section == "downloads":
-        context["path_map"] = preferences.path_map(session) + [("", "")] * 2
+        context |= sources_ui.client_context(session)
     if section == "general":
         context["api_key"] = auth.api_key(request.app.state.settings.config_dir)
     if section == "profiles":
@@ -111,42 +116,6 @@ async def naming_examples(request: Request) -> HTMLResponse:
         examples=naming_preview.examples(template) if not problem else [],
         problem=problem,
     )
-
-
-# Indexers and download client tests
-
-
-@router.post("/settings/indexers/test", response_class=HTMLResponse)
-def test_prowlarr(request: Request) -> HTMLResponse:
-    from periodicool.search import indexer_limits
-
-    with request.app.state.sessions() as session:
-        client = prowlarr_client(request, session)
-        error, limits = None, []
-        if client is None:
-            error = "Set the Prowlarr URL and save first. The API key comes from PROWLARR_API_KEY."
-        else:
-            try:
-                limits = indexer_limits(session, client)
-                session.commit()
-            except ProwlarrError as exc:
-                error = f"Prowlarr did not answer: {exc}"
-        return _render(request, "settings/_indexers.html", limits=limits, error=error)
-
-
-@router.post("/settings/downloads/test")
-def test_sab(request: Request) -> Response:
-    with request.app.state.sessions() as session:
-        client = sab_client(request, session)
-        if client is None:
-            return _toast(
-                "Set the SABnzbd URL and save first. The key comes from SABNZBD_API_KEY.", "warn"
-            )
-        try:
-            version = client.check(get_setting(session, CATEGORY_KEY, ""))
-        except ClientError as exc:
-            return _toast(f"SABnzbd test failed: {exc}", "bad")
-    return _toast(f"SABnzbd {version} answered, and the category exists.")
 
 
 # General
@@ -288,10 +257,6 @@ async def section_save(request: Request, section: str) -> Response:
     form = {k: v[-1] for k, v in lists.items()}
     with request.app.state.sessions() as session:
         errors = preferences.save(session, section, form)
-        if section == "downloads" and not errors:
-            remotes, locals_ = lists.get("map_remote", []), lists.get("map_local", [])
-            problem = preferences.save_path_map(session, remotes, locals_)
-            errors |= {"path_map": problem} if problem else {}
         if errors:
             session.rollback()
             return _page(request, session, section, errors=errors, form=form, status_code=422)

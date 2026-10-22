@@ -1,17 +1,17 @@
-"""RSS sync, magazine searches and indexer limits.
+"""RSS sync, magazine searches and indexer limits, across the indexer list.
 
-Indexer API limits belong to the user's Prowlarr setup (per-indexer query and
-grab limits, enforced by Prowlarr). PeriodiCool reads them, leaves out
-indexers that are disabled or at their limit, backs off when told to slow
-down, spaces its own requests, caches search results, backs off per magazine
-when searches find nothing new, and never searches one magazine twice in a
-run. A PeriodiCool-wide daily cap exists only if the user sets one.
+Each enabled indexer entry is searched in priority order: a Prowlarr entry fans
+out to its own indexers (whose query and grab limits Prowlarr enforces), and a
+direct Newznab entry is one indexer with an optional daily cap. PeriodiCool leaves
+out indexers that are disabled or at their limit, backs off per entry when told
+to slow down, spaces its own requests, caches search results per entry, backs off
+per magazine when searches find nothing new, and never searches one magazine
+twice in a run. A PeriodiCool-wide daily cap exists only if the user sets one.
 """
 
 from __future__ import annotations
 
 import logging
-import os
 import re
 from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime, timedelta
@@ -20,10 +20,11 @@ from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session
 
 from periodicool.decisions import Evaluation, evaluate, load_options
-from periodicool.library import get_setting, set_setting
+from periodicool.library import get_setting
 from periodicool.models import (
     ApiCall,
     Frequency,
+    Indexer,
     Issue,
     IssueStatus,
     Magazine,
@@ -43,14 +44,11 @@ from periodicool.schedule import sync_expected_issues
 
 log = logging.getLogger(__name__)
 
-URL_KEY = "prowlarr.url"
 API_KEY_ENV = "PROWLARR_API_KEY"
 CATEGORIES_KEY = "search.categories"
 CACHE_HOURS_KEY = "search.cache_hours"
 DAILY_CAP_KEY = "search.daily_cap"
 MIN_INTERVAL_KEY = "search.min_interval_s"
-BACKOFF_UNTIL_KEY = "prowlarr.backoff_until"
-BACKOFF_STEP_KEY = "prowlarr.backoff_seconds"
 
 DEFAULT_CATEGORIES = [7010]
 FIRST_BACKOFF = timedelta(minutes=5)
@@ -73,25 +71,33 @@ def _aware(dt: datetime | None) -> datetime | None:
     return dt.replace(tzinfo=UTC) if dt is not None and dt.tzinfo is None else dt
 
 
-def make_client(
-    session: Session, transport=None, api_key: str | None = None
-) -> ProwlarrClient | None:
-    """A client that logs every call to api_calls, or None if Prowlarr is not configured."""
-    url = get_setting(session, URL_KEY)
-    key = api_key or os.environ.get(API_KEY_ENV, "")
-    if not url or not key:
+def make_client(session: Session, transport=None, api_key: str | None = None):
+    """The first enabled Prowlarr entry as a client, or None. `api_key` overrides the
+    environment fallback (tests)."""
+    from periodicool.sources import PROWLARR_KEY_ENV, build_indexer
+
+    row = session.scalars(
+        select(Indexer)
+        .where(Indexer.enabled.is_(True), Indexer.kind == "prowlarr")
+        .order_by(Indexer.priority, Indexer.id)
+    ).first()
+    if row is None:
         return None
+    env = {PROWLARR_KEY_ENV: api_key} if api_key else None
+    return build_indexer(session, row, {"prowlarr": transport}, env)
 
-    def record(**call) -> None:
-        session.add(ApiCall(**call))
 
-    return ProwlarrClient(
-        url,
-        key,
-        transport=transport,
-        min_interval=float(get_setting(session, MIN_INTERVAL_KEY, 2.0)),
-        on_call=record,
-    )
+def _clients(source) -> list:
+    """A Sources object gives every enabled indexer entry; a single client is itself."""
+    from periodicool.sources import Sources
+
+    if isinstance(source, Sources):
+        return source.indexers
+    return [] if source is None else [source]
+
+
+def _name(client) -> str:
+    return getattr(client, "source_name", None) or "Prowlarr"
 
 
 def default_search_term(mag: Magazine) -> str:
@@ -102,28 +108,37 @@ def _categories(session: Session) -> list[int]:
     return list(get_setting(session, CATEGORIES_KEY, DEFAULT_CATEGORIES))
 
 
-# Global backoff
+# Backoff per indexer entry
 
 
-def check_backoff(session: Session, now: datetime) -> None:
-    until = get_setting(session, BACKOFF_UNTIL_KEY)
-    if until and now < datetime.fromisoformat(until):
-        raise Unavailable(f"Prowlarr asked us to slow down; waiting until {until}")
+def _backoff_reason(client, now: datetime) -> str | None:
+    row = getattr(client, "row", None)
+    until = _aware(row.backoff_until) if row is not None else None
+    if until and now < until:
+        return f"{_name(client)} asked us to slow down; waiting until {until:%Y-%m-%d %H:%M} UTC"
+    return None
 
 
-def _rate_limited(session: Session, now: datetime) -> datetime:
-    step = timedelta(seconds=get_setting(session, BACKOFF_STEP_KEY, 0))
+def check_backoff(session: Session, now: datetime, client=None) -> None:
+    if client is not None and (why := _backoff_reason(client, now)):
+        raise Unavailable(why)
+
+
+def _rate_limited(session: Session, now: datetime, client) -> datetime:
+    row = getattr(client, "row", None)
+    step = timedelta(seconds=(row.backoff_s if row is not None else 0) or 0)
     step = min(max(FIRST_BACKOFF, step * 2), MAX_BACKOFF)
     until = now + step
-    set_setting(session, BACKOFF_STEP_KEY, int(step.total_seconds()))
-    set_setting(session, BACKOFF_UNTIL_KEY, until.isoformat())
-    log.warning("Prowlarr rate limited us; backing off until %s", until)
+    if row is not None:
+        row.backoff_s, row.backoff_until = int(step.total_seconds()), until
+    log.warning("%s rate limited us; backing off until %s", _name(client), until)
     return until
 
 
-def _clear_backoff(session: Session) -> None:
-    if get_setting(session, BACKOFF_STEP_KEY, 0):
-        set_setting(session, BACKOFF_STEP_KEY, 0)
+def _clear_backoff(session: Session, client) -> None:
+    row = getattr(client, "row", None)
+    if row is not None and (row.backoff_s or row.backoff_until):
+        row.backoff_s, row.backoff_until = 0, None
 
 
 # Indexers and limits
@@ -160,6 +175,8 @@ def indexer_limits(
 ) -> list[IndexerLimit]:
     """Usenet indexers that carry magazines, with today's use against their limits."""
     now = now or _now()
+    if getattr(client, "kind", "") == "newznab":
+        return [_newznab_limit(session, client, now)]
     infos: list[IndexerInfo] = [
         i
         for i in client.indexers(category)
@@ -186,6 +203,40 @@ def indexer_limits(
     return out
 
 
+def _newznab_limit(session: Session, client, now: datetime) -> IndexerLimit:
+    """A direct Newznab entry is one indexer; its caps are the entry's own settings."""
+    row = getattr(client, "row", None)
+    settings = (row.settings if row is not None else None) or {}
+    start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    def count(kinds: tuple[str, ...]) -> int:
+        return (
+            session.scalar(
+                select(func.count())
+                .select_from(ApiCall)
+                .where(
+                    ApiCall.source_id == client.source_id,
+                    ApiCall.kind.in_(kinds),
+                    ApiCall.at >= start,
+                )
+            )
+            or 0
+        )
+
+    def cap(name: str) -> int | None:
+        value = settings.get(name)
+        return int(value) if isinstance(value, int | float) and value > 0 else None
+
+    return IndexerLimit(
+        id=0,
+        name=_name(client),
+        query_limit=cap("daily_cap"),
+        grab_limit=cap("grab_cap"),
+        queries_today=count(("search", "rss")),
+        grabs_today=count(("grab",)),
+    )
+
+
 def _usable(session, client, now) -> tuple[list[IndexerLimit], dict[str, str]]:
     usable, skipped = [], {}
     for lim in indexer_limits(session, client, now, _categories(session)[0]):
@@ -200,7 +251,12 @@ def _usable(session, client, now) -> tuple[list[IndexerLimit], dict[str, str]]:
 
 
 def _upsert(
-    session: Session, f: FoundRelease, source: ReleaseSource, ev: Evaluation, now: datetime
+    session: Session,
+    f: FoundRelease,
+    source: ReleaseSource,
+    ev: Evaluation,
+    now: datetime,
+    source_id: int | None = None,
 ) -> tuple[Release, bool]:
     rel = session.scalars(select(Release).where(Release.guid == f.guid)).one_or_none()
     new = rel is None
@@ -211,6 +267,7 @@ def _upsert(
     rel.size, rel.publish_date, rel.protocol = f.size, f.publish_date, f.protocol
     rel.categories = list(f.categories)
     rel.download_url, rel.info_url = f.download_url, f.info_url
+    rel.source_id = source_id
     rel.last_seen_at = now
     _apply_evaluation(rel, ev)
     return rel, new
@@ -247,46 +304,60 @@ class SyncResult:
     errors: list[str] = field(default_factory=list)
 
 
-def rss_sync(
-    session: Session, client: ProwlarrClient, today: date, now: datetime | None = None
-) -> SyncResult:
+def rss_sync(session: Session, source, today: date, now: datetime | None = None) -> SyncResult:
+    """New releases from every enabled indexer entry's RSS feeds."""
     now = now or _now()
     session.execute(delete(ApiCall).where(ApiCall.at < now - timedelta(days=API_LOG_DAYS)))
-    check_backoff(session, now)
     result = SyncResult()
     magazines = list(session.scalars(select(Magazine)))
     options = load_options(session)
-    usable, result.skipped = _usable(session, client, now)
-    for lim in usable:
-        try:
-            found, _limits = client.rss(lim.id, _categories(session))
-            found = [replace(f, indexer=lim.name) for f in found]
-        except RateLimited:
-            _rate_limited(session, now)
-            result.errors.append(f"{lim.name}: rate limited")
-            break
-        except ProwlarrError as exc:
-            result.errors.append(f"{lim.name}: {exc}")
+    cats = _categories(session)
+    for client in _clients(source):
+        if why := _backoff_reason(client, now):
+            result.skipped[_name(client)] = why
             continue
-        for f in found:
-            ev = _evaluate(
-                session,
-                f.title,
-                f.size,
-                f.protocol,
-                f.publish_date,
-                magazines,
-                today,
-                options,
-                f.guid,
-            )
-            rel, new = _upsert(session, f, ReleaseSource.RSS, ev, now)
-            result.seen += 1
-            result.new += new
-            if rel.accepted:
-                result.accepted.append(rel)
-    else:
-        _clear_backoff(session)
+        try:
+            usable, skipped = _usable(session, client, now)
+        except RateLimited:
+            _rate_limited(session, now, client)
+            result.errors.append(f"{_name(client)}: rate limited")
+            continue
+        except ProwlarrError as exc:
+            result.errors.append(f"{_name(client)}: {exc}")
+            continue
+        result.skipped.update(skipped)
+        limited = False
+        for lim in usable:
+            try:
+                found, _limits = client.rss(lim.id, cats)
+                found = [replace(f, indexer=lim.name) for f in found]
+            except RateLimited:
+                _rate_limited(session, now, client)
+                result.errors.append(f"{lim.name}: rate limited")
+                limited = True
+                break
+            except ProwlarrError as exc:
+                result.errors.append(f"{lim.name}: {exc}")
+                continue
+            for f in found:
+                ev = _evaluate(
+                    session,
+                    f.title,
+                    f.size,
+                    f.protocol,
+                    f.publish_date,
+                    magazines,
+                    today,
+                    options,
+                    f.guid,
+                )
+                rel, new = _upsert(session, f, ReleaseSource.RSS, ev, now, client.source_id)
+                result.seen += 1
+                result.new += new
+                if rel.accepted:
+                    result.accepted.append(rel)
+        if not limited:
+            _clear_backoff(session, client)
     session.flush()
     return result
 
@@ -314,7 +385,7 @@ def _searches_today(session: Session, now: datetime) -> int:
 
 def search_magazine(
     session: Session,
-    client: ProwlarrClient,
+    source,
     mag: Magazine,
     today: date,
     *,
@@ -322,7 +393,8 @@ def search_magazine(
     scheduled: bool = False,
     now: datetime | None = None,
 ) -> SearchResult:
-    """Search one magazine. One search covers all of its issues."""
+    """Search one magazine on every enabled indexer entry. One search covers all of
+    its issues. Raises Unavailable when no entry could search and nothing was cached."""
     now = now or _now()
     result = SearchResult(magazine=mag)
     magazines = list(session.scalars(select(Magazine)))
@@ -330,70 +402,100 @@ def search_magazine(
     cats = _categories(session)
     terms = list(dict.fromkeys([mag.search_term or default_search_term(mag), *(mag.aliases or [])]))
     cache_age = timedelta(hours=get_setting(session, CACHE_HOURS_KEY, 6))
+    clients = _clients(source)
+    if not clients:
+        raise Unavailable("no indexer is set up (Settings, Indexers)")
+    problems: list[str] = []
+    answered = False
+    seen_ids: set[int] = set()
+
+    def add(rel: Release, ev: Evaluation) -> None:
+        if rel.id not in seen_ids:
+            seen_ids.add(rel.id)
+            result.candidates.append((rel, ev))
 
     for term in terms:
-        qkey = f"{term.lower()}|{','.join(map(str, cats))}"
-        cache = session.scalars(
-            select(SearchCache).where(SearchCache.query_key == qkey)
-        ).one_or_none()
-        if cache and not force and _aware(cache.fetched_at) > now - cache_age:
-            result.from_cache = True
-            for rel in session.scalars(select(Release).where(Release.guid.in_(cache.guids))):
+        for client in clients:
+            qkey = f"{client.source_id or 0}|{term.lower()}|{','.join(map(str, cats))}"
+            cache = session.scalars(
+                select(SearchCache).where(SearchCache.query_key == qkey)
+            ).one_or_none()
+            if cache and not force and _aware(cache.fetched_at) > now - cache_age:
+                result.from_cache = answered = True
+                for rel in session.scalars(select(Release).where(Release.guid.in_(cache.guids))):
+                    ev = _evaluate(
+                        session,
+                        rel.title,
+                        rel.size,
+                        rel.protocol,
+                        rel.publish_date,
+                        magazines,
+                        today,
+                        options,
+                        rel.guid,
+                    )
+                    _apply_evaluation(rel, ev)
+                    session.flush()
+                    add(rel, ev)
+                continue
+            if why := _backoff_reason(client, now):
+                result.skipped[_name(client)] = why
+                problems.append(why)
+                continue
+            cap = get_setting(session, DAILY_CAP_KEY)
+            if cap is not None and _searches_today(session, now) >= cap:
+                raise Unavailable(f"daily search cap of {cap} reached")
+            try:
+                usable, skipped = _usable(session, client, now)
+                result.skipped.update(skipped)
+                if not usable:
+                    problems.append(
+                        f"{_name(client)}: no indexer available"
+                        + (
+                            ": " + "; ".join(f"{k}: {v}" for k, v in skipped.items())
+                            if skipped
+                            else ""
+                        )
+                    )
+                    continue
+                found = client.search(term, cats, [u.id for u in usable])
+            except RateLimited:
+                _rate_limited(session, now, client)
+                problems.append(f"{_name(client)}: rate limited")
+                continue
+            except ProwlarrError as exc:
+                problems.append(f"{_name(client)}: {exc}")
+                continue
+            _clear_backoff(session, client)
+            answered = True
+            guids = []
+            for f in found:
                 ev = _evaluate(
                     session,
-                    rel.title,
-                    rel.size,
-                    rel.protocol,
-                    rel.publish_date,
+                    f.title,
+                    f.size,
+                    f.protocol,
+                    f.publish_date,
                     magazines,
                     today,
                     options,
-                    rel.guid,
+                    f.guid,
                 )
-                _apply_evaluation(rel, ev)
-                result.candidates.append((rel, ev))
-            continue
+                rel, new = _upsert(session, f, ReleaseSource.SEARCH, ev, now, client.source_id)
+                session.flush()
+                guids.append(f.guid)
+                add(rel, ev)
+                if new and rel.accepted:
+                    result.new_accepted += 1
+            if cache is None:
+                cache = SearchCache(query_key=qkey)
+                session.add(cache)
+            cache.fetched_at, cache.guids = now, list(dict.fromkeys(guids))
 
-        check_backoff(session, now)
-        cap = get_setting(session, DAILY_CAP_KEY)
-        if cap is not None and _searches_today(session, now) >= cap:
-            raise Unavailable(f"daily search cap of {cap} reached")
-        usable, result.skipped = _usable(session, client, now)
-        if not usable:
-            raise Unavailable(
-                "no indexer available: " + "; ".join(f"{k}: {v}" for k, v in result.skipped.items())
-                if result.skipped
-                else "no usenet indexer with magazine categories"
-            )
-        try:
-            found = client.search(term, cats, [u.id for u in usable])
-        except RateLimited:
-            _rate_limited(session, now)
-            raise
-        _clear_backoff(session)
-        guids = []
-        for f in found:
-            ev = _evaluate(
-                session,
-                f.title,
-                f.size,
-                f.protocol,
-                f.publish_date,
-                magazines,
-                today,
-                options,
-                f.guid,
-            )
-            rel, new = _upsert(session, f, ReleaseSource.SEARCH, ev, now)
-            guids.append(f.guid)
-            result.candidates.append((rel, ev))
-            if new and rel.accepted:
-                result.new_accepted += 1
-        if cache is None:
-            cache = SearchCache(query_key=qkey)
-            session.add(cache)
-        cache.fetched_at, cache.guids = now, list(dict.fromkeys(guids))
-
+    if not answered:
+        raise Unavailable("; ".join(dict.fromkeys(problems)) or "no indexer could search")
+    for problem in problems:
+        log.info("Search for %s: %s", mag.title, problem)
     if scheduled:
         _update_backoff(session, mag, now, result)
     session.flush()
@@ -439,7 +541,7 @@ def wanted_issues(session: Session, mag: Magazine, today: date) -> list[Issue]:
 
 def wanted_search(
     session: Session,
-    client: ProwlarrClient,
+    client,
     today: date,
     *,
     max_magazines: int = 5,

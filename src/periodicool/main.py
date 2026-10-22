@@ -12,7 +12,7 @@ from fastapi import Depends, FastAPI
 from periodicool import __version__, auth, db
 from periodicool.config import Settings, load_settings
 from periodicool.library import get_setting, refresh_file_info
-from periodicool.logs import LogSetup
+from periodicool.logs import LogSetup, stored_secrets
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -32,6 +32,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 refresh_file_info(session, settings.library_dir)
             session.commit()
         app.state.logs = LogSetup(settings.config_dir, app.state.sessions, level)
+        with app.state.sessions() as session:
+            app.state.logs.redactor.learn(stored_secrets(session))
         from periodicool.web.system import apply_verbose
 
         apply_verbose(app)
@@ -74,6 +76,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web.metadata import router as metadata_router
     from periodicool.web.security import router as security_router
     from periodicool.web.settings import router as settings_router
+    from periodicool.web.sources import router as sources_router
     from periodicool.web.system import router as system_router
 
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -82,6 +85,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(magazines_router)
     app.include_router(metadata_router)
     app.include_router(activity_router)
+    app.include_router(sources_router)
     app.include_router(settings_router)
     app.include_router(system_router)
 

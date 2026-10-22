@@ -30,7 +30,7 @@ def test_status_page(client):
 
 def test_local_health_checks(client, settings):
     page = client.get("/system/health").text
-    assert "Prowlarr" in page and "Not set up." in page
+    assert "No indexer is set up." in page and "No download client is set up." in page
     assert "does not exist" in page  # the test library folder was never made
     assert "first library scan" in page
 

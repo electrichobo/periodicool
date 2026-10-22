@@ -25,8 +25,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from periodicool import history, pdf_text
-from periodicool.clients.base import ClientError, DownloadClient, JobStatus
-from periodicool.clients.sabnzbd import SabnzbdClient
+from periodicool.clients.base import ClientError, JobStatus
 from periodicool.config import Settings
 from periodicool.decisions import evaluate, format_rank, load_options
 from periodicool.library import (
@@ -45,6 +44,7 @@ from periodicool.models import (
     GrabStatus,
     HistoryEvent,
     ImportItem,
+    Indexer,
     Issue,
     IssueStatus,
     ItemAction,
@@ -54,17 +54,14 @@ from periodicool.models import (
     Scan,
     ScanKind,
 )
+from periodicool.models import DownloadClient as DownloadClientRow
 from periodicool.naming import UnsafePathError, render
 from periodicool.parser import FORMATS, parse_release
-from periodicool.prowlarr import ProwlarrClient, ProwlarrError, RateLimited
+from periodicool.prowlarr import ProwlarrError, RateLimited
 from periodicool.schedule import identify
 
 log = logging.getLogger(__name__)
 
-SAB_URL_KEY = "sabnzbd.url"
-SAB_KEY_ENV = "SABNZBD_API_KEY"
-CATEGORY_KEY = "sabnzbd.category"
-PATH_MAP_KEY = "sabnzbd.path_map"
 AUTO_KEY = "grab.auto"
 MAX_PER_RUN_KEY = "grab.max_per_run"
 LEFTOVERS_KEY = "downloads.remove_leftovers"
@@ -104,11 +101,53 @@ _ISSUE_FIELDS = (
 
 
 def make_download_client(session: Session, transport=None, api_key: str | None = None):
-    url = get_setting(session, SAB_URL_KEY)
-    key = api_key or os.environ.get(SAB_KEY_ENV, "")
-    if not url or not key:
+    """The first enabled SABnzbd entry as a client, or None. `api_key` overrides the
+    environment fallback (tests)."""
+    from periodicool.sources import SAB_KEY_ENV, build_client
+
+    row = session.scalars(
+        select(DownloadClientRow)
+        .where(DownloadClientRow.enabled.is_(True), DownloadClientRow.kind == "sabnzbd")
+        .order_by(DownloadClientRow.priority, DownloadClientRow.id)
+    ).first()
+    if row is None:
         return None
-    return SabnzbdClient(url, key, transport=transport)
+    env = {SAB_KEY_ENV: api_key} if api_key else None
+    return build_client(session, row, {"sab": transport}, env)
+
+
+# Sources or single clients: callers pass either a sources.Sources (every list
+# entry) or one client object (tests, the CLI).
+
+
+def _indexer_for(prowlarr, release: Release):
+    if hasattr(prowlarr, "indexer_for"):
+        return prowlarr.indexer_for(release)
+    return prowlarr
+
+
+def _client_for(client, protocol: str | None):
+    if hasattr(client, "client_for"):
+        return client.client_for(protocol)
+    return client
+
+
+def _client_for_grab(client, g: Grab):
+    if hasattr(client, "client_for_grab"):
+        return client.client_for_grab(g)
+    if client is not None and getattr(client, "row_id", None) not in (None, g.client_id):
+        return None
+    return client
+
+
+def _download_clients(client) -> list:
+    if hasattr(client, "clients"):
+        return client.clients
+    return [] if client is None else [client]
+
+
+def client_label(c) -> str:
+    return getattr(c, "display_name", None) or c.name
 
 
 # NZB check
@@ -209,6 +248,8 @@ class GrabResult:
     grab: Grab | None = None
     reasons: list[str] = field(default_factory=list)
 
+    client_name: str = ""
+
     @property
     def ok(self) -> bool:
         return self.grab is not None
@@ -231,12 +272,16 @@ def _active_grab(session: Session, mag_id: int, key: str) -> Grab | None:
 def grab(
     session: Session,
     release: Release,
-    prowlarr: ProwlarrClient,
-    client: DownloadClient,
+    prowlarr,
+    client,
     today: date,
     check_limits: bool = True,
 ) -> GrabResult:
-    """Send one release to the download client, after checking it again."""
+    """Send one release to the download client, after checking it again.
+
+    `prowlarr` and `client` are a sources.Sources or single clients; the NZB comes
+    from the release's own indexer entry and goes to the highest-priority enabled
+    client for its protocol."""
     from periodicool.search import indexer_limits
 
     result = GrabResult(release)
@@ -258,21 +303,32 @@ def grab(
     mag = ev.magazine
     if active := _active_grab(session, mag.id, ev.issue_key):
         result.reasons.append(f"{ev.issue_key} is already downloading ({active.title})")
-    category = get_setting(session, CATEGORY_KEY)
-    if not category:
-        result.reasons.append("no SABnzbd category set (config set sabnzbd.category NAME)")
+    indexer = _indexer_for(prowlarr, release)
+    if indexer is None:
+        result.reasons.append("the indexer this release came from is removed or disabled")
+    protocol = release.protocol or "usenet"
+    target = _client_for(client, protocol)
+    category = getattr(target, "category", "") if target is not None else ""
+    if target is None:
+        result.reasons.append(f"no enabled {protocol} download client")
+    elif not category:
+        result.reasons.append(
+            f"no category set for {client_label(target)} (Settings, Download clients)"
+        )
     if not release.download_url:
         result.reasons.append("release has no download link")
-    if check_limits and release.indexer_id is not None:
-        for lim in indexer_limits(session, prowlarr):
-            if lim.id == release.indexer_id and lim.grabs_left == 0:
-                result.reasons.append(f"{lim.name} grab limit reached ({lim.grab_limit} today)")
+    if check_limits and indexer is not None:
+        wanted_id = release.indexer_id if getattr(indexer, "kind", "") == "prowlarr" else 0
+        if wanted_id is not None:
+            for lim in indexer_limits(session, indexer):
+                if lim.id == wanted_id and lim.grabs_left == 0:
+                    result.reasons.append(f"{lim.name} grab limit reached ({lim.grab_limit} today)")
     if result.reasons:
         log.info("Not grabbed %s: %s", release.title, "; ".join(result.reasons))
         return result
 
     try:
-        nzb = prowlarr.fetch_nzb(release.download_url, release.indexer_id)
+        nzb = indexer.fetch_nzb(release.download_url, release.indexer_id)
     except ProwlarrError as exc:
         result.reasons.append(f"NZB download failed: {exc}")
         log.warning("Not grabbed %s: NZB download failed: %s", release.title, exc)
@@ -282,9 +338,9 @@ def grab(
         result.reasons.append(bad)
         return result
     try:
-        job_id = client.add_nzb(nzb, release.title, category)
+        job_id = target.add_nzb(nzb, release.title, category)
     except ClientError as exc:
-        result.reasons.append(f"not sent to {client.name}: {exc}")
+        result.reasons.append(f"not sent to {client_label(target)}: {exc}")
         return result
 
     issue = _issue(session, mag.id, ev.issue_key)
@@ -302,13 +358,15 @@ def grab(
         issue_key=ev.issue_key,
         title=release.title,
         indexer_id=release.indexer_id,
-        client=client.name,
+        client=target.name,
+        client_id=getattr(target, "row_id", None),
         job_id=job_id,
         category=category,
         status=GrabStatus.QUEUED,
         progress=0.0,
     )
     session.add(result.grab)
+    result.client_name = client_label(target)
     session.flush()
     history.record_grab(
         session,
@@ -330,7 +388,13 @@ def _candidates(session: Session, mag_id: int | None = None, key: str | None = N
     by_issue: dict[tuple[int, str], list[Release]] = {}
     for rel in session.scalars(query):
         by_issue.setdefault((rel.magazine_id, rel.issue_key), []).append(rel)
-    return {k: sorted(v, key=lambda r: r.rank) for k, v in by_issue.items()}
+    # Indexer entry priority breaks ties after format and agreement, as in Sonarr.
+    priority = dict(session.execute(select(Indexer.id, Indexer.priority)).all())
+
+    def order(r: Release) -> tuple:
+        return (r.rank, priority.get(r.source_id, 50))
+
+    return {k: sorted(v, key=order) for k, v in by_issue.items()}
 
 
 def _grab_first(session, releases, prowlarr, client, today) -> GrabResult | None:
@@ -342,9 +406,7 @@ def _grab_first(session, releases, prowlarr, client, today) -> GrabResult | None
     return last
 
 
-def auto_grab(
-    session: Session, prowlarr: ProwlarrClient | None, client: DownloadClient | None, today: date
-) -> list[GrabResult]:
+def auto_grab(session: Session, prowlarr, client, today: date) -> list[GrabResult]:
     """Grab the best release per wanted issue. Off unless grab.auto is true."""
     if not get_setting(session, AUTO_KEY, False) or prowlarr is None or client is None:
         return []
@@ -393,19 +455,20 @@ def map_path(remote: str, path_map: list) -> str:
     return str(Path(best[1]) / rest) if rest else best[1]
 
 
-def monitor(
-    session: Session,
-    client: DownloadClient,
-    settings: Settings,
-    prowlarr: ProwlarrClient | None,
-    today: date,
-) -> MonitorResult:
+def monitor(session: Session, clients, settings: Settings, prowlarr, today: date) -> MonitorResult:
+    """Ask each enabled download client about PeriodiCool's own jobs on it, then
+    import, fail or retry. `clients` is a sources.Sources or one client."""
     result = MonitorResult()
-    active = list(
-        session.scalars(
-            select(Grab).where(Grab.client == client.name, Grab.status.in_(ACTIVE_GRAB))
-        )
-    )
+    for client in _download_clients(clients):
+        _monitor_client(session, client, clients, settings, prowlarr, today, result)
+    session.flush()
+    return result
+
+
+def _monitor_client(session, client, clients, settings, prowlarr, today, result) -> None:
+    row_id = getattr(client, "row_id", None)
+    owner = Grab.client_id == row_id if row_id is not None else Grab.client == client.name
+    active = list(session.scalars(select(Grab).where(owner, Grab.status.in_(ACTIVE_GRAB))))
     by_category: dict[str, list[Grab]] = {}
     for g in active:
         by_category.setdefault(g.category, []).append(g)
@@ -415,7 +478,7 @@ def monitor(
             state = states.get(g.job_id)
             if state is None:
                 if g.status is GrabStatus.COMPLETED and g.storage_path:
-                    _import(session, g, settings, prowlarr, client, today, result)
+                    _import(session, g, settings, prowlarr, clients, today, result)
                     continue
                 g.status, g.error = GrabStatus.REMOVED, "job no longer in the download client"
                 _issue_wanted(session, g)
@@ -434,17 +497,15 @@ def monitor(
                     result.failed.append(g)
                     continue
                 reason = f"download failed: {message}"
-                if new := fail(session, g, reason, prowlarr, client, today):
+                if new := fail(session, g, reason, prowlarr, clients, today):
                     result.retried.append(new)
                 result.failed.append(g)
             elif state.status is JobStatus.COMPLETED:
                 g.status, g.storage_path = GrabStatus.COMPLETED, state.storage_path
                 g.completed_at = g.completed_at or datetime.now(UTC)
-                _import(session, g, settings, prowlarr, client, today, result)
+                _import(session, g, settings, prowlarr, clients, today, result)
             elif state.status is JobStatus.DOWNLOADING:
                 g.status = GrabStatus.DOWNLOADING
-    session.flush()
-    return result
 
 
 def _import(session, g, settings, prowlarr, client, today, result) -> None:
@@ -466,8 +527,8 @@ def retry_import(
     session: Session,
     grab_id: int,
     settings: Settings,
-    prowlarr: ProwlarrClient | None,
-    client: DownloadClient | None,
+    prowlarr,
+    client,
     today: date,
 ) -> str:
     """Try the import again for a finished download waiting in review (after the
@@ -538,8 +599,8 @@ def fail(
     session: Session,
     g: Grab,
     reason: str,
-    prowlarr: ProwlarrClient | None,
-    client: DownloadClient | None,
+    prowlarr,
+    client,
     today: date,
     event: HistoryEvent = HistoryEvent.DOWNLOAD_FAILED,
 ) -> Grab | None:
@@ -574,7 +635,8 @@ _PATH_HINT = (
 def import_download(session: Session, g: Grab, settings: Settings) -> str:
     """Move the finished file into the library. Returns imported, review or failed."""
     downloads = settings.downloads_dir.resolve()
-    local = Path(map_path(g.storage_path or "", get_setting(session, PATH_MAP_KEY, []))).resolve()
+    row = session.get(DownloadClientRow, g.client_id) if g.client_id else None
+    local = Path(map_path(g.storage_path or "", row.path_map if row else [])).resolve()
     if local == downloads or not local.is_relative_to(downloads):
         why = (
             f"{g.client} put the download at {local}, which is outside the downloads folder "
@@ -721,18 +783,18 @@ def _safe_to_remove(folder: Path, downloads: Path, library_root: Path) -> str | 
     return None
 
 
-def remove_grab(
-    session: Session, grab_id: int, client: DownloadClient, add_to_blocklist: bool = False
-) -> Grab:
+def remove_grab(session: Session, grab_id: int, clients, add_to_blocklist: bool = False) -> Grab:
     """Remove one of our jobs from the download client (the queue's Remove button).
 
-    Only grabs PeriodiCool made are touched, and the client checks the category again.
+    Only grabs PeriodiCool made are touched, only on the client entry the grab went
+    to, and the client checks the category again.
     """
     g = session.get(Grab, grab_id)
     if g is None:
         raise ValueError(f"no grab {grab_id}")
-    if g.client != client.name:
-        raise ValueError(f"grab {grab_id} belongs to {g.client}, not {client.name}")
+    client = _client_for_grab(clients, g)
+    if client is None or g.client != client.name:
+        raise ValueError(f"grab {grab_id} went to a download client that is removed or disabled")
     if g.status not in (*ACTIVE_GRAB, GrabStatus.REVIEW):
         raise ValueError(f"grab {grab_id} is {g.status.value}; nothing to remove")
     found = client.remove(g.job_id, g.category)
@@ -759,5 +821,5 @@ def remove_grab(
         in_client=found,
     )
     session.flush()
-    log.info("Removed %s (job %s) from %s", g.title, g.job_id, client.name)
+    log.info("Removed %s (job %s) from %s", g.title, g.job_id, client_label(client))
     return g

@@ -8,6 +8,7 @@ from periodicool import auth, history
 from periodicool.jobs import today_in
 from periodicool.models import (
     BlockedRelease,
+    DownloadClient,
     FormatProfile,
     Grab,
     GrabStatus,
@@ -27,6 +28,7 @@ def _grab(client, mag_id, status=GrabStatus.DOWNLOADING, job="SABnzbd_nzo_1", ke
             issue_key=key,
             title="Linux.Magazine.311.<b>bold</b>",
             client="sabnzbd",
+            client_id=s.scalar(select(DownloadClient.id)),
             job_id=job,
             category="mags",
             status=status,

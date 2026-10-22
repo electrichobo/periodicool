@@ -288,6 +288,8 @@ class Release(Base):
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
+    # The indexer list entry the release came from (indexer_id is Prowlarr's own id).
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("indexers.id", ondelete="SET NULL"))
     issue_key: Mapped[str | None] = mapped_column(String(100))
     accepted: Mapped[bool] = mapped_column(default=False)
     reasons: Mapped[list[str]] = mapped_column(JSON, default=list)
@@ -328,6 +330,7 @@ class ApiCall(Base):
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
     kind: Mapped[str] = mapped_column(String(20))
     indexer_id: Mapped[int | None]
+    source_id: Mapped[int | None] = mapped_column(ForeignKey("indexers.id", ondelete="SET NULL"))
     status: Mapped[int | None]
     ok: Mapped[bool]
     note: Mapped[str | None] = mapped_column(String(1000))
@@ -370,6 +373,10 @@ class Grab(Base):
     title: Mapped[str] = mapped_column(String(1000))
     indexer_id: Mapped[int | None]
     client: Mapped[str] = mapped_column(String(20))
+    # The download client list entry; `client` keeps its kind for display after a delete.
+    client_id: Mapped[int | None] = mapped_column(
+        ForeignKey("download_clients.id", ondelete="SET NULL")
+    )
     job_id: Mapped[str] = mapped_column(String(200), unique=True)
     category: Mapped[str] = mapped_column(String(100))
     status: Mapped[GrabStatus] = mapped_column(_enum(GrabStatus), default=GrabStatus.QUEUED)
@@ -392,6 +399,7 @@ class Grab(Base):
 
     release: Mapped[Release | None] = relationship()
     magazine: Mapped[Magazine | None] = relationship()
+    download_client: Mapped[DownloadClient | None] = relationship()
 
 
 class BlockedRelease(Base):
@@ -490,3 +498,50 @@ class LookupCache(Base):
     used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     data: Mapped[dict | None] = mapped_column(JSON)
     error: Mapped[str | None] = mapped_column(String(300))
+
+
+class Protocol(StrEnum):
+    USENET = "usenet"
+    TORRENT = "torrent"
+
+
+class Indexer(Base):
+    """An indexer list entry: a Prowlarr (which fans out to its own indexers) or a
+    direct Newznab indexer. The key is write-only in the UI."""
+
+    __tablename__ = "indexers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    kind: Mapped[str] = mapped_column(String(20))  # prowlarr, newznab
+    protocol: Mapped[str] = mapped_column(String(10), default=Protocol.USENET.value)
+    url: Mapped[str] = mapped_column(String(500))
+    api_key: Mapped[str | None] = mapped_column(String(500))
+    enabled: Mapped[bool] = mapped_column(default=True)
+    priority: Mapped[int] = mapped_column(default=25)  # 1 to 50, lower first
+    categories: Mapped[list[int]] = mapped_column(JSON, default=list)
+    settings: Mapped[dict] = mapped_column(JSON, default=dict)
+    backoff_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    backoff_s: Mapped[int] = mapped_column(default=0)
+    added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
+class DownloadClient(Base):
+    """A download client list entry. PeriodiCool only ever touches its own jobs in
+    its own category on each client. Keys and passwords are write-only in the UI."""
+
+    __tablename__ = "download_clients"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    kind: Mapped[str] = mapped_column(String(20))  # sabnzbd
+    protocol: Mapped[str] = mapped_column(String(10), default=Protocol.USENET.value)
+    url: Mapped[str] = mapped_column(String(500))
+    api_key: Mapped[str | None] = mapped_column(String(500))
+    username: Mapped[str | None] = mapped_column(String(200))
+    password: Mapped[str | None] = mapped_column(String(500))
+    category: Mapped[str] = mapped_column(String(100), default="")
+    path_map: Mapped[list] = mapped_column(JSON, default=list)
+    enabled: Mapped[bool] = mapped_column(default=True)
+    priority: Mapped[int] = mapped_column(default=1)
+    added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

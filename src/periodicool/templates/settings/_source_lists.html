@@ -1,0 +1,80 @@
+{# The indexer or download client list above the tab's settings. #}
+{% import "_macros.html" as ui %}
+{% if section == "indexers" %}
+<section class="panel stack sources" aria-labelledby="list-title">
+  <h2 class="panel__label" id="list-title">Indexers</h2>
+  <div class="cluster"><button class="btn btn--primary" type="button" hx-get="/settings/indexers/new" hx-target="#modal-body">Add indexer</button></div>
+  {% if not indexer_rows %}
+  {{ ui.empty("No indexers yet", "Add Prowlarr to search all of its usenet indexers, or add a Newznab indexer directly.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">Kind</th><th scope="col">Protocol</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for item in indexer_rows %}{% set row = item.row %}
+        <tr>
+          <td>{{ row.name }}<div class="muted small"><code>{{ row.url }}</code></div></td>
+          <td>{{ item.kind_label }}</td>
+          <td><span class="tag">{{ row.protocol | upper }}</span></td>
+          <td>
+            {% if not row.enabled %}{{ ui.led("off", "Disabled") }}
+            {% elif not item.has_key %}{{ ui.led("bad", "No API key") }}
+            {% elif item.backoff %}{{ ui.led("warn", "Backing off") }} <span class="muted small">until {{ item.backoff | when }}</span>
+            {% else %}{{ ui.led("ok", "Enabled") }}{% endif %}
+          </td>
+          <td>{{ row.priority }}</td>
+          <td>
+            <div class="cluster row-actions">
+              <button class="btn btn--small" type="button" hx-post="/settings/indexers/{{ row.id }}/test" hx-target="#indexer-test" aria-label="Test {{ row.name }}">Test</button>
+              <button class="btn btn--small" type="button" hx-get="/settings/indexers/{{ row.id }}/edit" hx-target="#modal-body" aria-label="Edit {{ row.name }}">Edit</button>
+              <button class="btn btn--small btn--danger" type="button" hx-post="/settings/indexers/{{ row.id }}/delete" hx-swap="none"
+                      hx-confirm="Delete the indexer {{ row.name }}? Releases found through it stay in history." aria-label="Delete {{ row.name }}">Delete</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  <div id="indexer-test" aria-live="polite"><p class="muted small">Test on a Prowlarr entry lists its indexers with what is left of today's limits.</p></div>
+</section>
+{% elif section == "downloads" %}
+<section class="panel stack sources" aria-labelledby="list-title">
+  <h2 class="panel__label" id="list-title">Download clients</h2>
+  <div class="cluster"><button class="btn btn--primary" type="button" hx-get="/settings/downloads/new" hx-target="#modal-body">Add download client</button></div>
+  {% if not client_rows %}
+  {{ ui.empty("No download clients yet", "Add SABnzbd with a category of its own for PeriodiCool.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">Kind</th><th scope="col">Protocol</th><th scope="col">Category</th><th scope="col">Status</th><th scope="col">Priority</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for item in client_rows %}{% set row = item.row %}
+        <tr>
+          <td>{{ row.name }}<div class="muted small"><code>{{ row.url }}</code></div></td>
+          <td>{{ item.kind_label }}</td>
+          <td><span class="tag">{{ row.protocol | upper }}</span></td>
+          <td><code>{{ row.category }}</code></td>
+          <td>
+            {% if not row.enabled %}{{ ui.led("off", "Disabled") }}
+            {% elif not item.has_key %}{{ ui.led("bad", "No API key") }}
+            {% else %}{{ ui.led("ok", "Enabled") }}{% endif %}
+          </td>
+          <td>{{ row.priority }}</td>
+          <td>
+            <div class="cluster row-actions">
+              <button class="btn btn--small" type="button" hx-post="/settings/downloads/{{ row.id }}/test" hx-swap="none" aria-label="Test {{ row.name }}">Test</button>
+              <button class="btn btn--small" type="button" hx-get="/settings/downloads/{{ row.id }}/edit" hx-target="#modal-body" aria-label="Edit {{ row.name }}">Edit</button>
+              <button class="btn btn--small btn--danger" type="button" hx-post="/settings/downloads/{{ row.id }}/delete" hx-swap="none"
+                      hx-confirm="Delete the download client {{ row.name }}? Its finished downloads stay in history." aria-label="Delete {{ row.name }}">Delete</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+{% endif %}

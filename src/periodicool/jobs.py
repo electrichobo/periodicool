@@ -18,7 +18,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session, sessionmaker
 
 from periodicool.config import Settings
-from periodicool.downloads import auto_grab, make_download_client, monitor
+from periodicool.downloads import auto_grab, monitor
 from periodicool.library import (
     FIRST_SCAN_KEY,
     apply_scan,
@@ -28,7 +28,8 @@ from periodicool.library import (
     refresh_file_info,
 )
 from periodicool.models import Job, ScanKind
-from periodicool.search import make_client, rss_sync, wanted_search
+from periodicool.search import rss_sync, wanted_search
+from periodicool.sources import Sources
 
 log = logging.getLogger(__name__)
 
@@ -60,38 +61,38 @@ def today_in(tz: str, now: datetime | None = None) -> date:
 
 
 def run_rss(session: Session, settings: Settings, now: datetime) -> str:
-    client = make_client(session)
-    if client is None:
-        return "skipped: Prowlarr is not configured"
+    sources = Sources(session)
+    if not sources.indexers:
+        return "skipped: no indexer is set up"
     today = today_in(settings.tz, now)
-    r = rss_sync(session, client, today, now)
+    r = rss_sync(session, sources, today, now)
     text = f"{r.seen} seen, {r.new} new, {len(r.accepted)} accepted"
-    return text + "".join(f"; {e}" for e in r.errors) + _auto_grab(session, client, today)
+    return text + "".join(f"; {e}" for e in r.errors) + _auto_grab(session, sources, today)
 
 
-def _auto_grab(session: Session, prowlarr, today: date) -> str:
-    grabs = auto_grab(session, prowlarr, make_download_client(session), today)
+def _auto_grab(session: Session, sources: Sources, today: date) -> str:
+    grabs = auto_grab(session, sources, sources, today)
     sent = [g for g in grabs if g.ok]
     return f"; grabbed {len(sent)}" if grabs else ""
 
 
 def run_wanted(session: Session, settings: Settings, now: datetime) -> str:
-    client = make_client(session)
-    if client is None:
-        return "skipped: Prowlarr is not configured"
+    sources = Sources(session)
+    if not sources.indexers:
+        return "skipped: no indexer is set up"
     today = today_in(settings.tz, now)
-    results = wanted_search(session, client, today, now=now)
+    results = wanted_search(session, sources, today, now=now)
     if not results:
-        return "nothing due" + _auto_grab(session, client, today)
+        return "nothing due" + _auto_grab(session, sources, today)
     text = "; ".join(f"{r.magazine.title}: {r.new_accepted} new accepted" for r in results)
-    return text + _auto_grab(session, client, today)
+    return text + _auto_grab(session, sources, today)
 
 
 def run_downloads(session: Session, settings: Settings, now: datetime) -> str:
-    client = make_download_client(session)
-    if client is None:
-        return "skipped: SABnzbd is not configured"
-    r = monitor(session, client, settings, make_client(session), today_in(settings.tz, now))
+    sources = Sources(session)
+    if not sources.clients:
+        return "skipped: no download client is set up"
+    r = monitor(session, sources, settings, sources, today_in(settings.tz, now))
     return (
         f"{r.updated} active, {len(r.imported)} imported, {len(r.failed)} failed, "
         f"{len(r.review)} need review, {len(r.removed)} removed, {len(r.retried)} retried"

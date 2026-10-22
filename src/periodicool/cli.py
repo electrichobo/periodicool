@@ -8,14 +8,14 @@ python -m periodicool apply SCAN_ID           carry out a planned scan
 python -m periodicool queue                   files waiting for review
 python -m periodicool skip ITEM_ID
 python -m periodicool resolve ITEM_ID MAGAZINE_ID KEY
-python -m periodicool config get|set KEY [VALUE]   e.g. config set prowlarr.url http://...
+python -m periodicool config get|set KEY [VALUE]   e.g. config set grab.auto true
 python -m periodicool indexers                indexer limits and what is left today
 python -m periodicool search MAGAZINE_ID      every candidate with accept/reject reasons
 python -m periodicool rss                     one RSS sync now
 python -m periodicool wanted                  wanted and missing issues
 python -m periodicool jobs                    background job status
-python -m periodicool sab test                check SABnzbd and the category
-python -m periodicool grab RELEASE_ID         send one release to SABnzbd
+python -m periodicool sab test                check each download client and its category
+python -m periodicool grab RELEASE_ID         send one release to the download client
 python -m periodicool downloads               grabs and their status
 python -m periodicool monitor                 check downloads and import finished ones
 python -m periodicool blocklist [remove ID]
@@ -55,6 +55,7 @@ from periodicool.models import (
 )
 from periodicool.prowlarr import ProwlarrError
 from periodicool.schedule import effective_status, sync_expected_issues
+from periodicool.sources import Sources
 
 _DATE_FIELDS = ("anchor_date", "schedule_start")
 _ENUM_FIELDS = {"frequency": Frequency, "numbering": Numbering, "monitor_mode": MonitorMode}
@@ -219,22 +220,35 @@ def cmd_config(session, settings, args, out) -> int:
     return 0
 
 
+def _sources(session):
+    return Sources(session, {"prowlarr": TRANSPORT, "newznab": TRANSPORT, "sab": SAB_TRANSPORT})
+
+
 def _client(session, out):
-    client = search.make_client(session, transport=TRANSPORT)
-    if client is None:
-        print(
-            "Prowlarr is not configured: config set prowlarr.url URL, and set the "
-            f"{search.API_KEY_ENV} environment variable",
-            file=out,
-        )
-    return client
+    sources = _sources(session)
+    if not sources.indexers:
+        print("No indexer is set up: add one with `indexer add`", file=out)
+        return None
+    return sources
 
 
 def cmd_indexers(session, settings, args, out) -> int:
     if not (client := _client(session, out)):
         return 2
     now = datetime.now(UTC)
-    for lim in search.indexer_limits(session, client, now):
+    for entry in client.indexers:
+        print(f"{entry.source_name} ({entry.kind})", file=out)
+        try:
+            limits = search.indexer_limits(session, entry, now)
+        except ProwlarrError as exc:
+            print(f"     not answering: {exc}", file=out)
+            continue
+        _print_limits(limits, now, out)
+    return 0
+
+
+def _print_limits(limits, now, out) -> None:
+    for lim in limits:
         q = (
             "no limit set"
             if lim.query_limit is None
@@ -242,8 +256,7 @@ def cmd_indexers(session, settings, args, out) -> int:
         )
         g = "no limit set" if lim.grab_limit is None else f"{lim.grabs_left}/{lim.grab_limit} left"
         state = lim.unavailable(now) or "ok"
-        print(f"{lim.id:3}  {lim.name}: queries {q}, grabs {g}; {state}", file=out)
-    return 0
+        print(f"{lim.id:5}  {lim.name}: queries {q}, grabs {g}; {state}", file=out)
 
 
 def _print_candidates(result, out) -> None:
@@ -332,31 +345,35 @@ def cmd_jobs(session, settings, args, out) -> int:
 
 
 def _sab(session, out):
-    client = downloads.make_download_client(session, transport=SAB_TRANSPORT)
-    if client is None:
-        print(
-            "SABnzbd is not configured: config set sabnzbd.url URL, and set the "
-            f"{downloads.SAB_KEY_ENV} environment variable",
-            file=out,
-        )
-    return client
+    sources = _sources(session)
+    if not sources.clients:
+        print("No download client is set up: add one with `client add`", file=out)
+        return None
+    return sources
 
 
 def cmd_sab_test(session, settings, args, out) -> int:
-    if not (client := _sab(session, out)):
+    if not (sources := _sab(session, out)):
         return 2
-    category = library.get_setting(session, downloads.CATEGORY_KEY)
-    try:
-        version = client.check(category)
-    except ClientError as exc:
-        print(f"not ready: {exc}", file=out)
-        return 1
-    ours = session.scalars(select(Grab).where(Grab.status.in_(downloads.ACTIVE_GRAB))).all()
-    print(
-        f"SABnzbd {version}; category {category!r} exists; {len(ours)} active PeriodiCool jobs",
-        file=out,
-    )
-    return 0
+    status = 0
+    for client in sources.clients:
+        try:
+            version = client.check(client.category)
+        except ClientError as exc:
+            print(f"{client.display_name}: not ready: {exc}", file=out)
+            status = 1
+            continue
+        ours = session.scalars(
+            select(Grab).where(
+                Grab.client_id == client.row_id, Grab.status.in_(downloads.ACTIVE_GRAB)
+            )
+        ).all()
+        print(
+            f"{client.display_name}: SABnzbd {version}; category {client.category!r} exists; "
+            f"{len(ours)} active PeriodiCool jobs",
+            file=out,
+        )
+    return status
 
 
 def cmd_grab(session, settings, args, out) -> int:
@@ -391,7 +408,7 @@ def cmd_downloads(session, settings, args, out) -> int:
 def cmd_monitor(session, settings, args, out) -> int:
     if not (client := _sab(session, out)):
         return 2
-    prowlarr = search.make_client(session, transport=TRANSPORT)
+    prowlarr = client
     try:
         r = downloads.monitor(session, client, settings, prowlarr, today_in(settings.tz))
     except ClientError as exc:

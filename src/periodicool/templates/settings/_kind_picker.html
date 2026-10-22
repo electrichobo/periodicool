@@ -1,0 +1,18 @@
+<div class="panel modal__panel stack">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Add {{ what }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <p>Pick the kind of {{ what }}.</p>
+  <div class="kind-picker">
+    {% for kind, label, text in kinds %}
+    <button class="kind-card" type="button" hx-get="{{ base }}?kind={{ kind }}" hx-target="#modal-body">
+      <span class="kind-card__name">{{ label }}</span>
+      <span class="kind-card__text">{{ text }}</span>
+    </button>
+    {% endfor %}
+  </div>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+  </div>
+</div>

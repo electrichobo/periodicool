@@ -140,6 +140,12 @@ def _int(value) -> int | None:
 
 
 class ProwlarrClient:
+    kind = "prowlarr"
+    # Set by sources.build_indexer: the list entry this client belongs to.
+    source_id: int | None = None
+    source_name: str | None = None
+    row = None
+
     def __init__(
         self,
         url: str,

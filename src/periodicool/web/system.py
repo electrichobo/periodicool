@@ -91,41 +91,46 @@ def health_page(request: Request) -> HTMLResponse:
 
 @router.post("/system/health/connections", response_class=HTMLResponse)
 def health_connections(request: Request) -> HTMLResponse:
+    from periodicool.search import indexer_limits
     from periodicool.web.magazines import prowlarr_client, sab_client
 
-    checks = []
+    checks, hosts = [], []
     with request.app.state.sessions() as session:
-        p_url = library.get_setting(session, "prowlarr.url")
-        s_url = library.get_setting(session, "sabnzbd.url")
-        prowlarr = prowlarr_client(request, session)
-        if prowlarr is not None:
+        indexers = prowlarr_client(request, session)
+        for entry in indexers.indexers if indexers else []:
+            hosts.append((entry.source_name, entry.row.url))
             try:
-                from periodicool.search import indexer_limits
-
-                limits = indexer_limits(session, prowlarr)
+                limits = indexer_limits(session, entry)
                 session.commit()
                 checks.append(
-                    health.Check("Prowlarr", "ok", f"Answered; {len(limits)} usable indexers.")
+                    health.Check(
+                        entry.source_name, "ok", f"Answered; {len(limits)} usable indexers."
+                    )
                 )
                 for lim in limits:
                     if why := lim.unavailable(datetime.now(UTC)):
                         checks.append(health.Check(f"Indexer {lim.name}", "warn", why))
             except Exception as exc:  # noqa: BLE001  report any failure as a check
                 checks.append(
-                    health.Check("Prowlarr", "bad", str(exc)[:300], "Settings, Indexers.")
+                    health.Check(entry.source_name, "bad", str(exc)[:300], "Settings, Indexers.")
                 )
-        sab = sab_client(request, session)
-        if sab is not None:
+        clients = sab_client(request, session)
+        for sab in clients.clients if clients else []:
+            hosts.append((sab.display_name, sab.url))
             try:
-                version = sab.check(library.get_setting(session, "sabnzbd.category", ""))
-                checks.append(health.Check("SABnzbd", "ok", f"Version {version}; category exists."))
+                version = sab.check(sab.category)
+                checks.append(
+                    health.Check(sab.display_name, "ok", f"Version {version}; category exists.")
+                )
             except Exception as exc:  # noqa: BLE001
                 checks.append(
-                    health.Check("SABnzbd", "bad", str(exc)[:300], "Settings, Download clients.")
+                    health.Check(
+                        sab.display_name, "bad", str(exc)[:300], "Settings, Download clients."
+                    )
                 )
     fetch = getattr(request.app.state, "clock_fetch", health.remote_date)
-    checks.append(health.clock_check("Prowlarr", p_url, fetch=fetch))
-    checks.append(health.clock_check("SABnzbd", s_url, fetch=fetch))
+    for name, url in hosts:
+        checks.append(health.clock_check(name, url, fetch=fetch))
     return _render(request, "system/_checks.html", checks=checks)
 
 
@@ -213,6 +218,12 @@ def backup_restore(request: Request, name: str) -> Response:
     except backup.BackupError as exc:
         return _toast(f"Not restored: {exc}", "bad")
     state.secret = auth.load_secret(state.settings.config_dir)
+    logs = getattr(state, "logs", None)
+    if logs is not None:
+        from periodicool.logs import stored_secrets
+
+        with state.sessions() as session:
+            logs.redactor.learn(stored_secrets(session))
     response = _toast(f"Restored {name}. The previous database is saved as {safety}. Log in again.")
     response.headers["HX-Refresh"] = "true"
     return response

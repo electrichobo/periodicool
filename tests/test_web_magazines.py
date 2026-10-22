@@ -6,9 +6,10 @@ from pathlib import Path
 import pytest
 from sqlalchemy import select
 
-from periodicool import downloads, library, search
+from periodicool import library, search
 from periodicool.cli import magazine_from_dict
 from periodicool.models import History, Issue, IssueStatus, Magazine
+from rows import add_client, add_indexer
 
 from fake_prowlarr import KEY, URL, FakeProwlarr, release_json
 from fake_sab import SAB_KEY, SAB_URL, FakeSab
@@ -250,7 +251,7 @@ def test_scan_without_folder(client, mags):
 
 def test_search_without_prowlarr(client, mags):
     page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive").text
-    assert "Prowlarr is not set up yet" in page
+    assert "No indexer is set up yet" in page
     assert toast(client.post(f"/magazines/{mags['Linux Magazine']}/search"))["kind"] == "warn"
     assert toast(client.post("/tasks/rss"))["kind"] == "warn"
 
@@ -263,10 +264,9 @@ def fakes(client, monkeypatch):
     client.app.state.prowlarr_transport = fake_p
     client.app.state.sab_transport = fake_s
     with session(client) as s:
-        library.set_setting(s, search.URL_KEY, URL)
+        add_indexer(s, URL)
         library.set_setting(s, search.MIN_INTERVAL_KEY, 0)
-        library.set_setting(s, downloads.SAB_URL_KEY, SAB_URL)
-        library.set_setting(s, downloads.CATEGORY_KEY, "mags")
+        add_client(s, SAB_URL)
         s.commit()
     return fake_p, fake_s
 

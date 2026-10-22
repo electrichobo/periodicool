@@ -42,6 +42,11 @@ def _urllib_transport(method, url, headers, body, timeout):
 
 class SabnzbdClient:
     name = "sabnzbd"
+    # Set by sources.build_client from the download client list entry.
+    row_id: int | None = None
+    display_name = "SABnzbd"
+    category = ""
+    path_map: list = []
 
     def __init__(
         self,

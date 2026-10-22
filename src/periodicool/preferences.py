@@ -1,6 +1,7 @@
 """The settings shown in the UI: one list of fields per tab, with types, limits and help.
 
-Secrets (API keys) never appear here; they come from the environment.
+Indexer and download client entries (with their write-only keys) live in their own
+tables and have their own forms (web/sources.py).
 """
 
 from __future__ import annotations
@@ -84,7 +85,6 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
     "indexers": (
         "Indexers",
         [
-            Field("prowlarr.url", "Prowlarr URL", "url", None, "For example http://prowlarr:9696"),
             Field(
                 "search.categories",
                 "Categories",
@@ -183,14 +183,6 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
     "downloads": (
         "Download clients",
         [
-            Field("sabnzbd.url", "SABnzbd URL", "url", None, "For example http://sabnzbd:8080"),
-            Field(
-                "sabnzbd.category",
-                "Category",
-                "text",
-                "",
-                "PeriodiCool adds jobs only in this category. Create it in SABnzbd first.",
-            ),
             Field(
                 "grab.auto",
                 "Grab automatically",
@@ -337,6 +329,19 @@ def _number(field: Field, raw: str):
     return value * field.scale, None
 
 
+def parse_url(raw: str) -> tuple[str | None, str | None]:
+    """(address without a trailing slash, problem). Keys never belong in the address."""
+    raw = (raw or "").strip()
+    if not raw:
+        return None, None
+    parts = urlsplit(raw)
+    if parts.scheme not in ("http", "https") or not parts.netloc:
+        return None, "Use a full address starting with http:// or https://"
+    if parts.username or parts.password or "apikey" in parts.query.lower():
+        return None, "Leave keys and passwords out of the address; they have their own field."
+    return raw.rstrip("/"), None
+
+
 def parse(field: Field, form: dict[str, str]):
     """(value to store, error). Bools are absent from the form when off."""
     raw = form.get(field.name, "").strip()
@@ -358,14 +363,8 @@ def parse(field: Field, form: dict[str, str]):
             return UNSET, "Numbers separated by commas."
         return (items, None) if items else (UNSET, "At least one category.")
     if field.kind == "url":
-        if not raw:
-            return None, None
-        parts = urlsplit(raw)
-        if parts.scheme not in ("http", "https") or not parts.netloc:
-            return UNSET, "Use a full address starting with http:// or https://"
-        if parts.username or parts.password or "apikey" in parts.query.lower():
-            return UNSET, "Leave keys and passwords out; they come from the environment."
-        return raw.rstrip("/"), None
+        value, problem = parse_url(raw)
+        return (UNSET, problem) if problem else (value, None)
     if field.kind == "template":
         from periodicool.naming_preview import template_problem
 
@@ -397,27 +396,6 @@ def save(session: Session, section: str, form: dict[str, str]) -> dict[str, str]
             if job is not None:
                 job.interval_s = int(value) * 86400
     return {}
-
-
-def path_map(session: Session) -> list[tuple[str, str]]:
-    from periodicool.downloads import PATH_MAP_KEY
-
-    return [tuple(pair) for pair in get_setting(session, PATH_MAP_KEY, []) or []]
-
-
-def save_path_map(session: Session, remotes: list[str], locals_: list[str]) -> str | None:
-    from periodicool.downloads import PATH_MAP_KEY
-
-    pairs = []
-    for remote, local in zip(remotes, locals_, strict=False):
-        remote, local = remote.strip(), local.strip()
-        if not remote and not local:
-            continue
-        if not remote or not local:
-            return "Each mapping needs both the client's path and PeriodiCool's path."
-        pairs.append([remote.rstrip("/") or "/", local.rstrip("/\\") or "/"])
-    set_setting(session, PATH_MAP_KEY, pairs)
-    return None
 
 
 def job_names(session: Session) -> list[str]:

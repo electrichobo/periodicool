@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from periodicool.config import Settings
 from periodicool.library import FIRST_SCAN_KEY, get_setting, queue
-from periodicool.models import Job
+from periodicool.models import DownloadClient, Indexer, Job
 
 CLOCK_WARN_SECONDS = 120
 
@@ -85,30 +85,7 @@ def local_checks(session: Session, settings: Settings, now: datetime | None = No
     if settings.import_dir is not None:
         checks.append(_folder("Import folder", settings.import_dir, True, "Mount it at /import."))
 
-    if not get_setting(session, "prowlarr.url"):
-        checks.append(Check("Prowlarr", "warn", "Not set up.", "Settings, Indexers."))
-    elif not os.environ.get("PROWLARR_API_KEY"):
-        checks.append(Check("Prowlarr", "bad", "No API key.", "Set PROWLARR_API_KEY."))
-    if not get_setting(session, "sabnzbd.url"):
-        checks.append(Check("SABnzbd", "warn", "Not set up.", "Settings, Download clients."))
-    elif not os.environ.get("SABNZBD_API_KEY"):
-        checks.append(Check("SABnzbd", "bad", "No API key.", "Set SABNZBD_API_KEY."))
-    elif not get_setting(session, "sabnzbd.category"):
-        checks.append(Check("SABnzbd", "bad", "No category set.", "Settings, Download clients."))
-
-    until = get_setting(session, "prowlarr.backoff_until")
-    if until:
-        until_dt = datetime.fromisoformat(until) if isinstance(until, str) else None
-        if until_dt and until_dt.tzinfo is None:
-            until_dt = until_dt.replace(tzinfo=UTC)
-        if until_dt and until_dt > now:
-            checks.append(
-                Check(
-                    "Indexer limits",
-                    "warn",
-                    f"Prowlarr asked to slow down; searches wait until {until_dt:%H:%M} UTC.",
-                )
-            )
+    checks += source_checks(session, now)
 
     failed = [j for j in session.scalars(select(Job)) if (j.last_result or "").startswith("error")]
     for job in failed:
@@ -200,3 +177,50 @@ def clock_check(
             "Sync the host clock (NTP). Wrong clocks break dates, schedules and indexer limits.",
         )
     return Check(f"Clock vs {name}", "ok", f"Within {abs(skew):.0f} seconds.")
+
+
+def source_checks(session: Session, now: datetime, env=None) -> list[Check]:
+    """One check per indexer and download client entry: set up, key present, not
+    backing off. Connections are tested separately (Test connections)."""
+    from periodicool.sources import client_key, indexer_key
+
+    checks = []
+    indexers = list(session.scalars(select(Indexer).order_by(Indexer.priority, Indexer.id)))
+    clients = list(
+        session.scalars(select(DownloadClient).order_by(DownloadClient.priority, DownloadClient.id))
+    )
+    if not any(r.enabled for r in indexers):
+        checks.append(Check("Indexers", "warn", "No indexer is set up.", "Settings, Indexers."))
+    if not any(r.enabled for r in clients):
+        checks.append(
+            Check(
+                "Download clients",
+                "warn",
+                "No download client is set up.",
+                "Settings, Download clients.",
+            )
+        )
+    for row in indexers:
+        if not row.enabled:
+            continue
+        if not indexer_key(session, row, env):
+            checks.append(Check(row.name, "bad", "No API key.", "Settings, Indexers."))
+        until = row.backoff_until
+        if until is not None and until.tzinfo is None:
+            until = until.replace(tzinfo=UTC)
+        if until is not None and until > now:
+            checks.append(
+                Check(
+                    row.name,
+                    "warn",
+                    f"Asked us to slow down; searches wait until {until:%H:%M} UTC.",
+                )
+            )
+    for row in clients:
+        if not row.enabled:
+            continue
+        if not client_key(session, row, env):
+            checks.append(Check(row.name, "bad", "No API key.", "Settings, Download clients."))
+        elif not row.category:
+            checks.append(Check(row.name, "bad", "No category set.", "Settings, Download clients."))
+    return checks

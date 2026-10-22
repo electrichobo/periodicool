@@ -2,9 +2,9 @@
 {% if error %}
 <p role="alert">{{ ui.led("bad", "Error") }} {{ error }}</p>
 {% elif not limits %}
-{{ ui.empty("No indexers", "Prowlarr answered, but has no usenet indexer with magazine categories.") }}
+{{ ui.empty("No indexers", (entry or "Prowlarr") ~ " answered, but has no usenet indexer with magazine categories.") }}
 {% else %}
-<p>{{ ui.led("ok", "Connected") }} {{ limits | length }} indexers.</p>
+<p>{{ ui.led("ok", "Connected") }} {% if entry %}{{ entry }}: {% endif %}{{ limits | length }} indexers.</p>
 <div class="indexer-list">
   {% for lim in limits %}
   <div class="indexer">

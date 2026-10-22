@@ -64,7 +64,9 @@ class FakeSab:
 
     def __call__(self, method, url, headers, body, timeout):
         q = {k: v[0] for k, v in urllib.parse.parse_qs(urllib.parse.urlsplit(url).query).items()}
-        self.calls.append({"method": method, "query": q, "headers": headers, "body": body})
+        self.calls.append(
+            {"method": method, "url": url, "query": q, "headers": headers, "body": body}
+        )
         mode = q.get("mode")
         if q.get("apikey") != SAB_KEY:
             return 200, json.dumps({"status": False, "error": "API Key Incorrect"}).encode()

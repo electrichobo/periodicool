@@ -27,6 +27,7 @@ from periodicool.models import (
     ScanKind,
 )
 from periodicool.prowlarr import ProwlarrError, RateLimited
+from periodicool.sources import Sources, transports_from
 from periodicool.web.security import form_data, form_lists
 
 router = APIRouter(include_in_schema=False)
@@ -35,9 +36,7 @@ SAVED_MESSAGES = {
     "editor": "Changes saved.",
     "deleted": "Removed from PeriodiCool. Files on disk were kept.",
 }
-NO_PROWLARR = (
-    "Prowlarr is not set up yet. Add its URL in Settings and the API key in the environment."
-)
+NO_PROWLARR = "No indexer is set up yet. Add one in Settings, Indexers."
 
 
 def _render(request: Request, name: str, /, **context) -> HTMLResponse:
@@ -55,16 +54,21 @@ def _toast(text: str, kind: str = "ok", status_code: int = 200, **extra) -> Resp
     return Response(status_code=status_code, headers={"HX-Trigger": json.dumps(trigger)})
 
 
-def prowlarr_client(request: Request, session):
-    transport = getattr(request.app.state, "prowlarr_transport", None)
-    return search.make_client(session, transport=transport)
+def sources_for(request: Request, session) -> Sources:
+    return Sources(session, transports_from(request.app.state))
 
 
-def sab_client(request: Request, session):
+def prowlarr_client(request: Request, session) -> Sources | None:
+    """Every enabled indexer entry, or None when there is none."""
+    sources = sources_for(request, session)
+    return sources if sources.indexers else None
+
+
+def sab_client(request: Request, session) -> Sources | None:
+    """Every enabled download client entry, or None when there is none."""
+    sources = sources_for(request, session)
     try:
-        return downloads.make_download_client(
-            session, transport=getattr(request.app.state, "sab_transport", None)
-        )
+        return sources if sources.clients else None
     except ClientError:
         return None
 
@@ -141,7 +145,7 @@ def rss_now(request: Request) -> Response:
     with request.app.state.sessions() as session:
         client = prowlarr_client(request, session)
         if client is None:
-            return _toast("Prowlarr is not set up yet (Settings).", "warn")
+            return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
         try:
             result = search.rss_sync(session, client, _today(request))
         except ProwlarrError as exc:
@@ -155,7 +159,7 @@ def search_missing(request: Request) -> Response:
     with request.app.state.sessions() as session:
         client = prowlarr_client(request, session)
         if client is None:
-            return _toast("Prowlarr is not set up yet (Settings).", "warn")
+            return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
         results = search.wanted_search(session, client, _today(request))
         session.commit()
     found = sum(r.new_accepted for r in results)
@@ -354,7 +358,7 @@ async def auto_search(request: Request, mag_id: int) -> Response:
         mag = _magazine(session, mag_id)
         client = prowlarr_client(request, session)
         if client is None:
-            return _toast("Prowlarr is not set up yet (Settings).", "warn")
+            return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
         try:
             result = magazines.automatic_search(
                 session, mag, _today(request), client, sab_client(request, session), key
@@ -440,11 +444,11 @@ def grab_release(request: Request, release_id: int) -> Response:
             raise HTTPException(status_code=404)
         prowlarr, client = prowlarr_client(request, session), sab_client(request, session)
         if prowlarr is None or client is None:
-            return _toast("Prowlarr and SABnzbd both need to be set up first.", "warn")
+            return _toast("An indexer and a download client both need to be set up first.", "warn")
         result = downloads.grab(session, rel, prowlarr, client, _today(request))
         session.commit()
     if result.ok:
-        return _toast(f"Sent to {client.name}: {rel.title}")
+        return _toast(f"Sent to {result.client_name}: {rel.title}")
     return _toast("Not grabbed: " + "; ".join(result.reasons[:3]), "bad")
 
 

@@ -15,6 +15,7 @@ from periodicool.jobs import Scheduler, today_in
 from periodicool.models import (
     ApiCall,
     FormatProfile,
+    Indexer,
     Issue,
     IssueStatus,
     Job,
@@ -23,7 +24,8 @@ from periodicool.models import (
     Release,
     SearchState,
 )
-from periodicool.prowlarr import ProwlarrClient, RateLimited
+from periodicool.prowlarr import ProwlarrClient
+from rows import add_indexer
 
 from fake_prowlarr import KEY, URL, FakeProwlarr, release_json
 
@@ -43,7 +45,7 @@ def session(tmp_path):
             mag = magazine_from_dict(entry)
             mag.format_profile = profile
             s.add(mag)
-        library.set_setting(s, search.URL_KEY, URL)
+        add_indexer(s, URL)
         s.flush()
         yield s
     engine.dispose()
@@ -208,7 +210,7 @@ def test_rss_skips_disabled_and_limited_indexers(session, client, fake):
     assert "query limit reached" in r.skipped["Alpha"] and "disabled" in r.skipped["Beta"]
 
 
-def test_rate_limit_backs_off_globally(session, client, fake):
+def test_rate_limit_backs_off_per_indexer_entry(session, client, fake):
     fake.rss_titles[1] = ["x"]
     calls_before = len(fake.calls)
     fake.fail_with = None
@@ -222,14 +224,14 @@ def test_rate_limit_backs_off_globally(session, client, fake):
     client._transport = throttle
     r = search.rss_sync(session, client, TODAY, NOW)
     assert "rate limited" in r.errors[0]
-    until = datetime.fromisoformat(library.get_setting(session, search.BACKOFF_UNTIL_KEY))
-    assert until == NOW + timedelta(minutes=5)
-    with pytest.raises(search.Unavailable):
-        search.rss_sync(session, client, TODAY, NOW + timedelta(minutes=1))
-    assert len(fake.calls) > calls_before
+    assert search._aware(client.row.backoff_until) == NOW + timedelta(minutes=5)
+    calls_after = len(fake.calls)
+    assert calls_after > calls_before
+    r = search.rss_sync(session, client, TODAY, NOW + timedelta(minutes=1))
+    assert "slow down" in r.skipped["Prowlarr"] and len(fake.calls) == calls_after
     # Next rate limit doubles the wait.
-    search._rate_limited(session, NOW)
-    assert library.get_setting(session, search.BACKOFF_STEP_KEY) == 600
+    search._rate_limited(session, NOW, client)
+    assert client.row.backoff_s == 600
 
 
 # Magazine search
@@ -388,8 +390,11 @@ def test_jobs_switch():
     assert load_settings({}).jobs_enabled is True
 
 
-def test_client_needs_url_and_key(session):
-    library.set_setting(session, search.URL_KEY, None)
+def test_client_needs_url_and_key(session, monkeypatch):
+    monkeypatch.delenv("PROWLARR_API_KEY", raising=False)
+    assert search.make_client(session) is None
+    assert search.make_client(session, api_key=KEY) is not None
+    session.scalars(select(Indexer)).one().url = ""
     assert search.make_client(session, api_key=KEY) is None
 
 
@@ -404,9 +409,9 @@ def test_rate_limited_search_raises(session, client, fake):
         return FakeProwlarr.__call__(fake, url, headers, timeout)
 
     client._transport = throttle
-    with pytest.raises(RateLimited):
+    with pytest.raises(search.Unavailable, match="rate limited"):
         search.search_magazine(session, client, mag(session, "People"), TODAY, now=NOW)
-    assert library.get_setting(session, search.BACKOFF_UNTIL_KEY)
+    assert client.row.backoff_until
     assert isinstance(client, ProwlarrClient)
 
 

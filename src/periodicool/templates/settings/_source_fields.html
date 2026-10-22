@@ -1,0 +1,33 @@
+{# Shared fields for the indexer and download client pop-ups. Expects values, errors. #}
+{% import "_macros.html" as ui %}
+{% macro text(name, label, help=none, type="text", attrs="", mono=false) -%}
+<div class="field">
+  <label class="field__label" for="src-{{ name }}">{{ label }}</label>
+  <input class="input{% if mono %} input--mono{% endif %}" id="src-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ values.get(name, '') }}" {{ attrs | safe }}
+    {%- if errors.get(name) %} aria-invalid="true"{% endif %}
+    {%- if help or errors.get(name) %} aria-describedby="{% if help %}src-{{ name }}-help{% endif %}{% if errors.get(name) %} src-{{ name }}-err{% endif %}"{% endif %}>
+  {% if help %}<span class="field__help" id="src-{{ name }}-help">{{ help }}</span>{% endif %}
+  {% if errors.get(name) %}<span class="field__error" id="src-{{ name }}-err">{{ errors[name] }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro key_field(has_key, env_fallback, help, label="API key") -%}
+<div class="field">
+  <label class="field__label" for="src-api_key">{{ label }}</label>
+  <input class="input input--mono" id="src-api_key" name="api_key" type="password" value="" autocomplete="new-password" spellcheck="false"
+    placeholder="{% if env_fallback %}From the environment variable{% elif has_key %}Saved (hidden){% endif %}"
+    {%- if errors.get("api_key") %} aria-invalid="true"{% endif %} aria-describedby="src-api_key-help{% if errors.get('api_key') %} src-api_key-err{% endif %}">
+  <span class="field__help" id="src-api_key-help">
+    {%- if has_key %}{{ ui.led("ok", "Key set") }} {% endif %}{{ help }}
+    {%- if env_fallback %} Right now the key comes from the environment variable; a key saved here takes its place.{% endif %}</span>
+  {% if errors.get("api_key") %}<span class="field__error" id="src-api_key-err">{{ errors["api_key"] }}</span>{% endif %}
+</div>
+{%- endmacro %}
+
+{% macro enabled() -%}
+<div class="field">
+  <label class="switch">Enabled
+    <input type="checkbox" role="switch" name="enabled"{% if values.get("enabled") %} checked{% endif %}><span class="switch__state" aria-hidden="true"></span>
+  </label>
+</div>
+{%- endmacro %}

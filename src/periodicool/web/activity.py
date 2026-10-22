@@ -74,7 +74,7 @@ def downloads_now(request: Request) -> Response:
     with request.app.state.sessions() as session:
         client = sab_client(request, session)
         if client is None:
-            return _toast("SABnzbd is not set up yet (Settings).", "warn")
+            return _toast("No download client is set up yet (Settings, Download clients).", "warn")
         r = downloads.monitor(
             session, client, settings, prowlarr_client(request, session), _today(request)
         )
@@ -121,7 +121,7 @@ async def remove_submit(request: Request, grab_id: int) -> Response:
     with request.app.state.sessions() as session:
         client = sab_client(request, session)
         if client is None:
-            return _toast("SABnzbd is not set up yet (Settings).", "warn")
+            return _toast("No download client is set up yet (Settings, Download clients).", "warn")
         try:
             g = downloads.remove_grab(
                 session, grab_id, client, add_to_blocklist=form.get("blocklist") == "on"
@@ -268,7 +268,7 @@ async def wanted_search_selected(request: Request) -> Response:
             return _toast("Select at least one issue.", "warn")
         client = prowlarr_client(request, session)
         if client is None:
-            return _toast("Prowlarr is not set up yet (Settings).", "warn")
+            return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
         by_mag: dict[int, list[Issue]] = {}
         for issue in issues:
             by_mag.setdefault(issue.magazine_id, []).append(issue)

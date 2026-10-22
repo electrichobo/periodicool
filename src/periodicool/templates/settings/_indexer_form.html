@@ -1,0 +1,38 @@
+{# Indexer pop-up. On errors the server returns this again into #modal-body. #}
+{% import "_macros.html" as ui %}
+{% from "settings/_source_fields.html" import text, key_field, enabled with context %}
+{% set kind_label = kinds.get(values.get("kind"), "Indexer") %}
+<form class="panel modal__panel stack" hx-post="/settings/indexers/save" hx-target="#modal-body">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">{{ "Edit " ~ values.get("name") if values.get("id") else "Add " ~ kind_label }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="kind" value="{{ values.get('kind', '') }}">
+  {% if values.get("id") %}<input type="hidden" name="id" value="{{ values.id }}">{% endif %}
+  {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+  {{ enabled() }}
+  {{ text("name", "Name") }}
+  {% if values.get("kind") == "prowlarr" %}
+  {{ text("url", "Prowlarr address", "For example http://prowlarr:9696. PeriodiCool searches every usenet indexer Prowlarr has that carries magazines.", "url", 'placeholder="http://" required') }}
+  {% else %}
+  {{ text("url", "Indexer address", "The indexer's site or its /api address, for example https://indexer.example.", "url", 'placeholder="https://" required') }}
+  {% endif %}
+  {{ key_field(has_key, env_fallback, key_help) }}
+  {{ text("categories", "Categories", "Leave empty to use the categories set below the list (7010 is magazines).", attrs='inputmode="numeric" placeholder="7010"') }}
+  {% if values.get("kind") == "newznab" %}
+  <fieldset class="form-section">
+    <legend>Limits</legend>
+    <p class="field__help">Most indexers cap API calls and downloads per day. PeriodiCool stops at these numbers; leave empty for no limit.</p>
+    {{ text("daily_cap", "API calls per day", attrs='inputmode="numeric"') }}
+    {{ text("grab_cap", "Downloads per day", attrs='inputmode="numeric"') }}
+  </fieldset>
+  {% endif %}
+  {{ text("priority", "Priority", "1 to 50. When two releases are equally good, the one from the lower number wins.", attrs='inputmode="numeric"') }}
+  <div class="modal__foot">
+    <button class="btn" type="button" hx-post="/settings/indexers/test" hx-include="closest form" hx-swap="none">Test</button>
+    <span class="spinner" aria-hidden="true"></span>
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </div>
+</form>

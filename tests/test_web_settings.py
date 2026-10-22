@@ -3,9 +3,12 @@
 import pytest
 from sqlalchemy import select
 
-from periodicool import auth, downloads, library, search
-from periodicool.models import FormatProfile, Job, Magazine
+from periodicool import auth, library, search
+from periodicool.models import DownloadClient, FormatProfile, Indexer, Job, Magazine
+from rows import add_client, add_indexer
 
+from fake_prowlarr import URL
+from fake_sab import SAB_URL
 from test_web_magazines import fakes, mags, session, toast  # noqa: F401
 
 
@@ -30,9 +33,23 @@ def test_settings_redirect(client):
 def test_secrets_never_shown(client, monkeypatch):
     monkeypatch.setenv(search.API_KEY_ENV, "prowlarr-secret-value")
     monkeypatch.setenv("SABNZBD_API_KEY", "sab-secret-value")
-    for tab in ("indexers", "downloads", "general"):
-        text = client.get(f"/settings/{tab}").text
-        assert "prowlarr-secret-value" not in text and "sab-secret-value" not in text
+    with session(client) as s:
+        idx = add_indexer(s, URL)
+        nzb = add_indexer(s, "https://nzb.example", "stored-newznab-key", "Direct", "newznab")
+        sab = add_client(s, SAB_URL, "stored-sab-key")
+        s.commit()
+        ids = idx.id, nzb.id, sab.id
+    pages = [client.get(f"/settings/{tab}").text for tab in ("indexers", "downloads", "general")]
+    pages += [
+        client.get(f"/settings/indexers/{ids[0]}/edit").text,
+        client.get(f"/settings/indexers/{ids[1]}/edit").text,
+        client.get(f"/settings/downloads/{ids[2]}/edit").text,
+    ]
+    secrets = ("prowlarr-secret-value", "sab-secret-value", "stored-newznab-key", "stored-sab-key")
+    for text in pages:
+        for secret in secrets:
+            assert secret not in text
+    assert "From the environment variable" in pages[3] and "Key set" in pages[4]
 
 
 def test_save_indexers_converts_units_and_updates_jobs(client):
@@ -40,7 +57,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
         s.add(Job(name="rss", enabled=True, interval_s=900))
         s.commit()
     form = {
-        "prowlarr__url": "http://prowlarr:9696/",
         "search__categories": "7010, 7020",
         "jobs__rss__interval_s": "30",
         "jobs__wanted__interval_s": "12",
@@ -54,7 +70,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
     }
     resp = client.post("/settings/indexers", data=form, follow_redirects=False)
     assert resp.status_code == 303 and resp.headers["location"] == "/settings/indexers?saved=1"
-    assert setting(client, "prowlarr.url") == "http://prowlarr:9696"
     assert setting(client, "search.categories") == [7010, 7020]
     assert setting(client, "jobs.rss.interval_s") == 1800
     assert setting(client, "jobs.wanted.interval_s") == 12 * 3600
@@ -69,9 +84,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
-        ("prowlarr__url", "prowlarr:9696", "full address"),
-        ("prowlarr__url", "http://u:p@prowlarr:9696", "Leave keys"),
-        ("prowlarr__url", "http://prowlarr:9696/?apikey=x", "Leave keys"),
         ("search__categories", "magazines", "Numbers separated"),
         ("search__cache_hours", "500", "At most 168"),
         ("jobs__rss__interval_s", "1", "At least 5"),
@@ -80,7 +92,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
 )
 def test_bad_input_saves_nothing(client, field, value, message):
     form = {
-        "prowlarr__url": "http://prowlarr:9696",
         "search__categories": "7010",
         "jobs__rss__interval_s": "15",
         "jobs__wanted__interval_s": "6",
@@ -93,7 +104,7 @@ def test_bad_input_saves_nothing(client, field, value, message):
     resp = client.post("/settings/indexers", data=form)
     assert resp.status_code == 422 and message in resp.text and "Nothing was saved" in resp.text
     assert f'value="{value}"' in resp.text or value in resp.text
-    assert setting(client, "prowlarr.url") is None
+    assert setting(client, "search.categories") is None
 
 
 def test_media_template_validation_and_preview(client):
@@ -134,37 +145,117 @@ def test_media_tab_shows_folders(client, settings):
     assert str(settings.library_dir) in page and "Not set" in page  # no import folder
 
 
-def test_downloads_path_map(client):
+def test_downloads_settings_without_client_fields(client):
+    form = {"grab__max_per_run": "10", "jobs__downloads__interval_s": "60"}
+    resp = client.post("/settings/downloads", data=form, follow_redirects=False)
+    assert resp.status_code == 303 and setting(client, "grab.auto") is False
+
+
+# Indexer and download client lists
+
+
+def test_add_indexer_kind_picker_then_form(client):
+    picker = client.get("/settings/indexers/new").text
+    assert "Prowlarr" in picker and "Newznab" in picker and "?kind=newznab" in picker
+    form = client.get("/settings/indexers/new?kind=newznab").text
+    assert 'name="api_key"' in form and "API calls per day" in form
+    assert 'type="password"' in form
+
+
+def test_add_edit_delete_indexer_with_write_only_key(client):
     base = {
-        "sabnzbd__url": "http://sab:8080",
-        "sabnzbd__category": "mags",
-        "grab__max_per_run": "10",
-        "jobs__downloads__interval_s": "60",
+        "kind": "newznab",
+        "name": "Direct <b>",
+        "url": "https://nzb.example/api/",
+        "priority": "10",
+        "enabled": "on",
+        "categories": "7010",
+        "daily_cap": "100",
     }
-    resp = client.post(
-        "/settings/downloads",
-        data=base | {"map_remote": ["/data/complete/mags", ""], "map_local": ["/downloads/", ""]},
-        follow_redirects=False,
+    missing = client.post("/settings/indexers/save", data=base)
+    assert missing.status_code == 200 and "Enter the API key." in missing.text
+    assert "Direct &lt;b&gt;" in missing.text and "Direct <b>" not in missing.text
+    resp = client.post("/settings/indexers/save", data=base | {"api_key": "sekrit-key-123"})
+    assert resp.headers["HX-Redirect"] == "/settings/indexers?saved=1"
+    with session(client) as s:
+        row = s.scalars(select(Indexer)).one()
+        assert row.url == "https://nzb.example/api" and row.api_key == "sekrit-key-123"
+        assert row.settings == {"daily_cap": 100} and row.priority == 10
+        row_id = row.id
+    page = client.get("/settings/indexers").text
+    assert "Direct &lt;b&gt;" in page and "sekrit-key-123" not in page
+    # An empty key field keeps the saved key.
+    edit = base | {"id": str(row_id), "name": "Direct", "enabled": ""}
+    client.post("/settings/indexers/save", data=edit)
+    with session(client) as s:
+        row = s.get(Indexer, row_id)
+        assert row.api_key == "sekrit-key-123" and row.name == "Direct" and not row.enabled
+    assert "sekrit-key-123" in client.app.state.logs.redactor.secrets
+    dup = client.post("/settings/indexers/save", data=base | {"name": "direct", "api_key": "x"})
+    assert "already has this name" in dup.text
+    bad = client.post(
+        "/settings/indexers/save", data=base | {"url": "http://u:p@h", "api_key": "k"}
     )
-    assert resp.status_code == 303
-    assert setting(client, downloads.PATH_MAP_KEY) == [["/data/complete/mags", "/downloads"]]
+    assert "Leave keys" in bad.text
+    client.post(f"/settings/indexers/{row_id}/delete")
+    with session(client) as s:
+        assert s.scalars(select(Indexer)).all() == []
+
+
+def test_first_prowlarr_may_use_the_environment_key(client, monkeypatch):
+    monkeypatch.setenv(search.API_KEY_ENV, "env-key-value")
+    data = {"kind": "prowlarr", "name": "Prowlarr", "url": "http://prowlarr:9696", "priority": "25"}
+    resp = client.post("/settings/indexers/save", data=data)
+    assert resp.status_code == 204
+    second = client.post("/settings/indexers/save", data=data | {"name": "Second"})
+    assert "Enter the API key." in second.text
+
+
+def test_download_client_form_path_map_and_category(client):
+    base = {
+        "kind": "sabnzbd",
+        "name": "SABnzbd",
+        "url": "http://sab:8080",
+        "api_key": "sab-key-1",
+        "priority": "1",
+        "enabled": "on",
+        "category": "mags",
+    }
     half = client.post(
-        "/settings/downloads", data=base | {"map_remote": ["/data"], "map_local": [""]}
+        "/settings/downloads/save", data=base | {"map_remote": ["/data"], "map_local": [""]}
     )
-    assert half.status_code == 422 and "needs both" in half.text
-    assert setting(client, downloads.PATH_MAP_KEY) == [["/data/complete/mags", "/downloads"]]
-    assert setting(client, "grab.auto") is False
+    assert "needs both" in half.text
+    no_cat = client.post("/settings/downloads/save", data=base | {"category": ""})
+    assert "its own category" in no_cat.text
+    ok = client.post(
+        "/settings/downloads/save",
+        data=base | {"map_remote": ["/data/complete/mags", ""], "map_local": ["/downloads/", ""]},
+    )
+    assert ok.status_code == 204
+    with session(client) as s:
+        row = s.scalars(select(DownloadClient)).one()
+        assert row.path_map == [["/data/complete/mags", "/downloads"]] and row.category == "mags"
+    page = client.get("/settings/downloads").text
+    assert "SABnzbd" in page and "sab-key-1" not in page and "<code>mags</code>" in page
 
 
 def test_connection_tests_without_setup(client):
-    assert "Set the Prowlarr URL" in client.post("/settings/indexers/test").text
-    assert toast(client.post("/settings/downloads/test"))["kind"] == "warn"
+    resp = client.post("/settings/indexers/test", data={"kind": "prowlarr"})
+    assert toast(resp)["kind"] == "warn"
+    assert toast(client.post("/settings/downloads/test", data={}))["kind"] == "warn"
 
 
 def test_connection_tests_with_fakes(client, fakes):
-    page = client.post("/settings/indexers/test").text
-    assert "Connected" in page
-    assert "answered" in toast(client.post("/settings/downloads/test"))["text"]
+    with session(client) as s:
+        idx = s.scalars(select(Indexer)).one().id
+        sab = s.scalars(select(DownloadClient)).one().id
+    page = client.post(f"/settings/indexers/{idx}/test").text
+    assert "Connected" in page and "Prowlarr:" in page
+    assert "answered" in toast(client.post(f"/settings/downloads/{sab}/test"))["text"]
+    form = {"id": str(idx), "kind": "prowlarr", "name": "Prowlarr", "url": URL}
+    assert "Prowlarr answered" in toast(client.post("/settings/indexers/test", data=form))["text"]
+    form = {"id": str(sab), "kind": "sabnzbd", "url": SAB_URL, "category": "mags"}
+    assert "answered" in toast(client.post("/settings/downloads/test", data=form))["text"]
 
 
 def test_api_key_shown_and_regenerated(client, settings):

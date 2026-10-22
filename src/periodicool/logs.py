@@ -43,6 +43,12 @@ class Redactor(logging.Filter):
         super().__init__()
         self.secrets = [s for s in (secrets or []) if s and len(s) >= 6]
 
+    def learn(self, secrets) -> None:
+        """Add secrets saved after start (keys typed into Settings)."""
+        for secret in secrets:
+            if secret and len(secret) >= 6 and secret not in self.secrets:
+                self.secrets.append(secret)
+
     def redact(self, text: str) -> str:
         for pattern in _PATTERNS:
             text = pattern.sub(r"\1REDACTED", text)
@@ -61,6 +67,16 @@ def known_secrets(config_dir: Path) -> list[str]:
     for name in ("secret.key", "api.key"):
         with contextlib.suppress(OSError):
             found.append((config_dir / name).read_text(encoding="ascii").strip())
+    return [s for s in found if s]
+
+
+def stored_secrets(session) -> list[str]:
+    """Keys and passwords saved with the indexer and download client entries."""
+    from periodicool.models import DownloadClient, Indexer
+
+    found = list(session.scalars(select(Indexer.api_key)))
+    for key, password in session.execute(select(DownloadClient.api_key, DownloadClient.password)):
+        found += [key, password]
     return [s for s in found if s]
 
 

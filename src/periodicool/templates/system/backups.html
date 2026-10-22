@@ -6,7 +6,7 @@
     <button class="btn btn--chassis btn--small" type="button" hx-post="/system/backups" hx-swap="none">Back up now</button>
     <span class="spinner" aria-hidden="true"></span>
   </div>
-  <p class="on-chassis-muted toolbar__note">Backups hold the database, secret.key and api.key. They are kept in <code>{{ folder }}</code>.</p>
+  <p class="on-chassis-muted toolbar__note">Backups hold the database (with the indexer and download client API keys), secret.key and api.key. Keep them private. They are kept in <code>{{ folder }}</code>.</p>
 </div>
 <section class="panel" aria-labelledby="bk-title">
   <h2 class="panel__label" id="bk-title">Backups</h2>
