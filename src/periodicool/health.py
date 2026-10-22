@@ -45,17 +45,42 @@ def _folder(name: str, path, writable: bool, fix: str) -> Check:
     return Check(name, "ok", str(path))
 
 
+def _downloads_folder(path) -> Check:
+    """The download client's completed folder for our category. PeriodiCool needs
+    to write here (to clean up after imports), and so does the download client."""
+    name = "Downloads folder"
+    if not path.is_dir():
+        return Check(
+            name,
+            "bad",
+            f"{path} does not exist.",
+            "Mount the download client's completed folder for PeriodiCool's category.",
+        )
+    if not os.access(path, os.W_OK):
+        st = path.stat()
+        made_by_docker = st.st_uid == 0 and not st.st_mode & 0o022
+        why = (
+            " It belongs to root with no group or other write access, which is what "
+            "Docker does when it creates a missing folder for a volume."
+            if made_by_docker
+            else ""
+        )
+        return Check(
+            name,
+            "bad",
+            f"{path} is not writable by PeriodiCool.{why}",
+            "Give it the same owner and permissions as the download client's other "
+            "completed folders, so both the client and PeriodiCool can write there.",
+        )
+    return Check(name, "ok", str(path))
+
+
 def local_checks(session: Session, settings: Settings, now: datetime | None = None) -> list[Check]:
     now = now or datetime.now(UTC)
     checks = [
         _folder("Config folder", settings.config_dir, True, "Mount a volume at /config."),
         _folder("Library folder", settings.library_dir, True, "Mount your library at /library."),
-        _folder(
-            "Downloads folder",
-            settings.downloads_dir,
-            False,
-            "Mount SABnzbd's completed folder for PeriodiCool's category at /downloads.",
-        ),
+        _downloads_folder(settings.downloads_dir),
     ]
     if settings.import_dir is not None:
         checks.append(_folder("Import folder", settings.import_dir, True, "Mount it at /import."))

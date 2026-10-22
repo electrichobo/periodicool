@@ -428,7 +428,12 @@ def monitor(
             g.size_left_bytes, g.time_left_s = state.size_left_bytes, state.time_left_s
             result.updated += 1
             if state.status is JobStatus.FAILED:
-                reason = f"download failed: {state.fail_message or state.client_status}"
+                message = state.fail_message or state.client_status
+                if local_failure(message):
+                    _local_fail(session, g, message)
+                    result.failed.append(g)
+                    continue
+                reason = f"download failed: {message}"
                 if new := fail(session, g, reason, prowlarr, client, today):
                     result.retried.append(new)
                 result.failed.append(g)
@@ -461,6 +466,48 @@ def _issue_wanted(session: Session, g: Grab) -> None:
     issue = _issue(session, g.magazine_id, g.issue_key) if g.magazine_id else None
     if issue is not None and not issue.file_path:
         issue.status = IssueStatus.WANTED
+
+
+# SABnzbd messages that point at the user's own setup (folders, disk, permissions),
+# not at the release. Blocklisting the release for these would be wrong, and an
+# automatic retry would fail the same way.
+_LOCAL_FAILURES = (
+    "post-processing was aborted",
+    "cannot create final folder",
+    "permission denied",
+    "no space left",
+    "disk full",
+    "not enough free space",
+    "read-only file system",
+    "write error",
+)
+
+
+def local_failure(message: str | None) -> bool:
+    lowered = (message or "").lower()
+    return any(words in lowered for words in _LOCAL_FAILURES)
+
+
+def _local_fail(session: Session, g: Grab, message: str) -> None:
+    """A download that failed because of a problem on this side: not blocklisted,
+    not retried. The issue is wanted again, so it can be grabbed once fixed."""
+    reason = (
+        f"{g.client} could not finish the job: {message}. This is usually a folder "
+        f"permission or disk space problem on the {g.client} side, not a bad release. "
+        f"Check {g.client}'s warnings, fix the cause, then grab the release again."
+    )
+    g.status, g.error = GrabStatus.FAILED, reason[:2000]
+    _issue_wanted(session, g)
+    history.record_grab(
+        session,
+        HistoryEvent.DOWNLOAD_FAILED,
+        g,
+        reason=reason[:1000],
+        blocklisted=False,
+        local=True,
+    )
+    session.flush()
+    log.warning("Grab %s failed on the %s side (not blocklisted): %s", g.title, g.client, message)
 
 
 def fail(

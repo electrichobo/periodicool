@@ -4,8 +4,12 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-21
+
 ### Fixed
 
+- A download that fails because of a problem on the download client's side (a folder it cannot create, permissions, a full disk) is no longer blocklisted or retried. It is marked failed with a hint, and the issue is wanted again so the same release can be grabbed once the cause is fixed.
+- Health now warns when the downloads folder is not writable, and says when it looks like a folder Docker created as root.
 - An import whose download folder belongs to another user no longer fails after the file is already in the library: the original and the leftovers stay in the download folder, with a warning in the log.
 
 ## [0.1.1] - 2026-10-21
@@ -54,6 +58,7 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/electrichobo/periodicool/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/electrichobo/periodicool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/electrichobo/periodicool/releases/tag/v0.1.0

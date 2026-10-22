@@ -269,3 +269,23 @@ def test_verbose_switch_turns_itself_off(client):
     client.post("/system/console/verbose", data={"verbose": "on"})
     client.post("/system/console/verbose", data={})
     assert not client.app.state.logs.verbose
+
+
+def test_health_flags_an_unwritable_downloads_folder(client, settings, monkeypatch):
+    import os
+
+    from periodicool import health as health_module
+
+    settings.downloads_dir.mkdir(parents=True, exist_ok=True)
+    assert "Downloads folder" in client.get("/system/health").text
+    real_access = os.access
+
+    def no_write(path, mode):
+        if mode == os.W_OK and str(path) == str(settings.downloads_dir):
+            return False
+        return real_access(path, mode)
+
+    monkeypatch.setattr(health_module.os, "access", no_write)
+    page = client.get("/system/health").text
+    assert "is not writable by PeriodiCool" in page
+    assert "same owner and permissions" in page

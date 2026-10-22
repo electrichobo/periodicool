@@ -414,3 +414,50 @@ def test_refused_cleanup_still_counts_as_imported(env, monkeypatch):
     assert (job_dir / "Linux311.pdf").exists() and (job_dir / "Linux311.nfo").exists()
     move = e.session.scalars(select(FileMove)).one()
     assert move.ok and move.method.endswith("-kept")
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "Post-processing was aborted",
+        "Cannot create final folder /data/complete/mags/x",
+        "[Errno 13] Permission denied",
+        "Unpacking failed, write error or disk is full?",
+    ],
+)
+def test_local_failure_is_not_the_releases_fault(env, message):
+    """SABnzbd failing on its own side (folders, disk) must not blocklist a good
+    release or start a retry that would fail the same way."""
+    from periodicool.models import History, HistoryEvent
+
+    e = env
+    rels = seen(e, L311, L311_ALT)
+    g = downloads.grab(e.session, rels[L311], e.prowlarr, e.sab, TODAY).grab
+    finish(e, g, {}, status="Failed", msg=message)
+    r = downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
+    assert g.status is GrabStatus.FAILED and r.retried == []
+    assert "not a bad release" in g.error and message in g.error
+    assert e.session.scalars(select(BlockedRelease)).all() == []
+    assert issue(e).status is IssueStatus.WANTED
+    assert len(e.fake_s.added) == 1
+    h = e.session.scalars(
+        select(History).where(History.event == HistoryEvent.DOWNLOAD_FAILED)
+    ).one()
+    assert h.data["blocklisted"] is False and h.data["local"] is True
+    # Once fixed, the same release can be grabbed again.
+    again = downloads.grab(e.session, rels[L311], e.prowlarr, e.sab, TODAY)
+    assert again.ok, again.reasons
+
+
+def test_missing_articles_still_blocklist(env):
+    e = env
+    g = downloads.grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY).grab
+    finish(
+        e,
+        g,
+        {},
+        status="Failed",
+        msg="Aborted, cannot be completed - https://sabnzbd.org/not-complete",
+    )
+    downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
+    assert e.session.scalars(select(BlockedRelease)).one().title == L311
