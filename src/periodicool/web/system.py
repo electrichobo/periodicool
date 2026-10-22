@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 import platform
 import sqlite3
 import sys
 from collections import deque
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
@@ -26,6 +27,7 @@ router = APIRouter(include_in_schema=False)
 SYSTEM_TABS = (
     ("status", "Status"),
     ("health", "Health"),
+    ("console", "Console"),
     ("tasks", "Tasks"),
     ("backups", "Backups"),
     ("events", "Events"),
@@ -370,3 +372,89 @@ def queue_skip(request: Request, item_id: int) -> Response:
     response = _toast("Skipped. The file stays where it is.")
     response.headers["HX-Refresh"] = "true"
     return response
+
+
+# Console: the live log, with a verbose switch that turns itself off
+
+VERBOSE_KEY = "log.verbose_until"
+VERBOSE_FOR = 3600
+CONSOLE_LEVELS = ("DEBUG", "INFO", "WARNING", "ERROR")
+CONSOLE_LINES = 300
+
+
+def apply_verbose(app) -> bool:
+    """Set debug logging from the stored end time. Returns whether it is on."""
+    logs = getattr(app.state, "logs", None)
+    with app.state.sessions() as session:
+        until = library.get_setting(session, VERBOSE_KEY)
+    on = False
+    if until:
+        try:
+            on = datetime.fromisoformat(until) > datetime.now(UTC)
+        except ValueError:
+            on = False
+    if logs is not None and logs.verbose != on:
+        logs.set_verbose(on)
+    return on
+
+
+def _console_rows(session, after: int, level: str, limit: int = CONSOLE_LINES):
+    query = select(LogEvent).where(LogEvent.id > after)
+    if level in CONSOLE_LEVELS:
+        query = query.where(LogEvent.level.in_(CONSOLE_LEVELS[CONSOLE_LEVELS.index(level) :]))
+    rows = list(session.scalars(query.order_by(LogEvent.id.desc()).limit(limit)))
+    return list(reversed(rows))
+
+
+def _last_id(session) -> int:
+    return session.scalar(select(func.max(LogEvent.id))) or 0
+
+
+@router.get("/system/console", response_class=HTMLResponse)
+def console(request: Request, level: str = "") -> HTMLResponse:
+    verbose = apply_verbose(request.app)
+    # With verbose on, show the debug lines unless the reader picked a level.
+    default = "DEBUG" if verbose else "INFO"
+    level = level.upper() if level.upper() in CONSOLE_LEVELS else default
+    with request.app.state.sessions() as session:
+        rows = _console_rows(session, 0, level)
+        until = library.get_setting(session, VERBOSE_KEY) if verbose else None
+        last = _last_id(session)
+    return _system(
+        request,
+        "console",
+        "console",
+        rows=rows,
+        after=last,
+        level=level,
+        levels=CONSOLE_LEVELS,
+        verbose=verbose,
+        until=datetime.fromisoformat(until) if until else None,
+    )
+
+
+@router.get("/system/console/lines", response_class=HTMLResponse)
+def console_lines(request: Request, after: int = 0, level: str = "INFO") -> HTMLResponse:
+    """New lines since `after`, appended by the page; the marker moves out of band."""
+    apply_verbose(request.app)
+    level = level.upper() if level.upper() in CONSOLE_LEVELS else "INFO"
+    with request.app.state.sessions() as session:
+        rows = _console_rows(session, after, level)
+        last = max([after, *(r.id for r in rows)])
+    return _render(request, "system/_console_lines.html", rows=rows, after=last, oob=True)
+
+
+@router.post("/system/console/verbose")
+async def console_verbose(request: Request) -> Response:
+    form = await form_data(request)
+    on = form.get("verbose") == "on"
+    until = datetime.now(UTC) + timedelta(seconds=VERBOSE_FOR) if on else None
+    with request.app.state.sessions() as session:
+        library.set_setting(session, VERBOSE_KEY, until.isoformat() if until else None)
+        session.commit()
+    apply_verbose(request.app)
+    if on:
+        logging.getLogger("periodicool").info("Verbose logging on for one hour")
+        return _toast("Verbose logging is on for one hour, then turns itself off.")
+    logging.getLogger("periodicool").info("Verbose logging off")
+    return _toast("Verbose logging is off.")

@@ -32,6 +32,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 refresh_file_info(session, settings.library_dir)
             session.commit()
         app.state.logs = LogSetup(settings.config_dir, app.state.sessions, level)
+        from periodicool.web.system import apply_verbose
+
+        apply_verbose(app)
         stop, task = asyncio.Event(), None
         if settings.jobs_enabled:
             from periodicool.jobs import Scheduler

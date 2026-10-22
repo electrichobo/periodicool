@@ -1,0 +1,2 @@
+{% for e in rows %}<div class="console__line console__line--{{ e.level | lower }}"><span class="console__time">{{ e.time | when("%H:%M:%S") }}</span> <span class="console__level">{{ e.level[:4] }}</span> <span class="console__src">{{ e.logger | replace("periodicool.", "") }}</span> <span class="console__msg">{{ e.message }}</span></div>
+{% endfor %}{% if oob %}<input type="hidden" id="console-after" name="after" value="{{ after }}" hx-swap-oob="true">{% endif %}

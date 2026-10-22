@@ -10,6 +10,7 @@ filtered again here, so a job that is not ours is never returned or removed.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import time
 import urllib.error
@@ -18,7 +19,10 @@ import urllib.request
 import uuid
 from collections.abc import Callable
 
+from periodicool import USER_AGENT
 from periodicool.clients.base import ClientError, JobState, JobStatus
+
+log = logging.getLogger(__name__)
 
 # (method, url, headers, body, timeout) -> (status, body)
 Transport = Callable[[str, str, dict, bytes | None, float], tuple[int, bytes]]
@@ -67,7 +71,7 @@ class SabnzbdClient:
             if wait > 0:
                 self._sleep(wait)
         query = urllib.parse.urlencode({**params, "output": "json", "apikey": self._key})
-        headers = {"Accept": "application/json"}
+        headers = {"Accept": "application/json", "User-Agent": USER_AGENT}
         if content_type:
             headers["Content-Type"] = content_type
         method = "POST" if body is not None else "GET"
@@ -79,6 +83,7 @@ class SabnzbdClient:
             raise ClientError(f"cannot reach SABnzbd: {self.redact(exc)}") from None
         finally:
             self._last = self._clock()
+        log.debug("SABnzbd %s: %s", params.get("mode"), status)
         if not 200 <= status < 300:
             raise ClientError(f"SABnzbd returned {status}: {self.redact(raw[:200])}")
         try:

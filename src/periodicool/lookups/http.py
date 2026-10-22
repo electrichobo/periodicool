@@ -10,10 +10,9 @@ import urllib.parse
 import urllib.request
 from collections.abc import Callable
 
-from periodicool import __version__
+from periodicool import USER_AGENT
 from periodicool.lookups import LookupError
 
-USER_AGENT = f"PeriodiCool/{__version__} (+https://github.com/electrichobo/periodicool)"
 TIMEOUT_S = 15.0
 MAX_BYTES = 2 * 1024 * 1024
 MIN_INTERVAL_S = 1.0

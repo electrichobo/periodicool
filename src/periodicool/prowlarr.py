@@ -8,6 +8,7 @@ goes through `redact()` first, and download URLs are stored without the key.
 from __future__ import annotations
 
 import json
+import logging
 import re
 import time
 import urllib.error
@@ -19,7 +20,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 
+from periodicool import USER_AGENT
+
 NEWZNAB_NS = "{http://www.newznab.com/DTD/2010/feeds/attributes/}"
+log = logging.getLogger(__name__)
 _APIKEY_PARAM = re.compile(r"(apikey=)[^&\s\"']+", re.IGNORECASE)
 
 Transport = Callable[[str, dict, float], tuple[int, bytes]]
@@ -80,13 +84,41 @@ def strip_apikey(url: str | None) -> str | None:
     return urllib.parse.urlunsplit(parts._replace(query=urllib.parse.urlencode(query)))
 
 
-def _urllib_transport(url: str, headers: dict, timeout: float) -> tuple[int, bytes]:
-    req = urllib.request.Request(url, headers=headers)
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Redirects are never followed automatically: urllib would copy our headers
+    (including an API key) onto the request to the new host."""
+
+    def redirect_request(self, *args, **kwargs):
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
+def _urllib_transport(url: str, headers: dict, timeout: float):
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **headers})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.status, resp.read()
+        with _OPENER.open(req, timeout=timeout) as resp:
+            return resp.status, resp.read(), dict(resp.headers)
     except urllib.error.HTTPError as exc:
-        return exc.code, exc.read() or b""
+        return exc.code, exc.read() or b"", dict(exc.headers or {})
+
+
+def describe_error(body: bytes) -> str:
+    """A readable line from an error body: JSON title and detail, or plain text."""
+    text = body[:4000].decode("utf-8", errors="replace").strip()
+    try:
+        data = json.loads(text)
+    except ValueError:
+        data = None
+    if isinstance(data, dict):
+        parts = [str(data[k]) for k in ("title", "message", "error", "detail") if data.get(k)]
+        line = ": ".join(dict.fromkeys(parts)) or text[:200]
+        if "cloudflare" in text.lower():
+            line += " (Cloudflare in front of the indexer refused the request)"
+        return line[:300]
+    text = re.sub(r"<[^>]+>", " ", text)
+    return re.sub(r"\s+", " ", text).strip()[:200]
 
 
 def _parse_date(value: str | None) -> datetime | None:
@@ -141,6 +173,7 @@ class ProwlarrClient:
         kind: str,
         indexer_id=None,
         key_in_query: bool = False,
+        follow_once: bool = False,
     ) -> bytes:
         if self._last is not None:
             wait = self.min_interval - (self._clock() - self._last)
@@ -155,19 +188,42 @@ class ProwlarrClient:
         if params:
             url += "?" + urllib.parse.urlencode(params)
         try:
-            status, body = self._transport(url, headers, self.timeout)
+            status, body, reply = self._send(url, headers)
+            where = "Prowlarr"
+            if follow_once and status in (301, 302, 303, 307, 308):
+                status, body, where = self._follow(url, reply, kind)
         except OSError as exc:
             self._last = self._clock()
             self._hook(kind, indexer_id, None, False, self.redact(exc))
             raise ProwlarrError(f"cannot reach Prowlarr: {self.redact(exc)}") from None
         self._last = self._clock()
         ok = 200 <= status < 300
-        self._hook(kind, indexer_id, status, ok, None if ok else self.redact(body[:200]))
+        note = None if ok else self.redact(describe_error(body))
+        self._hook(kind, indexer_id, status, ok, note)
+        log.debug("Prowlarr %s %s: %s", kind, self.redact(path), status)
         if status in (429, 503):
-            raise RateLimited(f"Prowlarr returned {status} for {kind}")
+            raise RateLimited(f"{where} returned {status} for {kind}")
         if not ok:
-            raise ProwlarrError(f"Prowlarr returned {status} for {kind}: {self.redact(body[:200])}")
+            raise ProwlarrError(f"{where} returned {status} for {kind}: {note}")
         return body
+
+    def _send(self, url: str, headers: dict):
+        result = self._transport(url, headers, self.timeout)
+        return result[0], result[1], (result[2] if len(result) > 2 else {})
+
+    def _follow(self, url: str, reply: dict, kind: str):
+        """Follow one redirect from Prowlarr (an indexer set to "Redirect"), as Sonarr
+        does. Only our User-Agent goes along: never the Prowlarr key or headers."""
+        location = {k.lower(): v for k, v in reply.items()}.get("location")
+        if not location:
+            return 502, b"Prowlarr sent a redirect without a location", "Prowlarr"
+        target = urllib.parse.urljoin(url, location)
+        if urllib.parse.urlsplit(target).scheme not in ("http", "https"):
+            return 502, b"Prowlarr redirected to an unsupported address", "Prowlarr"
+        host = urllib.parse.urlsplit(target).hostname or "the indexer"
+        log.info("Prowlarr redirected the %s to %s; following once", kind, host)
+        status, body, _ = self._send(target, {"Accept": "application/x-nzb, */*"})
+        return status, body, f"the indexer ({host})"
 
     def _hook(self, kind, indexer_id, status, ok, note) -> None:
         if self.on_call:
@@ -239,7 +295,7 @@ class ProwlarrClient:
             for k, v in urllib.parse.parse_qsl(target.query, keep_blank_values=True)
             if k.lower() != "apikey"
         ]
-        body = self._get(path, params, "grab", indexer_id, key_in_query=True)
+        body = self._get(path, params, "grab", indexer_id, key_in_query=True, follow_once=True)
         if b"<nzb" not in body[:2048]:
             raise ProwlarrError("download is not an NZB file")
         return body

@@ -76,6 +76,10 @@ class FakeProwlarr:
         self.status = []
         self.stats = {"indexers": []}
         self.fail_with = None  # (status, body) for the next call
+        # Set to a URL to make /download answer with a redirect, as Prowlarr does
+        # for indexers set to "Redirect". The indexer then answers indexer_reply.
+        self.download_redirect = None
+        self.indexer_reply = (200, b"")
         self.nzb = (
             b'<?xml version="1.0"?><nzb xmlns="http://www.newzbin.com/DTD/2003/nzb">'
             b'<file subject="&quot;issue.pdf&quot; yEnc"><segments/></file></nzb>'
@@ -104,7 +108,11 @@ class FakeProwlarr:
             return 200, json.dumps(self.stats).encode()
         if parts.path == "/api/v1/search":
             return 200, json.dumps(self.search_results).encode()
+        if parts.netloc == "indexer.test":  # an indexer Prowlarr redirected to
+            return self.indexer_reply
         if parts.path.endswith("/download"):
+            if self.download_redirect:
+                return 302, b"", {"Location": self.download_redirect}
             return 200, self.nzb
         if parts.path.endswith("/api"):
             indexer = int(parts.path.strip("/").split("/")[0])

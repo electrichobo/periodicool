@@ -268,12 +268,14 @@ def grab(
             if lim.id == release.indexer_id and lim.grabs_left == 0:
                 result.reasons.append(f"{lim.name} grab limit reached ({lim.grab_limit} today)")
     if result.reasons:
+        log.info("Not grabbed %s: %s", release.title, "; ".join(result.reasons))
         return result
 
     try:
         nzb = prowlarr.fetch_nzb(release.download_url, release.indexer_id)
     except ProwlarrError as exc:
         result.reasons.append(f"NZB download failed: {exc}")
+        log.warning("Not grabbed %s: NZB download failed: %s", release.title, exc)
         return result
     if bad := check_nzb(nzb):
         blocklist(session, release, release.title, mag.id, ev.issue_key, bad)

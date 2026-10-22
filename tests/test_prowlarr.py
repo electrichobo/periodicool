@@ -113,3 +113,75 @@ def test_indexers_and_stats():
 def test_strip_apikey():
     assert strip_apikey("http://x/1/download?apikey=abc&link=z") == "http://x/1/download?link=z"
     assert strip_apikey(None) is None
+
+
+# Redirects and readable errors
+
+
+CLOUDFLARE = (
+    b'{"type":"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/'
+    b'cloudflare-1xxx-errors/error-1010/","title":"Error 1010: Access denied","status":403,'
+    b'"detail":"The site owner has blocked access based on your browser\'s signature."}'
+)
+
+
+def test_nzb_redirect_followed_once_without_the_key():
+    fake = FakeProwlarr()
+    fake.download_redirect = "https://indexer.test/getnzb?id=abc&r=indexerkey"
+    fake.indexer_reply = (200, fake.nzb)
+    client = ProwlarrClient(URL, KEY, transport=fake, min_interval=0)
+    assert b"<nzb" in client.fetch_nzb(f"{URL}/1/download?link=abc")
+    first, second = fake.calls[-2:]
+    assert first["query"]["apikey"] == [KEY]
+    assert second["url"].startswith("https://indexer.test/")
+    assert KEY not in second["url"] and "X-Api-Key" not in second["headers"]
+
+
+def test_cloudflare_refusal_reads_as_a_sentence():
+    fake = FakeProwlarr()
+    fake.download_redirect = "https://indexer.test/getnzb?id=abc"
+    fake.indexer_reply = (403, CLOUDFLARE)
+    client = ProwlarrClient(URL, KEY, transport=fake, min_interval=0)
+    with pytest.raises(ProwlarrError) as err:
+        client.fetch_nzb(f"{URL}/1/download?link=abc")
+    message = str(err.value)
+    assert message.startswith("the indexer (indexer.test) returned 403 for grab")
+    assert "Error 1010: Access denied" in message and "Cloudflare" in message
+    assert "b'" not in message
+
+
+def test_only_nzb_downloads_follow_redirects():
+    fake = FakeProwlarr()
+    calls = []
+
+    def redirecting(url, headers, timeout):
+        calls.append(url)
+        return 302, b"", {"Location": "https://elsewhere.test/"}
+
+    client = ProwlarrClient(URL, KEY, transport=redirecting, min_interval=0)
+    with pytest.raises(ProwlarrError, match="Prowlarr returned 302"):
+        client.indexers()
+    assert len(calls) == 1
+    assert fake.calls == []
+
+
+def test_real_transport_sends_our_user_agent_and_never_follows(monkeypatch):
+    import urllib.error
+    import urllib.request
+
+    from periodicool import USER_AGENT
+    from periodicool import prowlarr as module
+
+    seen = {}
+
+    def fake_open(req, timeout):
+        seen["ua"] = req.get_header("User-agent")
+        raise urllib.error.HTTPError(
+            req.full_url, 302, "Found", {"Location": "https://x.test/"}, None
+        )
+
+    monkeypatch.setattr(module._OPENER, "open", fake_open)
+    status, body, headers = module._urllib_transport(f"{URL}/api/v1/indexer", {}, 5)
+    assert seen["ua"] == USER_AGENT and status == 302 and headers["Location"] == "https://x.test/"
+    assert any(isinstance(h, module._NoRedirect) for h in module._OPENER.handlers)
+    assert urllib.request  # the opener replaces urllib's redirect handler

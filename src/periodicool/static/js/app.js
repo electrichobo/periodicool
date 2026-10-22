@@ -304,6 +304,25 @@
     btn.setAttribute("aria-pressed", "true");
   });
 
+  // Console: follow the newest line, unless the reader scrolled up to look back.
+  var consoleBox = null;
+  var consoleFollow = true;
+  document.addEventListener("htmx:beforeSwap", function (e) {
+    if (e.detail.target && e.detail.target.id === "console-lines") {
+      consoleBox = e.detail.target.parentElement;
+      consoleFollow = consoleBox.scrollHeight - consoleBox.scrollTop - consoleBox.clientHeight < 40;
+    }
+  });
+  document.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail.target && e.detail.target.id === "console-lines" && consoleFollow) {
+      consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    var box = document.querySelector(".console");
+    if (box) box.scrollTop = box.scrollHeight;
+  });
+
   function init(scope) {
     (scope || document).querySelectorAll("[data-remember]").forEach(function (box) {
       var saved = store(box.dataset.remember);

@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy import select
 
-from periodicool import backup, health
+from periodicool import backup, health, library
 from periodicool.config import DB_FILENAME
 from periodicool.models import ImportItem, ItemAction, Job, LogEvent, Magazine
 
@@ -222,3 +222,50 @@ def test_library_skip(client, settings, mags):
     assert "Skipped" in toast(client.post(f"/library/queue/{item_id}/skip"))["text"]
     assert (lib / "mystery-file.pdf").exists()
     assert "Manual import (0)" in client.get("/library").text
+
+
+# Console
+
+
+def _events(client, *rows):
+    with session(client) as s:
+        for level, message in rows:
+            s.add(LogEvent(level=level, logger="periodicool.downloads", message=message))
+        s.commit()
+        return max(e.id for e in s.scalars(select(LogEvent)))
+
+
+def test_console_page_and_new_lines(client):
+    last = _events(client, ("INFO", "first"), ("DEBUG", "noise"), ("WARNING", "careful <b>"))
+    page = client.get("/system/console").text
+    assert 'role="log"' in page and "first" in page and "noise" not in page
+    assert "careful &lt;b&gt;" in page and f'value="{last}"' in page
+    newer = _events(client, ("ERROR", "Not grabbed X: NZB download failed"))
+    lines = client.get(f"/system/console/lines?after={last}&level=INFO").text
+    assert "NZB download failed" in lines and "first" not in lines
+    assert f'id="console-after" name="after" value="{newer}" hx-swap-oob="true"' in lines
+    debug = client.get("/system/console/lines?after=0&level=DEBUG").text
+    assert "noise" in debug
+    warn = client.get("/system/console/lines?after=0&level=WARNING").text
+    assert "first" not in warn and "careful" in warn
+
+
+def test_verbose_switch_turns_itself_off(client):
+    import logging
+    from datetime import UTC, datetime, timedelta
+
+    from periodicool.web.system import VERBOSE_KEY, apply_verbose
+
+    logger = logging.getLogger("periodicool")
+    resp = client.post("/system/console/verbose", data={"verbose": "on"})
+    assert "one hour" in toast(resp)["text"]
+    assert client.app.state.logs.verbose and logger.level == logging.DEBUG
+    assert "Debug lines until" in client.get("/system/console").text
+    with session(client) as s:
+        library.set_setting(s, VERBOSE_KEY, (datetime.now(UTC) - timedelta(seconds=1)).isoformat())
+        s.commit()
+    assert apply_verbose(client.app) is False
+    assert not client.app.state.logs.verbose and logger.level == logging.INFO
+    client.post("/system/console/verbose", data={"verbose": "on"})
+    client.post("/system/console/verbose", data={})
+    assert not client.app.state.logs.verbose

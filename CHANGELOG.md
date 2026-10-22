@@ -4,6 +4,14 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- System, Console: a live view of the log with a level filter, pause, and a Verbose switch that adds debug lines for one hour.
+
+### Fixed
+
+- NZB downloads from indexers that Prowlarr redirects to (indexers set to "Redirect") failed behind Cloudflare. PeriodiCool now sends its own User-Agent, never follows redirects automatically (so API keys never travel to another host), follows one redirect for NZB downloads without any keys, and shows such errors as a readable sentence.
+
 ## [0.1.0] - 2026-10-21
 
 First release.

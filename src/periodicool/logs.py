@@ -152,12 +152,21 @@ class LogSetup:
         self.file.setFormatter(fmt)
         self.db = DbLogHandler(session_factory)
         self._old_level = self.logger.level
-        self.logger.setLevel(getattr(logging, level.upper(), logging.INFO))
+        self.base_level = getattr(logging, level.upper(), logging.INFO)
+        self.logger.setLevel(self.base_level)
+        self.verbose = False
         # Filters on a logger skip records from its children, so each handler gets one.
         for handler in (self.file, self.db):
             handler.addFilter(self.redactor)
         self.logger.addHandler(self.file)
         self.logger.addHandler(self.db)
+
+    def set_verbose(self, on: bool) -> None:
+        """Debug lines on or off, for the file, the event table and the console."""
+        self.verbose = on
+        self.logger.setLevel(logging.DEBUG if on else self.base_level)
+        for handler in (self.file, self.db):
+            handler.setLevel(logging.DEBUG if on else logging.INFO)
 
     def detach(self) -> None:
         for handler in (self.file, self.db):

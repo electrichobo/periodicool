@@ -27,6 +27,8 @@ Self-hosted *arr-style manager for magazines: track titles, find new and back is
 
 **Non-goals for now:** built-in reader; torrents (keep the download-client layer pluggable for NZBGet/qBittorrent later); scraping storefronts (Zinio, Readly, PressReader and the like); any central PeriodiCool server or user-contributed metadata; multi-user roles; cloud services.
 
+**Indexers and download clients are user-entered lists, as in Sonarr and Radarr:** the user adds, names, tests, orders and turns off each one. Prowlarr and SABnzbd are the first kinds; direct Newznab indexers and NZBGet (later qBittorrent) follow. Keep both layers pluggable behind one interface each, and never hard-code a single indexer or client into the rest of the app.
+
 **Opt-in metadata lookups (off by default):** public sources such as Library of Congress MARC records, Wikidata and the Internet Archive may be queried to confirm or fill in a magazine's facts (ISSN, canonical title, aliases, publisher, start year, frequency) and back-issue lists. Rules:
 - Each source has its own switch in Settings, off by default. The install notes and every metadata page say clearly that turning them on improves matching.
 - Send only what the lookup needs (an ISSN or a title). Cache results in the local database; one lookup per magazine on add or refresh, not ongoing traffic.

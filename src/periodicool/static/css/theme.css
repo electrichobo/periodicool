@@ -1739,3 +1739,40 @@ html[data-effects="off"] .led::before {
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+/* ---- Console: the live log ---- */
+.console {
+  height: 65vh;
+  min-height: 16rem;
+  overflow: auto;
+  padding: 0.6rem 0.8rem;
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.console__line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.console__time,
+.console__src {
+  opacity: 0.7;
+}
+.console__level {
+  display: inline-block;
+  min-width: 2.6rem;
+  font-weight: 600;
+}
+.console__line--debug {
+  opacity: 0.75;
+}
+.console__line--warning .console__level {
+  color: var(--led-warn);
+}
+.console__line--error .console__level,
+.console__line--critical .console__level {
+  color: var(--led-bad);
+}
+.console__line--empty {
+  opacity: 0.7;
+}
