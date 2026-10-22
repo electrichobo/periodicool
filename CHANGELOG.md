@@ -4,8 +4,19 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Indexer and download client lists, as in Sonarr and Radarr. Settings, Indexers and Settings, Download clients list every entry with its status; Add opens a pop-up to pick the kind, then name, address, API key, priority and on/off, with a Test button. Each entry can be tested, edited and deleted.
+- Direct Newznab indexers, alongside Prowlarr, with their own daily API and download limits.
+- Command line: `indexer list|add|remove` and `client list|add|remove`. Keys are asked for or read from a named environment variable, never typed on the command line.
+
 ### Changed
 
+- An existing Prowlarr and SABnzbd setup becomes the first entry of each list on upgrade; nothing has to be entered again.
+- API keys are stored in the database with their entry: never shown again, scrubbed from the logs, and included in backups (the Backups page says so). `PROWLARR_API_KEY` and `SABNZBD_API_KEY` still work for the first Prowlarr and SABnzbd entry.
+- Searches and RSS run on every enabled indexer. Backoff and the search cache are per indexer, so one indexer at its limit no longer stops the others. Indexer priority breaks ties between equally good releases.
+- A grab goes to the highest-priority enabled download client and remembers it; monitoring, Remove and Retry import use that client and its remote path mappings.
+- Health checks each indexer and download client.
 - When a finished download cannot be found, the review message explains how to mount the download client's folder (or set a remote path mapping) and to press Retry import, instead of naming an internal setting.
 
 ## [0.1.3] - 2026-10-21

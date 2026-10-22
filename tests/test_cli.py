@@ -54,3 +54,38 @@ def test_scan_rejects_missing_folder(tmp_path):
     settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config")})
     code, out = run(settings, "scan", str(tmp_path / "nope"))
     assert code == 2 and "not a folder" in out
+
+
+def test_indexer_and_client_entries(tmp_path, monkeypatch):
+    from periodicool import cli
+
+    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config")})
+    monkeypatch.setenv("TEST_NZ_KEY", "cli-key-from-env")
+    code, out = run(
+        settings,
+        "indexer",
+        "add",
+        "newznab",
+        "Direct",
+        "https://nzb.example/api",
+        "--api-key-env",
+        "TEST_NZ_KEY",
+    )
+    assert code == 0 and "added indexer 1: Direct (newznab)" in out
+    monkeypatch.setattr(cli, "KEY_PROMPT", lambda: "typed-key-123")
+    code, out = run(
+        settings, "client", "add", "sabnzbd", "SAB", "http://sab:8080", "--category", "mags"
+    )
+    assert code == 0 and "added client 1" in out
+    code, out = run(settings, "indexer", "list")
+    assert "Direct (newznab) https://nzb.example/api" in out and "key set" in out
+    assert "cli-key-from-env" not in out
+    code, out = run(settings, "client", "list")
+    assert "category 'mags'" in out and "typed-key-123" not in out
+    code, out = run(settings, "indexer", "add", "prowlarr", "Bad", "http://u:p@host")
+    assert code == 2 and "Leave keys" in out
+    code, out = run(settings, "config", "set", "prowlarr.api_key", "x")
+    assert code == 2 and "indexer add" in out
+    code, out = run(settings, "indexer", "remove", "1")
+    assert code == 0 and "removed indexer 1" in out
+    assert "no indexer entries" in run(settings, "indexer", "list")[1]

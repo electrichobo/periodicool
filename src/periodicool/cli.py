@@ -10,6 +10,8 @@ python -m periodicool skip ITEM_ID
 python -m periodicool resolve ITEM_ID MAGAZINE_ID KEY
 python -m periodicool config get|set KEY [VALUE]   e.g. config set grab.auto true
 python -m periodicool indexers                indexer limits and what is left today
+python -m periodicool indexer list|add|remove   indexer entries (Prowlarr, Newznab)
+python -m periodicool client list|add|remove    download client entries (SABnzbd)
 python -m periodicool search MAGAZINE_ID      every candidate with accept/reject reasons
 python -m periodicool rss                     one RSS sync now
 python -m periodicool wanted                  wanted and missing issues
@@ -55,7 +57,7 @@ from periodicool.models import (
 )
 from periodicool.prowlarr import ProwlarrError
 from periodicool.schedule import effective_status, sync_expected_issues
-from periodicool.sources import Sources
+from periodicool.sources import CLIENT_KINDS, INDEXER_KINDS, Sources
 
 _DATE_FIELDS = ("anchor_date", "schedule_start")
 _ENUM_FIELDS = {"frequency": Frequency, "numbering": Numbering, "monitor_mode": MonitorMode}
@@ -209,7 +211,7 @@ def cmd_config(session, settings, args, out) -> int:
         print(json.dumps(library.get_setting(session, args.key)), file=out)
         return 0
     if any(word in args.key.lower() for word in _SECRET_WORDS):
-        print("secrets come from the environment (for example PROWLARR_API_KEY)", file=out)
+        print("keys are not settings: use `indexer add` or `client add`", file=out)
         return 2
     try:
         value = json.loads(args.value)
@@ -341,6 +343,103 @@ def cmd_jobs(session, settings, args, out) -> int:
             f"next {job.next_run_at}\n         {job.last_result}",
             file=out,
         )
+    return 0
+
+
+def _entry_model(noun):
+    from periodicool.models import DownloadClient, Indexer
+
+    return Indexer if noun == "indexer" else DownloadClient
+
+
+def cmd_entries_list(session, settings, args, out) -> int:
+    from periodicool import sources
+
+    model = _entry_model(args.noun)
+    rows = session.scalars(select(model).order_by(model.priority, model.id)).all()
+    if not rows:
+        print(f"no {args.noun} entries", file=out)
+    getter = sources.indexer_key if args.noun == "indexer" else sources.client_key
+    for row in rows:
+        state = "enabled" if row.enabled else "disabled"
+        key = "key set" if getter(session, row) else "no key"
+        extra = f", category {row.category!r}" if args.noun == "client" else ""
+        print(
+            f"{row.id:3}  {row.name} ({row.kind}) {row.url}  priority {row.priority}, "
+            f"{state}, {key}{extra}",
+            file=out,
+        )
+    return 0
+
+
+def _read_key(args, out) -> str | None:
+    if args.api_key_env:
+        key = os.environ.get(args.api_key_env, "")
+        if not key:
+            print(f"{args.api_key_env} is empty or not set", file=out)
+            return None
+        return key
+    return KEY_PROMPT()
+
+
+def _prompt_key() -> str:
+    import getpass
+
+    return getpass.getpass("API key: ")
+
+
+# Tests replace this to avoid a terminal prompt.
+KEY_PROMPT = _prompt_key
+
+
+def cmd_entries_add(session, settings, args, out) -> int:
+    """Add an indexer or download client entry. The key never goes on the command line,
+    where it would end up in shell history."""
+    from periodicool.preferences import parse_url
+
+    model = _entry_model(args.noun)
+    url, problem = parse_url(args.url)
+    if problem or not url:
+        print(problem or "an address is needed", file=out)
+        return 2
+    if session.scalar(select(model.id).where(model.name == args.name)) is not None:
+        print(f"an entry named {args.name!r} already exists", file=out)
+        return 2
+    key = _read_key(args, out)
+    if not key:
+        print("no API key given; nothing added", file=out)
+        return 2
+    fields = {"name": args.name, "kind": args.kind, "url": url, "api_key": key}
+    if args.priority is not None:
+        fields["priority"] = max(1, min(50, args.priority))
+    if args.noun == "indexer":
+        fields |= {"categories": [], "settings": {}}
+    else:
+        fields |= {"category": args.category, "path_map": []}
+    row = model(**fields)
+    session.add(row)
+    session.flush()
+    print(f"added {args.noun} {row.id}: {row.name} ({row.kind}) {row.url}", file=out)
+    return 0
+
+
+def cmd_entries_remove(session, settings, args, out) -> int:
+    from periodicool.models import ACTIVE_GRAB
+
+    model = _entry_model(args.noun)
+    row = session.get(model, args.id)
+    if row is None:
+        print(f"no {args.noun} {args.id}", file=out)
+        return 2
+    if args.noun == "client":
+        active = session.scalars(
+            select(Grab).where(Grab.client_id == row.id, Grab.status.in_(ACTIVE_GRAB))
+        ).all()
+        if active:
+            print(f"{row.name} has {len(active)} downloads in progress; not removed", file=out)
+            return 1
+    session.delete(row)
+    print(f"removed {args.noun} {args.id}: {row.name}", file=out)
     return 0
 
 
@@ -494,6 +593,25 @@ def build_parser() -> argparse.ArgumentParser:
     cfg.add_argument("value", nargs="?")
     cfg.set_defaults(func=cmd_config)
     sub.add_parser("indexers").set_defaults(func=cmd_indexers)
+    for noun, kinds in (("indexer", INDEXER_KINDS), ("client", CLIENT_KINDS)):
+        entries = sub.add_parser(noun).add_subparsers(dest=f"{noun}_command", required=True)
+        entries.add_parser("list").set_defaults(func=cmd_entries_list, noun=noun)
+        add = entries.add_parser("add")
+        add.add_argument("kind", choices=sorted(kinds))
+        add.add_argument("name")
+        add.add_argument("url")
+        add.add_argument(
+            "--api-key-env",
+            metavar="VAR",
+            help="read the API key from this environment variable (otherwise you are asked)",
+        )
+        add.add_argument("--priority", type=int)
+        if noun == "client":
+            add.add_argument("--category", required=True)
+        add.set_defaults(func=cmd_entries_add, noun=noun)
+        rm = entries.add_parser("remove")
+        rm.add_argument("id", type=int)
+        rm.set_defaults(func=cmd_entries_remove, noun=noun)
     se = sub.add_parser("search")
     se.add_argument("magazine_id", type=int)
     se.add_argument("--force", action="store_true", help="ignore cached results")

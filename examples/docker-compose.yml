@@ -1,6 +1,6 @@
 # Example PeriodiCool stack. Adjust the host paths on the left of each volume.
 # Keep the API keys in a .env file next to this file (never commit it):
-#   PROWLARR_API_KEY=...
+#   PROWLARR_API_KEY=...   (optional: keys can be entered in Settings instead)
 #   SABNZBD_API_KEY=...
 
 services:

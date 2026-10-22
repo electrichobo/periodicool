@@ -577,9 +577,9 @@ def _local_fail(session: Session, g: Grab, message: str) -> None:
     """A download that failed because of a problem on this side: not blocklisted,
     not retried. The issue is wanted again, so it can be grabbed once fixed."""
     reason = (
-        f"{g.client} could not finish the job: {message}. This is usually a folder "
-        f"permission or disk space problem on the {g.client} side, not a bad release. "
-        f"Check {g.client}'s warnings, fix the cause, then grab the release again."
+        f"{g.client_label} could not finish the job: {message}. This is usually a folder "
+        f"permission or disk space problem on the {g.client_label} side, not a bad release. "
+        f"Check {g.client_label}'s warnings, fix the cause, then grab the release again."
     )
     g.status, g.error = GrabStatus.FAILED, reason[:2000]
     _issue_wanted(session, g)
@@ -592,7 +592,9 @@ def _local_fail(session: Session, g: Grab, message: str) -> None:
         local=True,
     )
     session.flush()
-    log.warning("Grab %s failed on the %s side (not blocklisted): %s", g.title, g.client, message)
+    log.warning(
+        "Grab %s failed on the %s side (not blocklisted): %s", g.title, g.client_label, message
+    )
 
 
 def fail(
@@ -639,7 +641,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     local = Path(map_path(g.storage_path or "", row.path_map if row else [])).resolve()
     if local == downloads or not local.is_relative_to(downloads):
         why = (
-            f"{g.client} put the download at {local}, which is outside the downloads folder "
+            f"{g.client_label} put the download at {local}, which is outside the downloads folder "
             f"{downloads}. {_PATH_HINT}"
         )
         return _review(session, g, why)
@@ -647,7 +649,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         return _review(
             session,
             g,
-            f"{g.client} reports the download at {g.storage_path}, but PeriodiCool cannot "
+            f"{g.client_label} reports the download at {g.storage_path}, but PeriodiCool cannot "
             f"see {local}. {_PATH_HINT}",
         )
 

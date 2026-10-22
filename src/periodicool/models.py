@@ -401,6 +401,11 @@ class Grab(Base):
     magazine: Mapped[Magazine | None] = relationship()
     download_client: Mapped[DownloadClient | None] = relationship()
 
+    @property
+    def client_label(self) -> str:
+        """The client entry's name, or the stored kind once the entry is deleted."""
+        return self.download_client.name if self.download_client is not None else self.client
+
 
 class BlockedRelease(Base):
     __tablename__ = "blocklist"

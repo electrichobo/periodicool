@@ -106,7 +106,7 @@ If a title returns no usable results, record that in `PROGRESS.md` and move on.
 ## Stack
 
 - Python 3.14 (Docker base image `python:3.14-slim`), FastAPI, SQLite, server-rendered templates with HTMX. Alembic migrations from day one.
-- Settings in the database, edited in the UI. Only paths, `PUID`, `PGID`, `UMASK`, `TZ` and secrets come from the environment.
+- Settings in the database, edited in the UI. Only paths, `PUID`, `PGID`, `UMASK`, `TZ` and the signing secret come from the environment. Indexer and download client API keys are stored with their list entries in the database: write-only in the UI, never logged, included in backups. `PROWLARR_API_KEY` and `SABNZBD_API_KEY` remain a fallback for the first Prowlarr and SABnzbd entry.
 - Container paths: `/config` (DB, settings), `/library`, `/downloads` (the download client's completed folder for PeriodiCool's category, mounted at the same path the client uses where possible; support remote path mapping otherwise), optional `/import` drop folder. `/health` endpoint.
 - Background jobs: RSS sync every 15 minutes, download monitor by job ID, scheduled Wanted searches with backoff, periodic library rescan.
 - Login on by default (one admin, hashed password, CSRF on forms); option to disable for LAN-only use. REST API under `/api/v1` with an API key. Decision log viewable in the UI; never log secrets. Optional Discord webhook.

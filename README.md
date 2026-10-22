@@ -1,6 +1,6 @@
 # PeriodiCool
 
-Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through Prowlarr, sends them to SABnzbd, and keeps your library organized.
+Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through Prowlarr or Newznab indexers, sends them to SABnzbd, and keeps your library organized.
 
 > **Status:** early development. The back end works from the command line; there is no web UI yet. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -12,7 +12,7 @@ PeriodiCool ships no content and no indexers. You bring your own Prowlarr instan
 
 - Track magazines with aliases, regional editions, frequency and numbering scheme.
 - Generate expected issues from frequency and numbering, so Wanted and Missing work without a metadata provider.
-- Find releases by RSS and search through Prowlarr, with rate limiting and an accept/reject reason for every candidate.
+- Find releases by RSS and search through any number of indexers (Prowlarr, or Newznab indexers added directly), with rate limiting and an accept/reject reason for every candidate.
 - Send to SABnzbd in PeriodiCool's own category, and only ever touch jobs PeriodiCool created.
 - Import and organize into `{Title}/{Year}/{Title} - {YYYY-MM}.{ext}`, with a dry-run preview. Files are moved and renamed, never deleted or overwritten.
 - Manual import queue for anything uncertain.
@@ -54,22 +54,24 @@ python -m periodicool apply 1         # carry out scan 1
 python -m periodicool queue           # files waiting for review
 python -m periodicool resolve ITEM_ID MAGAZINE_ID 2023-11
 python -m periodicool skip ITEM_ID
-python -m periodicool config set prowlarr.url http://prowlarr:9696
+python -m periodicool indexer add prowlarr Prowlarr http://prowlarr:9696   # asks for the API key
 python -m periodicool indexers        # per-indexer limits and what is left today
 python -m periodicool search 3        # every candidate with its accept/reject reasons
 python -m periodicool rss             # one RSS sync now
 python -m periodicool wanted          # wanted and missing issues
-python -m periodicool config set sabnzbd.url http://sabnzbd:8080
-python -m periodicool config set sabnzbd.category magazines
-python -m periodicool sab test        # SABnzbd reachable and the category exists
-python -m periodicool grab 42         # send release 42 to SABnzbd
+python -m periodicool client add sabnzbd SABnzbd http://sabnzbd:8080 --category magazines
+python -m periodicool indexer list    # or: client list, indexer remove ID
+python -m periodicool sab test        # each download client reachable and its category exists
+python -m periodicool grab 42         # send release 42 to the download client
 python -m periodicool monitor         # check downloads, import finished ones
 python -m periodicool downloads       # grabs and their status
 ```
 
-PeriodiCool only adds jobs in its own SABnzbd category (create it in SABnzbd first) and only ever reads the jobs it created. If SABnzbd sees its completed folder at a different path than PeriodiCool does, map it: `config set sabnzbd.path_map '[["/data/complete/magazines", "/downloads"]]'`. Automatic grabbing is off until `config set grab.auto true`.
+Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every usenet indexer you set up in it, or a single Newznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
 
-The Prowlarr API key comes from the `PROWLARR_API_KEY` environment variable, never the database. Indexer API limits are whatever you set per indexer in Prowlarr; PeriodiCool reads them and stays within them.
+PeriodiCool only adds jobs in each client's own category (create it in the client first) and only ever reads the jobs it created. If the client sees its completed folder at a different path than PeriodiCool does, add a remote path mapping in that client's settings. Automatic grabbing is off until `config set grab.auto true`.
+
+API keys are stored in PeriodiCool's database with their entry. They are never shown again after saving (an empty key field keeps the saved key), are scrubbed from the logs, and are included in backups, so keep backups private. The command line asks for a key or reads it from an environment variable you name (`--api-key-env`), never from the command line itself. Indexer API limits are whatever you set per indexer in Prowlarr (or on a Newznab entry); PeriodiCool reads them and stays within them.
 
 `scan` never touches files. Always read the preview before running `apply`, and try it on a copy of your library first.
 
@@ -88,8 +90,8 @@ Only paths, process settings and secrets come from the environment. Everything e
 | `PUID` / `PGID` | `99` / `100` | User and group the container runs as |
 | `UMASK` | `002` | File creation mask |
 | `TZ` | `UTC` | Time zone |
-| `PROWLARR_API_KEY` | unset | Prowlarr API key |
-| `SABNZBD_API_KEY` | unset | SABnzbd API key |
+| `PROWLARR_API_KEY` | unset | Optional. API key for the first Prowlarr entry when it has none saved |
+| `SABNZBD_API_KEY` | unset | Optional. API key for the first SABnzbd entry when it has none saved |
 | `PERIODICOOL_JOBS` | `on` | `off` disables background jobs |
 | `PERIODICOOL_SECRET` | unset | Signing secret for CSRF tokens. When unset, one is generated into `/config/secret.key` |
 
