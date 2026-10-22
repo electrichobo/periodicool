@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-21
+
+First release.
+
 ### Added
 
 - Project skeleton: FastAPI app, `/health` endpoint, SQLite with Alembic migrations, tests, lint and CI.
@@ -35,3 +39,6 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
+
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/electrichobo/periodicool/releases/tag/v0.1.0
