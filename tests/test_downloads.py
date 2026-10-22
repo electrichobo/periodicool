@@ -386,3 +386,31 @@ def test_grab_rows_never_hold_keys(env):
     g = e.session.scalars(select(Grab)).one()
     for value in vars(g).values():
         assert KEY not in str(value) and SAB_KEY not in str(value)
+
+
+def test_refused_cleanup_still_counts_as_imported(env, monkeypatch):
+    """A job folder owned by another user: the file reaches the library, the original
+    and the leftovers stay, and the import is still recorded."""
+    import shutil
+
+    e = env
+    g = downloads.grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY).grab
+    job_dir = finish(e, g, {"Linux311.pdf": b"magazine", "Linux311.nfo": b"x"})
+    real_unlink = Path.unlink
+
+    def refuse(self, *a, **k):
+        if self.is_relative_to(e.settings.downloads_dir):
+            raise PermissionError(13, "Permission denied", str(self))
+        return real_unlink(self, *a, **k)
+
+    def refuse_tree(path, *a, **k):
+        raise PermissionError(13, "Permission denied", str(path))
+
+    monkeypatch.setattr(Path, "unlink", refuse)
+    monkeypatch.setattr(shutil, "rmtree", refuse_tree)
+    downloads.monitor(e.session, e.sab, e.settings, e.prowlarr, TODAY)
+    assert g.status is GrabStatus.IMPORTED, g.error
+    assert (e.settings.library_dir / TARGET).read_bytes() == b"magazine"
+    assert (job_dir / "Linux311.pdf").exists() and (job_dir / "Linux311.nfo").exists()
+    move = e.session.scalars(select(FileMove)).one()
+    assert move.ok and move.method.endswith("-kept")

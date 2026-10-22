@@ -558,8 +558,19 @@ def _move(src: Path, dst: Path, allow_copy: bool) -> str:
             raise FileExistsError(dst) from exc
         src.rename(dst)  # hard links not supported here
         return "rename"
-    src.unlink()  # removes the old name only; the data lives on at dst
-    return "link"
+    return _drop_source(src, "link")
+
+
+def _drop_source(src: Path, method: str) -> str:
+    """Remove the old name once the file is safely at its target. If that is refused
+    (a download folder owned by another user), the move still counts: the original
+    simply stays where it was."""
+    try:
+        src.unlink()
+    except OSError as exc:
+        log.warning("Kept the original at %s, could not remove it: %s", src, exc)
+        return f"{method}-kept"  # fits FileMove.method (10 characters)
+    return method
 
 
 def _copy_then_remove(src: Path, dst: Path) -> str:
@@ -577,8 +588,7 @@ def _copy_then_remove(src: Path, dst: Path) -> str:
     except BaseException:
         tmp.unlink(missing_ok=True)  # our own partial copy
         raise
-    src.unlink()  # import-folder source, removed only after a verified copy
-    return "copy"
+    return _drop_source(src, "copy")  # removed only after a verified copy
 
 
 def _fields_for_issue(item: ImportItem) -> dict:

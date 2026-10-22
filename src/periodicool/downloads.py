@@ -605,8 +605,11 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         if why := _safe_to_remove(local, downloads, library_root):
             log.warning("Leftovers kept at %s: %s", local, why)
         else:
-            shutil.rmtree(local)
-            log.info("Removed leftover folder of job %s: %s", g.job_id, local)
+            try:
+                shutil.rmtree(local)
+                log.info("Removed leftover folder of job %s: %s", g.job_id, local)
+            except OSError as exc:  # the import already succeeded; only cleanup failed
+                log.warning("Leftovers kept at %s, could not remove them: %s", local, exc)
     return "imported"
 
 

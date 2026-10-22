@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Fixed
+
+- An import whose download folder belongs to another user no longer fails after the file is already in the library: the original and the leftovers stay in the download folder, with a warning in the log.
+
 ## [0.1.1] - 2026-10-21
 
 ### Added
