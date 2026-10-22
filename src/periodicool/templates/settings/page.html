@@ -43,7 +43,7 @@
 <form class="settings-layout" method="post" action="/settings/{{ section }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
   <section class="panel stack" aria-labelledby="sec-title">
-    <h2 class="panel__label" id="sec-title">{{ title }}</h2>
+    <h2 class="panel__label" id="sec-title">{% if section in ("indexers", "downloads") %}All {{ title | lower }}{% else %}{{ title }}{% endif %}</h2>
     {% for f in fields %}{{ field(f) }}{% endfor %}
 
     <div class="cluster">

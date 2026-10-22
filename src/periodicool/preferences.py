@@ -126,7 +126,7 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
             ),
             Field(
                 "search.min_interval_s",
-                "Wait between Prowlarr requests",
+                "Wait between requests to an indexer",
                 "float",
                 2.0,
                 "",

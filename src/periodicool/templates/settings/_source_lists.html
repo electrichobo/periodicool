@@ -37,7 +37,7 @@
     </table>
   </div>
   {% endif %}
-  <div id="indexer-test" aria-live="polite"><p class="muted small">Test on a Prowlarr entry lists its indexers with what is left of today's limits.</p></div>
+  <div id="indexer-test" aria-live="polite">{% if indexer_rows %}<p class="muted small">Test on a Prowlarr entry lists its indexers with what is left of today's limits.</p>{% endif %}</div>
 </section>
 {% elif section == "downloads" %}
 <section class="panel stack sources" aria-labelledby="list-title">
