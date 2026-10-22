@@ -40,6 +40,7 @@
   {{ text("title", "Title", "As printed on the cover. The folder name comes from this.", attrs="required autocomplete=off") }}
   {{ text("aliases", "Other names", "Comma separated, for example Linux Pro Magazine.") }}
   {{ text("search_term", "Search term", "Sent to Prowlarr. Leave empty to use the title.") }}
+  {{ text("issn", "ISSN", "Optional. Printed near the barcode or masthead. Lets PeriodiCool recognize this magazine and edition inside PDF files.", attrs="inputmode=numeric autocomplete=off") }}
   <div class="form-row">
     {{ text("region", "Region or edition", "For example USA or UK. Releases for other regions are rejected.") }}
     {{ text("languages", "Languages", "Comma separated. Releases in other languages are rejected.") }}
@@ -68,6 +69,7 @@
     {{ text("schedule_start", "Schedule starts", "When the current cadence began. Nothing is expected before it.", type="date") }}
     {{ text("publish_weekday", "Publish day", "Weeklies only: 0 Monday to 6 Sunday.", attrs="inputmode=numeric") }}
     {{ text("grace_days", "Grace days", "Days after the cover date before a missing issue counts as missing.", attrs="inputmode=numeric") }}
+    {{ text("on_sale_days", "On sale before cover date", "Optional. Days before the cover date an issue usually appears. Searches start then.", attrs="inputmode=numeric") }}
   </div>
 </fieldset>
 

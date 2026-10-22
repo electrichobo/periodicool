@@ -194,6 +194,12 @@ class CalendarEntry:
     label: str
 
     @property
+    def on_sale(self) -> date | None:
+        if self.mag.on_sale_days is None or self.issue.cover_date is None:
+            return None
+        return self.issue.cover_date - timedelta(days=self.mag.on_sale_days)
+
+    @property
     def led(self) -> str:
         return STATES[self.state][0]
 
@@ -278,7 +284,11 @@ def ical_feed(session: Session, today: date, host: str = "periodicool") -> str:
                 f"DTSTART;VALUE=DATE:{day.strftime('%Y%m%d')}",
                 f"DTEND;VALUE=DATE:{(day + timedelta(days=1)).strftime('%Y%m%d')}",
                 f"SUMMARY:{_ical_text(f'{e.mag.title} {e.label}')}",
-                f"DESCRIPTION:{_ical_text(e.state_label)}",
+                "DESCRIPTION:"
+                + _ical_text(
+                    e.state_label
+                    + (f". On sale about {e.on_sale.isoformat()}" if e.on_sale else "")
+                ),
                 "TRANSP:TRANSPARENT",
                 "END:VEVENT",
             ]

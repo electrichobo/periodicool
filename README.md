@@ -113,6 +113,10 @@ python -m periodicool user reset-password
 
 An API key is generated into `/config/api.key` on first start. For now only the calendar feed uses it.
 
+## Reading PDFs
+
+When a file name is not enough to place a file, PeriodiCool reads the text of the PDF's first pages (two by default) with [pypdf](https://pypi.org/project/pypdf/) and looks for an ISSN, a cover date and an issue number. It never sends anything anywhere, gives up after a few seconds, and skips encrypted, damaged or image-only files. A file only moves when the PDF's ISSN matches a magazine or a PDF clue agrees with the name; otherwise it waits in the manual import queue with a suggestion. Set a magazine's ISSN (printed near the barcode or masthead) to make this reliable and to catch wrong editions on import. Turn it off or change the page count in Settings, Media management.
+
 ## License
 
 [GPL-3.0](LICENSE).

@@ -4,7 +4,7 @@
 {% macro entry(e) -%}
 <a class="cal-entry cal-entry--{{ e.led }}" href="/magazines/{{ e.mag.id }}">
   {{ ui.led(e.led, e.state_label) }}
-  <span class="cal-entry__text">{{ e.mag.title }} <span class="muted">{{ e.label }}</span></span>
+  <span class="cal-entry__text">{{ e.mag.title }} <span class="muted">{{ e.label }}</span>{% if e.on_sale %} <span class="muted small">on sale about {{ e.on_sale.strftime("%b %d") }}</span>{% endif %}</span>
 </a>
 {%- endmacro %}
 {% block content %}

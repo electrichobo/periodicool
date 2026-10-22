@@ -16,10 +16,10 @@ from periodicool.naming import DEFAULT_TEMPLATE, UnsafePathError, render
 from periodicool.schedule import expected_issues, generation_range, is_regular
 from periodicool.search import wanted_issues
 
-TEXT_FIELDS = ("title", "region", "search_term")
+TEXT_FIELDS = ("title", "region", "search_term", "issn")
 LIST_FIELDS = ("aliases", "languages", "must_contain", "must_not_contain", "tags")
 BOOL_FIELDS = ("monitored", "filler_optional", "special_prefix")
-INT_FIELDS = ("anchor_number", "publish_weekday", "grace_days", "monitor_from_year")
+INT_FIELDS = ("anchor_number", "publish_weekday", "grace_days", "monitor_from_year", "on_sale_days")
 DATE_FIELDS = ("anchor_date", "schedule_start")
 
 
@@ -107,6 +107,16 @@ def parse_form(session: Session, form: dict[str, str]) -> Parsed:
             err[name] = "Must be a whole number."
     if v.get("grace_days") is None and "grace_days" not in err:
         v["grace_days"] = 14
+    raw_issn = form.get("issn", "").strip()
+    v["issn"] = None
+    if raw_issn:
+        from periodicool.issn import normalize
+
+        v["issn"] = normalize(raw_issn)
+        if v["issn"] is None:
+            err["issn"] = "Not a valid ISSN (8 characters, like 0749-3851; the last may be X)."
+    if v.get("on_sale_days") is not None and not 0 <= v["on_sale_days"] <= 120:
+        err["on_sale_days"] = "0 to 120 days."
     if v.get("publish_weekday") is not None and not 0 <= v["publish_weekday"] <= 6:
         err["publish_weekday"] = "0 (Monday) to 6 (Sunday)."
     for name in DATE_FIELDS:

@@ -16,6 +16,7 @@ dependencies = [
     "sqlalchemy==2.1.6",
     "alembic==1.20.0",
     "tzdata==2026.5",
+    "pypdf==6.19.0",
 ]
 
 [project.optional-dependencies]
@@ -61,6 +62,7 @@ known-local-folder = [
     "test_downloads",
     "test_library",
     "test_web_magazines",
+    "pdfgen",
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -69,3 +71,4 @@ known-local-folder = [
 "tests/test_web_activity.py" = ["F811"]
 "tests/test_web_settings.py" = ["F811"]
 "tests/test_web_system.py" = ["F811"]
+"tests/test_pdf.py" = ["F811"]

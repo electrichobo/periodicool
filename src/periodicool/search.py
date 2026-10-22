@@ -420,6 +420,8 @@ def _update_backoff(session: Session, mag: Magazine, now: datetime, result: Sear
 
 def wanted_issues(session: Session, mag: Magazine, today: date) -> list[Issue]:
     early = load_options(session).early_days
+    if mag.on_sale_days is not None:
+        early = mag.on_sale_days  # searchable from the usual on-sale date
     return list(
         session.scalars(
             select(Issue)

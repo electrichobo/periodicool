@@ -40,6 +40,8 @@
       <div><dt>Latest issue</dt><dd>{{ s.latest.label if s.latest else "None yet" }}</dd></div>
       <div><dt>Next expected</dt><dd>{{ (s.next.label ~ " (" ~ s.next.issue.cover_date ~ ")") if s.next else "Not scheduled" }}</dd></div>
       <div><dt>Grace window</dt><dd>{{ mag.grace_days }} days</dd></div>
+      {% if mag.on_sale_days is not none %}<div><dt>On sale</dt><dd>About {{ mag.on_sale_days }} days before the cover date</dd></div>{% endif %}
+      <div><dt>ISSN</dt><dd>{{ mag.issn or "Not set" }}</dd></div>
       <div><dt>Search term</dt><dd>{{ mag.search_term or mag.title }}</dd></div>
       <div><dt>Added</dt><dd>{{ (mag.added_at | when("%Y-%m-%d")) }}</dd></div>
     </dl>

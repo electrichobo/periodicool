@@ -225,8 +225,10 @@ def evaluate(
         cover = issue.cover_date or cover
     elif why := _in_monitored_range(mag, cover, published, today):
         reasons.append(why)
-    if cover and cover > today + timedelta(days=options.early_days):
-        reasons.append(f"cover date {cover} is more than {options.early_days} days away")
+    # A magazine's own on-sale lead time, when set, replaces the global window.
+    early = mag.on_sale_days + 7 if mag.on_sale_days is not None else options.early_days
+    if cover and cover > today + timedelta(days=early):
+        reasons.append(f"cover date {cover} is more than {early} days away")
 
     ev.accepted = not reasons
     return ev

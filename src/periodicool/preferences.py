@@ -62,6 +62,23 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 True,
                 "Confident matches in the import folder move into the library on their own.",
             ),
+            Field(
+                "pdf.read_text",
+                "Read PDF text when a name is unclear",
+                "bool",
+                True,
+                "Looks at the first pages for an ISSN, cover date and issue number. "
+                "Local only; files that cannot be read are skipped.",
+            ),
+            Field(
+                "pdf.pages",
+                "PDF pages to read",
+                "int",
+                2,
+                "More pages find more clues but take longer.",
+                min=1,
+                max=5,
+            ),
         ],
     ),
     "indexers": (

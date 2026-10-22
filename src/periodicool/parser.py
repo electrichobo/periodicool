@@ -417,3 +417,26 @@ def parse_release(raw: str, titles=None) -> ParsedRelease:
         group=found.get("group"),
         reasons=tuple(dict.fromkeys(reasons)),
     )
+
+
+def text_clues(text: str) -> dict:
+    """Issue clues in free text (a PDF's first pages): the first cover date, issue
+    number and volume found, using the same patterns as release names."""
+    out: dict = {}
+    if m := _SEASON_YEAR.search(text):
+        out |= {"season": SEASONS[m.group(1).lower()], "year": int(m.group(2))}
+    elif m := _YEAR_SEASON.search(text):
+        out |= {"year": int(m.group(1)), "season": SEASONS[m.group(2).lower()]}
+    elif m := _MONTH_RANGE_YEAR.search(text):
+        out |= {
+            "month": MONTHS[m.group(1).lower()],
+            "month_end": MONTHS[m.group(2).lower()],
+            "year": int(m.group(3)),
+        }
+    elif m := _MONTH_YEAR.search(text):
+        out |= {"month": MONTHS[m.group(1).lower()], "year": int(m.group(2))}
+    if m := _ISSUE.search(text):
+        out["issue"] = int(m.group(1))
+    if m := _VOLUME.search(text):
+        out["volume"] = int(m.group(1))
+    return out

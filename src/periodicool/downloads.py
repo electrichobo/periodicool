@@ -24,7 +24,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from periodicool import history
+from periodicool import history, pdf_text
 from periodicool.clients.base import ClientError, DownloadClient, JobStatus
 from periodicool.clients.sabnzbd import SabnzbdClient
 from periodicool.config import Settings
@@ -34,6 +34,7 @@ from periodicool.library import (
     TEMPLATE_KEY,
     apply_item,
     get_setting,
+    pdf_options,
     walk,
 )
 from periodicool.matching import TitleIndex, match_title
@@ -510,7 +511,8 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
     if mag is None or issue is None:
         return _review(session, g, "magazine or issue no longer exists")
 
-    titles = TitleIndex.from_magazines(session.scalars(select(Magazine)))
+    magazines = list(session.scalars(select(Magazine)))
+    titles = TitleIndex.from_magazines(magazines)
 
     def score(f: Path):
         parsed = parse_release(f.stem, titles)
@@ -524,6 +526,21 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         if ident.confident and ident.key != g.issue_key:
             why = f"file {best.name} looks like {ident.key}, grabbed for {g.issue_key}"
             return _review(session, g, why)
+
+    # Edition check: one file per download, so the PDF is always read when the
+    # magazine has an ISSN. Another tracked magazine's ISSN means the wrong edition.
+    pdf_issn = None
+    if mag.issn and best.suffix.lower() == ".pdf" and pdf_options(session).enabled:
+        clues = pdf_text.read_clues(best, pdf_options(session).pages)
+        if clues and clues.issns:
+            if mag.issn in clues.issns:
+                pdf_issn = "matches"
+            else:
+                others = [m.title for m in magazines if m.issn and m.issn in clues.issns]
+                if others:
+                    why = f"the PDF's ISSN {clues.issns[0]} belongs to {others[0]}, not {mag.title}"
+                    return _review(session, g, why)
+                pdf_issn = f"unknown {clues.issns[0]}"
 
     ext = best.suffix.lower().lstrip(".")
     fields = {k: getattr(issue, k) for k in _ISSUE_FIELDS}
@@ -579,6 +596,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         size=st.st_size,
         format=ext,
         source_path=str(best),
+        pdf_issn=pdf_issn,
     )
     log.info("Imported %s to %s", best, final)
     if get_setting(session, LEFTOVERS_KEY, True) and local.is_dir():

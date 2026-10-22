@@ -39,7 +39,7 @@
             <td>{{ ui.led(event_leds.get(h.event.value, "info"), event_labels.get(h.event.value, h.event.value)) }}</td>
             <td>{{ (h.date | when("%Y-%m-%d %H:%M")) }}</td>
             <td class="wrap">{{ h.source_title or "" }}</td>
-            <td class="wrap">{{ h.data.get("reason") or h.data.get("path") or h.data.get("target") or "" }}</td>
+            <td class="wrap">{{ h.data.get("reason") or h.data.get("path") or h.data.get("target") or "" }}{% if h.data.get("pdf_issn") %}<div class="muted small">PDF ISSN {{ h.data.pdf_issn }}</div>{% endif %}</td>
           </tr>
           {% endfor %}
         </tbody>

@@ -117,6 +117,7 @@ def test_media_template_validation_and_preview(client):
         data={
             "naming__template": "{Title}/{Year}/{Title} {Date}.{ext}",
             "import__auto_apply": "on",
+            "pdf__pages": "3",
         },
         follow_redirects=False,
     )
@@ -124,6 +125,7 @@ def test_media_template_validation_and_preview(client):
     assert setting(client, "naming.template") == "{Title}/{Year}/{Title} {Date}.{ext}"
     assert setting(client, "downloads.remove_leftovers") is False  # switch left off
     assert setting(client, "import.auto_apply") is True
+    assert setting(client, "pdf.pages") == 3 and setting(client, "pdf.read_text") is False
 
 
 def test_media_tab_shows_folders(client, settings):

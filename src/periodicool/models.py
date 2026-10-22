@@ -123,6 +123,10 @@ class Magazine(Base):
     tags: Mapped[list[str]] = mapped_column(JSON, default=list, server_default="[]")
     # A sidecar image in the magazine's folder, relative to the library root.
     cover_path: Mapped[str | None] = mapped_column(String(1000))
+    # 1234-567X. Identifies the magazine and edition for certain when found in a PDF.
+    issn: Mapped[str | None] = mapped_column(String(9))
+    # Issues usually go on sale this many days before their cover date.
+    on_sale_days: Mapped[int | None]
 
     format_profile: Mapped[FormatProfile | None] = relationship()
     issues: Mapped[list[Issue]] = relationship(

@@ -23,7 +23,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from periodicool import history
+from periodicool import history, pdf_text
 from periodicool.matching import TitleIndex, match_title
 from periodicool.models import (
     FileMove,
@@ -42,7 +42,10 @@ from periodicool.models import (
     Setting,
 )
 from periodicool.naming import DEFAULT_TEMPLATE, UnsafePathError, inside, render
-from periodicool.parser import FORMATS, parse_release
+from periodicool.parser import FORMATS, ParsedRelease, parse_release
+from periodicool.pdf_text import DEFAULT_PAGES
+from periodicool.pdf_text import ENABLED_KEY as PDF_ENABLED_KEY
+from periodicool.pdf_text import PAGES_KEY as PDF_PAGES_KEY
 from periodicool.schedule import SEASON_MONTHS, identify
 
 log = logging.getLogger(__name__)
@@ -120,8 +123,53 @@ def _candidates(path: Path, root: Path) -> list[str]:
     return names
 
 
-def classify(path: Path, library_root: Path, scan_root: Path, magazines, template: str) -> Decision:
+@dataclass(frozen=True)
+class PdfOptions:
+    enabled: bool = True
+    pages: int = DEFAULT_PAGES
+
+
+def pdf_options(session: Session) -> PdfOptions:
+    return PdfOptions(
+        enabled=bool(get_setting(session, PDF_ENABLED_KEY, True)),
+        pages=int(get_setting(session, PDF_PAGES_KEY, DEFAULT_PAGES)),
+    )
+
+
+# Review reasons a look inside the PDF can help with.
+_PDF_HELPS = (
+    ReasonCode.UNPARSED,
+    ReasonCode.NO_MAGAZINE,
+    ReasonCode.AMBIGUOUS_MAGAZINE,
+    ReasonCode.LOW_CONFIDENCE,
+    ReasonCode.UNIDENTIFIED,
+)
+
+
+def classify(
+    path: Path,
+    library_root: Path,
+    scan_root: Path,
+    magazines,
+    template: str,
+    pdf: PdfOptions | None = None,
+) -> Decision:
+    """Decide where a file goes, from its name; then, only if the name is not enough
+    and `pdf` allows it, from the text of the PDF's first pages."""
     ext = path.suffix.lower().lstrip(".")
+    d, parsed = _classify_name(path, scan_root, magazines, ext, library_root, template)
+    if (
+        pdf is not None
+        and pdf.enabled
+        and ext == "pdf"
+        and d.action is ItemAction.REVIEW
+        and d.reason_code in _PDF_HELPS
+    ):
+        d = _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf)
+    return d
+
+
+def _classify_name(path, scan_root, magazines, ext, library_root, template):
     first = None
     near: list[str] = []
     titles = TitleIndex.from_magazines(magazines)
@@ -134,12 +182,12 @@ def classify(path: Path, library_root: Path, scan_root: Path, magazines, templat
         near += [f"{m.title}: {r.reason}" for m, r in results if not r.accepted
                  and not r.reason.startswith(("title", "no title"))]  # fmt: skip
         if len(matches) > 1:
-            titles = ", ".join(m.title for m in matches)
+            names = ", ".join(m.title for m in matches)
             d = Decision(ItemAction.REVIEW, parsed={"name": name, "title": parsed.title})
-            d.review(ReasonCode.AMBIGUOUS_MAGAZINE, f"matches {titles}")
-            return d
+            d.review(ReasonCode.AMBIGUOUS_MAGAZINE, f"matches {names}")
+            return d, parsed
         if matches:
-            return _decide(parsed, name, matches[0], ext, library_root, template)
+            return _decide(parsed, name, matches[0], ext, library_root, template), parsed
     d = Decision(ItemAction.REVIEW, parsed={"name": path.stem, "title": first.title})
     if not first.title:
         d.review(ReasonCode.UNPARSED, "no title in the name")
@@ -147,7 +195,89 @@ def classify(path: Path, library_root: Path, scan_root: Path, magazines, templat
         d.review(ReasonCode.NO_MAGAZINE, "; ".join(dict.fromkeys(near)))
     else:
         d.review(ReasonCode.NO_MAGAZINE, f"no tracked magazine matches {first.title!r}")
-    return d
+    return d, first
+
+
+_CLUES = ("year", "month", "month_end", "season", "issue", "volume")
+
+
+def _with_pdf(d, parsed, path, magazines, ext, library_root, template, pdf) -> Decision:
+    """Use the PDF's own text to finish a decision the name could not make.
+
+    The file only moves when the result is confident and the PDF's ISSN matched,
+    or a PDF clue agrees with the name. Otherwise it stays in review with a
+    suggestion. Nothing is guessed.
+    """
+    clues = pdf_text.read_clues(path, pdf.pages)
+    if clues is None:
+        return d
+    info = clues.as_dict()
+    d.parsed = dict(d.parsed) | {"pdf": info, "pdf_summary": clues.summary()}
+    note = f"PDF: {clues.summary()}"
+
+    by_issn = [m for m in magazines if m.issn and m.issn in clues.issns]
+    mag, via = None, None
+    if len(by_issn) == 1:
+        mag, via = by_issn[0], "ISSN"
+        if d.magazine is not None and d.magazine is not mag:
+            d.reason = (
+                f"{d.reason}; the name says {d.magazine.title}, the PDF's ISSN is {mag.title}"
+            )
+            return d
+    elif d.magazine is not None:
+        mag = d.magazine
+    else:
+        hits = [m for m in magazines if TitleIndex.from_magazines([m]).spans(clues.text)]
+        if len(hits) == 1:
+            mag, via = hits[0], "title"
+    if mag is None:
+        d.reason = f"{d.reason}; {note}"
+        return d
+
+    name_clues = {k: getattr(parsed, k, None) for k in _CLUES} if parsed else {}
+    pdf_clues = {k: info.get(k) for k in _CLUES}
+    both = [k for k in _CLUES if name_clues.get(k) is not None and pdf_clues.get(k) is not None]
+    conflicts = [
+        f"{k} {name_clues[k]} or {pdf_clues[k]}" for k in both if name_clues[k] != pdf_clues[k]
+    ]
+    agree = [k for k in both if name_clues[k] == pdf_clues[k]]
+    merged = {
+        k: name_clues.get(k) if name_clues.get(k) is not None else pdf_clues.get(k) for k in _CLUES
+    }
+
+    summary = dict(d.parsed) | {"pdf_magazine": mag.title, "pdf_via": via}
+    out = Decision(ItemAction.MOVE, magazine=mag, parsed=summary)
+    if conflicts:
+        out.review(d.reason_code, f"name and PDF disagree: {'; '.join(conflicts)} ({note})")
+        return out
+
+    guess = ParsedRelease(
+        raw=path.stem,
+        title=mag.title,
+        day=getattr(parsed, "day", None),
+        special=bool(getattr(parsed, "special", False)),
+        true_pdf=bool(getattr(parsed, "true_pdf", False)),
+        formats=("pdf",),
+        **merged,
+    )
+    ident = identify(guess, mag)
+    agreements = list(ident.agreements) + [f"name and PDF agree on the {k}" for k in agree]
+    if via == "ISSN":
+        agreements.append(f"PDF ISSN {mag.issn} is {mag.title}")
+    summary |= {
+        "fields": _jsonable(ident.fields),
+        "notes": [*ident.notes, note],
+        "agreements": agreements,
+    }
+    out.issue_key = ident.key
+    if ident.confident and (via == "ISSN" or agree):
+        _set_target(out, mag, ext, library_root, template)
+        return out
+    why = "; ".join(ident.reasons) or "only the PDF points to this issue"
+    suggestion = f"suggested {mag.title} {ident.key}" if ident.key else f"suggested {mag.title}"
+    out.review(d.reason_code or ReasonCode.UNIDENTIFIED, f"{why} ({note}; {suggestion})")
+    out.issue_key = ident.key
+    return out
 
 
 def _decide(parsed, name, mag, ext, library_root, template) -> Decision:
@@ -302,6 +432,7 @@ def plan_scan(
     library_root = Path(library_root or root).resolve()
     template = get_setting(session, TEMPLATE_KEY, DEFAULT_TEMPLATE)
     magazines = list(session.scalars(select(Magazine)))
+    pdf = pdf_options(session)
     scan = Scan(kind=kind, root=str(root), counts={})
     session.add(scan)
     session.flush()
@@ -332,7 +463,7 @@ def plan_scan(
             item.scan_id = scan.id
             counts["unchanged"] += 1
             continue
-        d = classify(path, library_root, root, magazines, template)
+        d = classify(path, library_root, root, magazines, template, pdf)
         if d.action is ItemAction.MOVE and _same_file(path, library_root / d.target):
             d.action = ItemAction.KEEP
         decisions.append((src, d))

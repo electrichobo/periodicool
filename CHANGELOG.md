@@ -21,10 +21,12 @@ All notable changes to this project are recorded here. The format follows [Keep 
 - Activity (queue with progress and time left, history with details and mark-as-failed, blocklist), Wanted (missing, cutoff unmet), and a calendar with month, week and agenda views plus an iCal feed protected by the API key. Times show in the configured time zone.
 - Settings: media management with a naming template preview, format profiles, indexers with a Prowlarr test and limit meters, download client with an SABnzbd test and remote path mappings, tags, general (login mode, API key, logs, backups) and UI. Global release rules for all magazines.
 - System pages: status, health checks with a clock check against Prowlarr and SABnzbd, scheduled tasks with Run now, backups (scheduled, download, restore with a safety copy), events and log files. Library page with a full scan preview and the manual import queue.
+- ISSN and an optional on-sale lead time on each magazine. When a file name is not enough, the library scan reads the PDF's first pages (pypdf) for an ISSN, cover date and issue number; download import uses the ISSN to catch wrong editions.
 - Docker image (python:3.14-slim) that runs as PUID:PGID and never as root, with a health check; multi-arch (amd64, arm64) release workflow to GHCR on version tags; example compose file; `requirements.lock` pinning every runtime package.
 
 ### Changed
 
+- Added `pypdf` 6.19.0 for reading PDF text.
 - Dev dependency `httpx` replaced by `httpx2` for FastAPI's TestClient.
 - Added `tzdata` so the `TZ` setting works on every platform.
 
