@@ -111,6 +111,15 @@
       </div>
     </section>
     {% elif section == "general" %}
+    <section class="panel stack" aria-labelledby="run-title">
+      <h2 class="panel__label" id="run-title">Running now</h2>
+      <dl class="summary summary--one">
+        <div><dt>Port</dt><dd>{{ running.port }}{% if "PERIODICOOL_PORT" in running.from_env %} <span class="muted small">(set by PERIODICOOL_PORT)</span>{% endif %}</dd></div>
+        <div><dt>URL base</dt><dd>{{ running.url_base or "None" }}{% if "PERIODICOOL_URL_BASE" in running.from_env %} <span class="muted small">(set by PERIODICOOL_URL_BASE)</span>{% endif %}</dd></div>
+        <div><dt>Allowed hosts</dt><dd>{{ running.allowed_hosts | join(", ") or "Any" }}{% if "PERIODICOOL_ALLOWED_HOSTS" in running.from_env %} <span class="muted small">(set by PERIODICOOL_ALLOWED_HOSTS)</span>{% endif %}</dd></div>
+      </dl>
+      <p class="field__help">Saved changes to these take effect after a restart. An environment variable, when set, wins over the saved value, so a wrong value can be fixed without this page.</p>
+    </section>
     <section class="panel stack" aria-labelledby="key-title">
       <h2 class="panel__label" id="key-title">API key</h2>
       <label class="field__label" for="api-key">Key</label>

@@ -67,7 +67,9 @@ def _page(request, session, section: str, *, errors=None, form=None, status_code
     if section == "downloads":
         context |= sources_ui.client_context(session)
     if section == "general":
-        context["api_key"] = auth.api_key(request.app.state.settings.config_dir)
+        settings = request.app.state.settings
+        context["api_key"] = auth.api_key(settings.config_dir)
+        context["running"] = settings
     if section == "media":
         context |= _profiles_context(session)
     if section == "tags":

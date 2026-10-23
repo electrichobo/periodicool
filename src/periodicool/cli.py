@@ -664,8 +664,10 @@ def main(argv: list[str] | None = None, settings: Settings | None = None, out=No
     if args.command is None:
         import uvicorn
 
+        from periodicool.config import with_saved_server_settings
         from periodicool.main import create_app
 
+        settings = with_saved_server_settings(settings)
         uvicorn.run(create_app(settings), host=settings.host, port=settings.port)
         return 0
     with _session(settings) as session:

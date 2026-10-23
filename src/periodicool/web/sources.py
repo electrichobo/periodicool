@@ -353,7 +353,12 @@ def client_context(session: Session) -> dict:
                 "grabs": active,
             }
         )
-    return {"client_rows": rows}
+    mappings = [
+        {"client": item["row"], "index": i, "remote": pair[0], "local": pair[1]}
+        for item in rows
+        for i, pair in enumerate(item["row"].path_map or [])
+    ]
+    return {"client_rows": rows, "mappings": mappings}
 
 
 def _client_values(row: DownloadClient | None, kind: str) -> dict:
@@ -364,7 +369,6 @@ def _client_values(row: DownloadClient | None, kind: str) -> dict:
             "priority": 1,
             "enabled": True,
             "category": "",
-            "path_map": [("", "")] * 2,
         }
     return {
         "id": row.id,
@@ -374,7 +378,6 @@ def _client_values(row: DownloadClient | None, kind: str) -> dict:
         "priority": row.priority,
         "enabled": row.enabled,
         "category": row.category,
-        "path_map": [tuple(p) for p in row.path_map or []] + [("", "")] * 2,
     }
 
 
@@ -391,18 +394,6 @@ def _client_form(request, session, values: dict, errors=None, row=None):
     )
 
 
-def _path_map(remotes: list[str], locals_: list[str]) -> tuple[list, str | None]:
-    pairs = []
-    for remote, local in zip(remotes, locals_, strict=False):
-        remote, local = remote.strip(), local.strip()
-        if not remote and not local:
-            continue
-        if not remote or not local:
-            return [], "Each mapping needs both the client's path and PeriodiCool's path."
-        pairs.append([remote.rstrip("/") or "/", local.rstrip("/\\") or "/"])
-    return pairs, None
-
-
 def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dict, dict]:
     form = {k: v[-1] for k, v in lists.items()}
     errors, kind, name, url, priority = _common(
@@ -413,9 +404,6 @@ def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dic
         errors["category"] = "PeriodiCool needs its own category. Create it in the client first."
     elif len(category) > 100:
         errors["category"] = "Keep the category under 100 characters."
-    pairs, problem = _path_map(lists.get("map_remote", []), lists.get("map_local", []))
-    if problem:
-        errors["path_map"] = problem
     key = (form.get("api_key") or "").strip()
     if _key_missing(session, DownloadClient, kind, row, key):
         errors["api_key"] = "Enter the API key."
@@ -426,7 +414,6 @@ def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dic
         "priority": priority or 1,
         "enabled": form.get("enabled") == "on",
         "category": category,
-        "path_map": pairs,
         "api_key": key,
     }
 
@@ -468,12 +455,11 @@ async def client_save(request: Request) -> Response:
                 raise HTTPException(status_code=404)
         errors, data = _parse_client(session, lists, row)
         if errors:
-            pairs = list(zip(lists.get("map_remote", []), lists.get("map_local", []), strict=False))
-            values = {**form, "enabled": form.get("enabled") == "on", "path_map": pairs}
+            values = {**form, "enabled": form.get("enabled") == "on"}
             return _client_form(request, session, values, errors, row)
         key = data.pop("api_key")
         if row is None:
-            session.add(DownloadClient(**data, api_key=key or None))
+            session.add(DownloadClient(**data, path_map=[], api_key=key or None))
         else:
             if row.kind != data["kind"]:
                 raise HTTPException(status_code=400)
@@ -557,3 +543,98 @@ def client_test_row(request: Request, row_id: int) -> Response:
         except ClientError as exc:
             return _toast(f"{row.name} test failed: {exc}", "bad")
     return _toast(text)
+
+
+# Remote path mappings: one list for every client, stored in each client's path_map.
+
+
+def _mapping_form(request, session, values: dict, errors=None):
+    clients = list(
+        session.scalars(select(DownloadClient).order_by(DownloadClient.priority, DownloadClient.id))
+    )
+    return _render(
+        request,
+        "settings/_mapping_form.html",
+        values=values,
+        errors=errors or {},
+        clients=clients,
+    )
+
+
+@router.get("/settings/downloads/mappings/new", response_class=HTMLResponse)
+def mapping_new(request: Request) -> HTMLResponse:
+    with request.app.state.sessions() as session:
+        return _mapping_form(request, session, {})
+
+
+@router.get("/settings/downloads/mappings/{client_id:int}/{index:int}", response_class=HTMLResponse)
+def mapping_edit(request: Request, client_id: int, index: int) -> HTMLResponse:
+    with request.app.state.sessions() as session:
+        row = session.get(DownloadClient, client_id)
+        pairs = (row.path_map or []) if row else []
+        if not 0 <= index < len(pairs):
+            raise HTTPException(status_code=404)
+        values = {
+            "client_id": client_id,
+            "index": index,
+            "remote": pairs[index][0],
+            "local": pairs[index][1],
+        }
+        return _mapping_form(request, session, values)
+
+
+@router.post("/settings/downloads/mappings/save", response_class=HTMLResponse)
+async def mapping_save(request: Request) -> Response:
+    form = await form_data(request)
+    with request.app.state.sessions() as session:
+        errors: dict[str, str] = {}
+        target = None
+        if (form.get("client_id") or "").isdigit():
+            target = session.get(DownloadClient, int(form["client_id"]))
+        if target is None:
+            errors["client_id"] = "Pick the download client."
+        remote = (form.get("remote") or "").strip()
+        local = (form.get("local") or "").strip()
+        if not remote:
+            errors["remote"] = "Enter the folder as the download client sees it."
+        if not local:
+            errors["local"] = "Enter the same folder as PeriodiCool sees it."
+        old = None
+        if (form.get("old_client") or "").isdigit() and (form.get("old_index") or "").isdigit():
+            old = (session.get(DownloadClient, int(form["old_client"])), int(form["old_index"]))
+        if errors:
+            values = {**form, "client_id": form.get("client_id", "")}
+            if old:
+                values |= {"index": form["old_index"], "client_id_was": form["old_client"]}
+            return _mapping_form(request, session, values, errors)
+        pair = [remote.rstrip("/") or "/", local.rstrip("/\\") or "/"]
+        if old and old[0] is not None and 0 <= old[1] < len(old[0].path_map or []):
+            kept = list(old[0].path_map)
+            if old[0].id == target.id:
+                kept[old[1]] = pair
+                target.path_map = kept
+            else:
+                del kept[old[1]]
+                old[0].path_map = kept
+                target.path_map = [*(target.path_map or []), pair]
+        else:
+            target.path_map = [*(target.path_map or []), pair]
+        session.commit()
+    return Response(
+        status_code=204, headers={"HX-Redirect": "/settings/downloads?saved=1#mappings"}
+    )
+
+
+@router.post("/settings/downloads/mappings/{client_id:int}/{index:int}/delete")
+def mapping_delete(request: Request, client_id: int, index: int) -> Response:
+    with request.app.state.sessions() as session:
+        row = session.get(DownloadClient, client_id)
+        pairs = list((row.path_map or []) if row else [])
+        if not 0 <= index < len(pairs):
+            raise HTTPException(status_code=404)
+        del pairs[index]
+        row.path_map = pairs
+        session.commit()
+    return Response(
+        status_code=204, headers={"HX-Redirect": "/settings/downloads?saved=deleted#mappings"}
+    )

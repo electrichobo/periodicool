@@ -13,7 +13,7 @@
     <dl class="summary">
       <div><dt>Status</dt><dd>{{ ui.led(row.led, row.state_label) }}</dd></div>
       <div><dt>Key</dt><dd>{{ i.key }}</dd></div>
-      <div><dt>Cover date</dt><dd>{{ i.cover_date or "Unknown" }}</dd></div>
+      <div><dt>Cover date</dt><dd>{{ (i.cover_date | longdate) if i.cover_date else "Unknown" }}</dd></div>
       {% if i.issue_number is not none %}<div><dt>Issue</dt><dd>No. {{ i.issue_number }}</dd></div>{% endif %}
       {% if i.volume_number is not none %}<div><dt>Volume</dt><dd>{{ i.volume_number }}</dd></div>{% endif %}
       <div><dt>Monitored</dt><dd>{{ "Yes" if i.monitored else "No" }}</dd></div>

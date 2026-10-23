@@ -1,5 +1,6 @@
 """System pages, backups, health checks, tasks, events, log files and the Library page."""
 
+import logging
 import zipfile
 from datetime import UTC, datetime, timedelta
 
@@ -301,3 +302,50 @@ def test_header_shows_the_worst_health_check(client, monkeypatch):
     client.app.state.sys_state = None  # drop the one-minute cache
     page = client.get("/calendar").text
     assert "Sys nominal" in page and "Sys fault" not in page
+
+
+def test_backup_delete_schedule_and_folder(client, settings, tmp_path):
+    client.post("/system/backups")
+    [made] = backup.list_backups(settings.config_dir)
+    page = client.get("/system/backups").text
+    assert f'hx-post="/system/backups/{made.name}/delete"' in page and "Schedule and folder" in page
+    assert "Not deleted" in toast(client.post("/system/backups/evil.zip/delete"))["text"]
+    assert "Deleted" in toast(client.post(f"/system/backups/{made.name}/delete"))["text"]
+    assert backup.list_backups(settings.config_dir) == []
+    elsewhere = tmp_path / "offsite"
+    form = {
+        "backup__interval_days": "3",
+        "backup__keep": "5",
+        "backup__folder": elsewhere.as_posix(),
+    }
+    assert toast(client.post("/system/backups/settings", data=form))["kind"] == "ok"
+    with client.app.state.sessions() as s:
+        assert library.get_setting(s, "backup.interval_days") == 3
+        assert s.get(Job, "backup") is None or s.get(Job, "backup").interval_s == 3 * 86400
+    client.post("/system/backups")
+    assert len(list(elsewhere.glob("periodicool-*.zip"))) == 1
+    assert elsewhere.as_posix() in client.get("/system/backups").text
+    bad = client.post("/system/backups/settings", data=form | {"backup__folder": "relative/dir"})
+    assert toast(bad)["kind"] == "bad"
+    backup.FOLDER["path"] = None
+
+
+def test_log_delete_and_folder(client, settings, tmp_path):
+    from periodicool import logs
+
+    folder = logs.log_dir(settings.config_dir)
+    (folder / "periodicool.txt.1").write_text("old")
+    page = client.get("/system/logs").text
+    assert 'hx-post="/system/logs/periodicool.txt.1/delete"' in page
+    assert 'hx-post="/system/logs/periodicool.txt/delete"' not in page
+    assert toast(client.post("/system/logs/periodicool.txt/delete"))["kind"] == "warn"
+    assert "Deleted" in toast(client.post("/system/logs/periodicool.txt.1/delete"))["text"]
+    assert not (folder / "periodicool.txt.1").exists()
+    assert client.post("/system/logs/../secret.key/delete").status_code == 404
+    moved = tmp_path / "logs-elsewhere"
+    resp = client.post("/system/logs/settings", data={"log__folder": moved.as_posix()})
+    assert moved.as_posix() in toast(resp)["text"]
+    logging.getLogger("periodicool").warning("written to the new folder")
+    assert "written to the new folder" in (moved / "periodicool.txt").read_text(encoding="utf-8")
+    client.post("/system/logs/settings", data={"log__folder": ""})
+    assert logs.FOLDER["path"] is None

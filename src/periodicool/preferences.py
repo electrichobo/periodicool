@@ -6,12 +6,15 @@ tables and have their own forms (web/sources.py).
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from periodicool.dates import LONG_CHOICES, SHORT_CHOICES, TIME_CHOICES, WEEK_HEADER_CHOICES
 from periodicool.library import get_setting, set_setting
 from periodicool.models import Job
 from periodicool.naming import DEFAULT_TEMPLATE
@@ -165,6 +168,40 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 unit="MB",
             ),
             Field(
+                "release.max_size_mb",
+                "Maximum release size",
+                "float",
+                0,
+                "Larger releases are rejected. 0 means no limit.",
+                min=0,
+                max=100000,
+                unit="MB",
+                optional=True,
+            ),
+            Field(
+                "release.min_age_min",
+                "Minimum age",
+                "int",
+                0,
+                "Wait this long after a release is posted before grabbing it, so it can "
+                "finish propagating. 0 means no wait.",
+                min=0,
+                max=1440,
+                unit="minutes",
+                optional=True,
+            ),
+            Field(
+                "release.retention_days",
+                "Retention",
+                "int",
+                0,
+                "Your usenet provider's retention. Older releases are rejected. 0 means no limit.",
+                min=0,
+                max=10000,
+                unit="days",
+                optional=True,
+            ),
+            Field(
                 "release.must_contain",
                 "Every release must contain",
                 "list",
@@ -271,16 +308,63 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 choices=(("info", "Info"), ("warning", "Warnings and errors"), ("error", "Errors")),
             ),
             Field(
-                "backup.interval_days",
-                "Back up every",
+                "server.port",
+                "Port",
                 "int",
-                7,
-                "",
+                8383,
+                "Takes effect after a restart. In Docker, the port mapping (and the container's "
+                "health check) must use the same number.",
                 min=1,
-                max=90,
-                unit="days",
+                max=65535,
+                optional=True,
+            ),
+            Field(
+                "server.url_base",
+                "URL base",
+                "urlbase",
+                "",
+                "For a reverse proxy that serves PeriodiCool under a path, for example "
+                "/periodicool. Leave empty otherwise. Takes effect after a restart.",
+            ),
+            Field(
+                "server.allowed_hosts",
+                "Allowed hosts",
+                "list",
+                [],
+                "Host names PeriodiCool answers to, comma separated (localhost always works). "
+                "Empty allows any. Takes effect after a restart.",
+            ),
+        ],
+    ),
+    # Not settings tabs: these are edited on System, Backups and System, Log files.
+    "backups": (
+        "Backups",
+        [
+            Field(
+                "backup.interval_days", "Back up every", "int", 7, "", min=1, max=90, unit="days"
             ),
             Field("backup.keep", "Backups to keep", "int", 7, "", min=1, max=100),
+            Field(
+                "backup.folder",
+                "Backup folder",
+                "folder",
+                None,
+                "Leave empty for /config/backups.",
+                optional=True,
+            ),
+        ],
+    ),
+    "logs": (
+        "Log files",
+        [
+            Field(
+                "log.folder",
+                "Log folder",
+                "folder",
+                None,
+                "Leave empty for /config/logs.",
+                optional=True,
+            ),
         ],
     ),
     "ui": (
@@ -293,6 +377,39 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 "0",
                 "For the calendar.",
                 choices=(("0", "Monday"), ("6", "Sunday")),
+            ),
+            Field(
+                "ui.week_header",
+                "Week column header",
+                "choice",
+                "ddd m/d",
+                "The day headings in the calendar's week view.",
+                choices=WEEK_HEADER_CHOICES,
+            ),
+            Field("ui.short_date", "Short date format", "choice", "iso", "", choices=SHORT_CHOICES),
+            Field(
+                "ui.long_date",
+                "Long date format",
+                "choice",
+                "day-mon-d-y",
+                "",
+                choices=LONG_CHOICES,
+            ),
+            Field("ui.time_format", "Time format", "choice", "24", "", choices=TIME_CHOICES),
+            Field(
+                "ui.relative_dates",
+                "Show relative dates",
+                "bool",
+                False,
+                "Today, Yesterday and Tomorrow instead of the date.",
+            ),
+            Field(
+                "ui.theme",
+                "Theme",
+                "choice",
+                "auto",
+                "Auto follows your device's light or dark setting.",
+                choices=(("auto", "Auto"), ("light", "Light"), ("dark", "Dark")),
             ),
         ],
     ),
@@ -365,6 +482,25 @@ def parse(field: Field, form: dict[str, str]):
     if field.kind == "url":
         value, problem = parse_url(raw)
         return (UNSET, problem) if problem else (value, None)
+    if field.kind == "folder":
+        if not raw:
+            return None, None
+        path = Path(raw)
+        if not path.is_absolute():
+            return UNSET, "Use a full path, such as /config/backups."
+        if path.exists() and not path.is_dir():
+            return UNSET, "That is a file, not a folder."
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            return UNSET, f"Cannot create or use this folder: {exc.strerror or exc}"
+        return path.as_posix(), None
+    if field.kind == "urlbase":
+        from periodicool.web.urlbase import clean_base
+
+        if raw and not re.fullmatch(r"/?[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*/?", raw):
+            return UNSET, "Use a path such as /periodicool (letters, numbers, dots and dashes)."
+        return clean_base(raw), None
     if field.kind == "template":
         from periodicool.naming_preview import template_problem
 
@@ -391,11 +527,29 @@ def save(session: Session, section: str, form: dict[str, str]) -> dict[str, str]
             job = session.get(Job, field.key.split(".")[1])
             if job is not None:
                 job.interval_s = int(value)
+        if section == "ui":
+            apply_display(session)
         if field.key == "backup.interval_days":
             job = session.get(Job, "backup")
             if job is not None:
                 job.interval_s = int(value) * 86400
     return {}
+
+
+def apply_folders(session: Session) -> None:
+    """Load the backup and log folders chosen on the System pages."""
+    from periodicool import backup, logs
+
+    backup.FOLDER["path"] = get_setting(session, backup.FOLDER_KEY) or None
+    logs.FOLDER["path"] = get_setting(session, logs.FOLDER_KEY) or None
+
+
+def apply_display(session: Session) -> None:
+    """Load the date formats and theme the pages use."""
+    from periodicool import dates, web
+
+    dates.load(session)
+    web.DISPLAY_THEME["name"] = get_setting(session, "ui.theme", "auto")
 
 
 def job_names(session: Session) -> list[str]:

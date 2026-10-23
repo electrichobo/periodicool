@@ -8,10 +8,15 @@
   </div>
   <p class="on-chassis-muted toolbar__note">Backups hold the database (with the indexer and download client API keys), secret.key and api.key. Keep them private. They are kept in <code>{{ folder }}</code>.</p>
 </div>
+<section class="panel" aria-labelledby="bs-title" style="margin-bottom: 1.5rem">
+  <h2 class="panel__label" id="bs-title">Schedule and folder</h2>
+  {% set action = "/system/backups/settings" %}{% set placeholder = "/config/backups" %}
+  {% include "system/_fields.html" %}
+</section>
 <section class="panel" aria-labelledby="bk-title">
   <h2 class="panel__label" id="bk-title">Backups</h2>
   {% if not files %}
-  {{ ui.empty("No backups yet", "A backup is made on the schedule in Settings, General, or when you press Back up now.") }}
+  {{ ui.empty("No backups yet", "A backup is made on the schedule above, or when you press Back up now.") }}
   {% else %}
   <div class="table-wrap">
     <table class="table">
@@ -27,6 +32,8 @@
               <a class="btn btn--small" href="/system/backups/{{ b.name }}" download>Download</a>
               <button class="btn btn--small btn--danger" type="button" hx-post="/system/backups/{{ b.name }}/restore" hx-swap="none"
                       hx-confirm="Restore {{ b.name }}? The current database is backed up first, then replaced." data-confirm-type="restore">Restore</button>
+              <button class="btn btn--small btn--icon" type="button" hx-post="/system/backups/{{ b.name }}/delete" hx-swap="none"
+                      hx-confirm="Delete the backup {{ b.name }}? This cannot be undone." title="Delete" aria-label="Delete {{ b.name }}">{{ ui.icon("trash") }}</button>
             </div>
           </td>
         </tr>

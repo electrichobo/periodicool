@@ -13,10 +13,10 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse, Response
 from sqlalchemy import func, select
 
-from periodicool import __version__, auth, backup, health, library
+from periodicool import __version__, auth, backup, health, library, preferences
 from periodicool.config import DB_FILENAME
 from periodicool.jobs import DEFAULT_INTERVALS, LABELS, Scheduler
-from periodicool.logs import LOG_DIR
+from periodicool.logs import LOG_FILE, log_dir
 from periodicool.models import ImportItem, ItemAction, ItemStatus, Job, LogEvent, Magazine, ScanKind
 from periodicool.web.magazines import _render, _toast
 from periodicool.web.security import form_data
@@ -191,13 +191,44 @@ def run_task(request: Request, name: str) -> Response:
 @router.get("/system/backups", response_class=HTMLResponse)
 def backups(request: Request) -> HTMLResponse:
     config_dir = request.app.state.settings.config_dir
+    with request.app.state.sessions() as session:
+        values = preferences.values(session, "backups")
     return _system(
         request,
         "backups",
         "backups",
         files=backup.list_backups(config_dir),
         folder=str(backup.backup_dir(config_dir)),
+        fields=preferences.SECTIONS["backups"][1],
+        values=values,
+        errors={},
     )
+
+
+@router.post("/system/backups/settings")
+async def backup_settings(request: Request) -> Response:
+    form = await form_data(request)
+    with request.app.state.sessions() as session:
+        errors = preferences.save(session, "backups", form)
+        if errors:
+            session.rollback()
+            return _toast("Not saved: " + "; ".join(errors.values()), "bad")
+        session.commit()
+        preferences.apply_folders(session)
+    response = _toast("Saved.")
+    response.headers["HX-Refresh"] = "true"
+    return response
+
+
+@router.post("/system/backups/{name}/delete")
+def backup_delete(request: Request, name: str) -> Response:
+    try:
+        backup.delete_backup(request.app.state.settings.config_dir, name)
+    except backup.BackupError as exc:
+        return _toast(f"Not deleted: {exc}", "bad")
+    response = _toast(f"Deleted {name}.")
+    response.headers["HX-Refresh"] = "true"
+    return response
 
 
 @router.post("/system/backups")
@@ -272,7 +303,7 @@ def events(request: Request, level: str = "", page: int = 1) -> HTMLResponse:
 
 
 def _log_files(request) -> list:
-    folder = request.app.state.settings.config_dir / LOG_DIR
+    folder = log_dir(request.app.state.settings.config_dir)
     if not folder.is_dir():
         return []
     files = [p for p in folder.iterdir() if p.is_file() and p.name.startswith("periodicool.txt")]
@@ -292,7 +323,47 @@ def log_files(request: Request) -> HTMLResponse:
         (p.name, p.stat().st_size, datetime.fromtimestamp(p.stat().st_mtime, UTC))
         for p in _log_files(request)
     ]
-    return _system(request, "logs", "logs", files=files)
+    with request.app.state.sessions() as session:
+        values = preferences.values(session, "logs")
+    return _system(
+        request,
+        "logs",
+        "logs",
+        files=files,
+        folder=str(log_dir(request.app.state.settings.config_dir)),
+        fields=preferences.SECTIONS["logs"][1],
+        values=values,
+        errors={},
+    )
+
+
+@router.post("/system/logs/{name}/delete")
+def log_delete(request: Request, name: str) -> Response:
+    """Delete an old (rotated) log file. The file being written now stays."""
+    path = _log_file(request, name)
+    if name == LOG_FILE:
+        return _toast("The current log file is in use and stays.", "warn")
+    path.unlink()
+    response = _toast(f"Deleted {name}.")
+    response.headers["HX-Refresh"] = "true"
+    return response
+
+
+@router.post("/system/logs/settings")
+async def log_settings(request: Request) -> Response:
+    form = await form_data(request)
+    with request.app.state.sessions() as session:
+        errors = preferences.save(session, "logs", form)
+        if errors:
+            session.rollback()
+            return _toast("Not saved: " + "; ".join(errors.values()), "bad")
+        session.commit()
+        preferences.apply_folders(session)
+    logs = getattr(request.app.state, "logs", None)
+    folder = logs.move_file().as_posix() if logs is not None else None
+    response = _toast(f"Saved. Logs are written to {folder}." if folder else "Saved.")
+    response.headers["HX-Refresh"] = "true"
+    return response
 
 
 @router.get("/system/logs/{name}", response_class=HTMLResponse)

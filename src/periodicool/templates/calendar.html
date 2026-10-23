@@ -44,7 +44,7 @@
   {% endif %}
   {% for day, items in by_day | dictsort %}
   <div class="agenda-day{% if day == today %} is-today{% endif %}">
-    <h3 class="agenda-day__date">{{ day.strftime("%a %d %b %Y") }}{% if day == today %} · Today{% endif %}</h3>
+    <h3 class="agenda-day__date">{{ day | longdate }}{% if day == today %} · Today{% endif %}</h3>
     <div class="stack" style="--gap: 0.3rem">{% for e in items %}{{ entry(e) }}{% endfor %}</div>
   </div>
   {% endfor %}
@@ -53,7 +53,7 @@
 <div class="table-wrap">
   <table class="cal cal--{{ view }}">
     <caption class="visually-hidden">{{ title }}</caption>
-    <thead><tr>{% for short, long in weekday_names %}<th scope="col"><abbr title="{{ long }}">{{ short }}</abbr></th>{% endfor %}</tr></thead>
+    <thead><tr>{% for short, long in weekday_names %}<th scope="col"><abbr title="{{ long }}">{% if view == 'week' %}{{ weeks[0][loop.index0] | weekheader }}{% else %}{{ short }}{% endif %}</abbr></th>{% endfor %}</tr></thead>
     <tbody>
       {% for week in weeks %}
       <tr>

@@ -10,13 +10,16 @@ from datetime import UTC, datetime
 from fastapi import Depends, FastAPI
 
 from periodicool import __version__, auth, db
-from periodicool.config import Settings, load_settings
+from periodicool.config import Settings, load_settings, with_saved_server_settings
 from periodicool.library import get_setting, refresh_file_info
 from periodicool.logs import LogSetup, stored_secrets
 
+# Always allowed, so a wrong allowed-hosts list never locks out the machine itself.
+LOCAL_HOSTS = ("localhost", "127.0.0.1", "::1", "[::1]")
+
 
 def create_app(settings: Settings | None = None) -> FastAPI:
-    settings = settings or load_settings()
+    settings = with_saved_server_settings(settings or load_settings())
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -31,7 +34,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if settings.library_dir.is_dir():
                 refresh_file_info(session, settings.library_dir)
             session.commit()
+        with app.state.sessions() as session:
+            from periodicool.preferences import apply_folders
+
+            apply_folders(session)
         app.state.logs = LogSetup(settings.config_dir, app.state.sessions, level)
+        with app.state.sessions() as session:
+            from periodicool.preferences import apply_display
+
+            apply_display(session)
         with app.state.sessions() as session:
             app.state.logs.redactor.learn(stored_secrets(session))
         from periodicool.web.system import apply_verbose
@@ -72,6 +83,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web import STATIC_DIR
     from periodicool.web import router as web_router
     from periodicool.web.activity import router as activity_router
+    from periodicool.web.filesystem import router as filesystem_router
     from periodicool.web.magazines import router as magazines_router
     from periodicool.web.metadata import router as metadata_router
     from periodicool.web.security import router as security_router
@@ -86,6 +98,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(metadata_router)
     app.include_router(activity_router)
     app.include_router(sources_router)
+    app.include_router(filesystem_router)
     app.include_router(settings_router)
     app.include_router(system_router)
 
@@ -93,4 +106,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok", "version": __version__}
 
+    if settings.allowed_hosts:
+        from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+        app.add_middleware(
+            TrustedHostMiddleware, allowed_hosts=[*settings.allowed_hosts, *LOCAL_HOSTS]
+        )
+    if settings.url_base:
+        from periodicool.web.urlbase import UrlBase
+
+        return UrlBase(app, settings.url_base)
     return app

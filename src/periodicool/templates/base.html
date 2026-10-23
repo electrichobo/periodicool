@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token | default('') }}">
+  <meta name="url-base" content="{{ request.scope.get('root_path', '') if request is defined else '' }}">
   <title>{% block title %}PeriodiCool{% endblock %}</title>
   <link rel="icon" href="{{ static('img/icon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ static('css/theme.css') }}">
@@ -52,6 +53,9 @@
   </main>
   <dialog id="modal" class="modal" aria-labelledby="modal-title">
     <div id="modal-body"></div>
+  </dialog>
+  <dialog id="picker" class="modal modal--narrow" aria-labelledby="picker-title">
+    <div id="picker-body"></div>
   </dialog>
   <dialog id="confirm" class="modal modal--narrow" aria-labelledby="confirm-title">
     <div class="panel">

@@ -4,6 +4,8 @@
 {% macro icon(name) -%}
 {% if name == "search" -%}
 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg>
+{%- elif name == "trash" -%}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 12H7L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z"/></svg>
 {%- elif name == "person" -%}
 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 11c4.4 0 8 2.2 8 5v2H4v-2c0-2.8 3.6-5 8-5Z"/></svg>
 {%- endif %}

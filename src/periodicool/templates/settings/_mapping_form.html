@@ -1,0 +1,40 @@
+{# Remote path mapping pop-up. On errors the server returns this again into #modal-body. #}
+{% import "_macros.html" as ui %}
+{% from "settings/_source_fields.html" import text with context %}
+{% set editing = values.get("index") is not none and values.get("index") != "" %}
+<form class="panel modal__panel stack" hx-post="/settings/downloads/mappings/save" hx-target="#modal-body">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">{{ "Edit" if editing else "Add" }} remote path mapping</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% if editing %}
+  <input type="hidden" name="old_client" value="{{ values.get('client_id_was', values.get('client_id')) }}">
+  <input type="hidden" name="old_index" value="{{ values.index }}">
+  {% endif %}
+  <p>Only needed when a download client sees its download folder under a different path than PeriodiCool does, for example <code>/data/complete/mags</code> in the client and <code>/downloads</code> here.</p>
+  {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+  <div class="field">
+    <label class="field__label" for="src-client_id">Download client</label>
+    <select class="select" id="src-client_id" name="client_id"{% if errors.get("client_id") %} aria-invalid="true" aria-describedby="src-client_id-err"{% endif %}>
+      {% for c in clients %}<option value="{{ c.id }}"{% if values.get("client_id") | string == c.id | string %} selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    {% if not clients %}<span class="field__help">Add a download client first.</span>{% endif %}
+    {% if errors.get("client_id") %}<span class="field__error" id="src-client_id-err">{{ errors["client_id"] }}</span>{% endif %}
+  </div>
+  {{ text("remote", "Client's path", "The folder as the download client reports it.", mono=true, attrs='placeholder="/data/complete/mags"') }}
+  <div class="field">
+    <label class="field__label" for="src-local">PeriodiCool's path</label>
+    <div class="path-field">
+      <input class="input input--mono" id="src-local" name="local" value="{{ values.get('local', '') }}" placeholder="/downloads"
+        {%- if errors.get("local") %} aria-invalid="true" aria-describedby="src-local-err"{% endif %}>
+      <button class="btn btn--small" type="button" data-browse="src-local">Browse</button>
+    </div>
+    <span class="field__help">The same folder as PeriodiCool sees it.</span>
+    {% if errors.get("local") %}<span class="field__error" id="src-local-err">{{ errors["local"] }}</span>{% endif %}
+  </div>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </div>
+</form>

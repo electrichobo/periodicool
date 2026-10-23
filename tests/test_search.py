@@ -10,7 +10,7 @@ from sqlalchemy import select
 from periodicool import db, library, search
 from periodicool.cli import magazine_from_dict
 from periodicool.config import load_settings
-from periodicool.decisions import best_candidates, evaluate, format_rank
+from periodicool.decisions import Options, best_candidates, evaluate, format_rank
 from periodicool.jobs import Scheduler, today_in
 from periodicool.models import (
     ApiCall,
@@ -135,6 +135,30 @@ def test_global_release_rules(session):
     library.set_setting(session, MUST_NOT_CONTAIN_KEY, [])
     library.set_setting(session, MUST_CONTAIN_KEY, ["issue"])
     assert ev(session, title, options=load_options(session)).accepted
+
+
+def test_size_age_and_retention_limits(session):
+    title = "Linux Magazine USA - Issue 311, October 2026"
+    posted = NOW - timedelta(minutes=5)
+    limits = Options(max_size_mb=40, min_age_min=20, retention_days=30)
+    e = ev(session, title, options=limits, published=posted, now=NOW)
+    assert "size 50.0 MB is over 40 MB" in e.reasons
+    assert "posted 5 min ago; the minimum age is 20 min" in e.reasons
+    old = ev(
+        session,
+        title,
+        options=limits,
+        size=10 * 1048576,
+        published=NOW - timedelta(days=45),
+        now=NOW,
+    )
+    assert old.reasons == ["posted 45 days ago, beyond the 30 day retention"]
+    # 0 means no limit.
+    free = ev(session, title, options=Options(), published=posted, now=NOW)
+    assert free.accepted
+    undated = ev(session, title, options=Options(min_age_min=20), now=NOW)
+    assert undated.accepted
+    assert "no posting date, so minimum age and retention were not checked" in undated.notes
 
 
 def test_issue_state_matters(session):

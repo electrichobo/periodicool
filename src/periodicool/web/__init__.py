@@ -9,7 +9,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from periodicool import __version__, overview
+from periodicool import __version__, dates, overview
 
 PACKAGE = Path(__file__).resolve().parent.parent
 STATIC_DIR = PACKAGE / "static"
@@ -57,11 +57,11 @@ templates.env.filters["relative_to"] = relative_to
 
 # Times are stored in UTC and shown in the TZ setting; create_app sets this.
 DISPLAY_TZ = {"name": "UTC"}
+# Light, dark or auto (follow the system); loaded at start and when Settings, UI is saved.
+DISPLAY_THEME = {"name": "auto"}
 
 
-def when(moment, fmt: str = "%Y-%m-%d %H:%M") -> str:
-    if moment is None:
-        return ""
+def local(moment):
     from datetime import UTC
     from zoneinfo import ZoneInfo
 
@@ -71,10 +71,25 @@ def when(moment, fmt: str = "%Y-%m-%d %H:%M") -> str:
         zone = ZoneInfo(DISPLAY_TZ["name"])
     except KeyError, ValueError:
         zone = UTC
-    return moment.astimezone(zone).strftime(fmt)
+    return moment.astimezone(zone)
+
+
+def when(moment, fmt: str | None = None) -> str:
+    """A stored time in the display time zone: the short date and the clock as set in
+    Settings, UI, or an explicit strftime format."""
+    if moment is None:
+        return ""
+    moment = local(moment)
+    if fmt:
+        return moment.strftime(fmt)
+    return f"{dates.short_date(moment)} {dates.clock(moment)}"
 
 
 templates.env.filters["when"] = when
+templates.env.filters["shortdate"] = dates.short_date
+templates.env.filters["longdate"] = dates.long_date
+templates.env.filters["weekheader"] = dates.week_header
+templates.env.filters["clock"] = lambda moment: dates.clock(local(moment)) if moment else ""
 # Sum of the numeric parts of a chart row (label, have, wanted, missing).
 templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
 
@@ -115,6 +130,7 @@ def render(request: Request, name: str, /, **context) -> HTMLResponse:
     context.setdefault("user", getattr(request.state, "user", None))
     if context.get("nav", True):
         context.setdefault("sys_state", system_state(request))
+    context.setdefault("ui_theme", DISPLAY_THEME["name"])
     return templates.TemplateResponse(request, name, context)
 
 

@@ -77,4 +77,32 @@
   </div>
   {% endif %}
 </section>
+<section class="panel stack sources" id="mappings" aria-labelledby="map-title">
+  <h2 class="panel__label" id="map-title">Remote path mappings</h2>
+  <p class="field__help">Only needed when a download client sees its download folder under a different path than PeriodiCool does.</p>
+  <div class="cluster"><button class="btn" type="button" hx-get="/settings/downloads/mappings/new" hx-target="#modal-body"{% if not client_rows %} disabled title="Add a download client first"{% endif %}>Add mapping</button></div>
+  {% if mappings %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Download client</th><th scope="col">Client's path</th><th scope="col">PeriodiCool's path</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for m in mappings %}
+        <tr>
+          <td>{{ m.client.name }}</td>
+          <td><code>{{ m.remote }}</code></td>
+          <td><code>{{ m.local }}</code></td>
+          <td>
+            <div class="cluster row-actions">
+              <button class="btn btn--small" type="button" hx-get="/settings/downloads/mappings/{{ m.client.id }}/{{ m.index }}" hx-target="#modal-body" aria-label="Edit mapping {{ m.remote }}">Edit</button>
+              <button class="btn btn--small btn--danger" type="button" hx-post="/settings/downloads/mappings/{{ m.client.id }}/{{ m.index }}/delete" hx-swap="none"
+                      hx-confirm="Delete the mapping {{ m.remote }} to {{ m.local }}?" aria-label="Delete mapping {{ m.remote }}">Delete</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
 {% endif %}

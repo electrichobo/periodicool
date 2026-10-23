@@ -17,24 +17,6 @@
   {{ key_field(has_key, env_fallback, key_help) }}
   {{ text("category", "Category", "PeriodiCool adds jobs only in this category, and only ever reads or removes its own jobs. Create the category in " ~ kind_label ~ " first.", attrs="required") }}
   {{ text("priority", "Priority", "1 to 50. New downloads go to the enabled client with the lowest number.", attrs='inputmode="numeric"') }}
-  <fieldset class="form-section">
-    <legend>Remote path mappings</legend>
-    <p class="field__help">Only needed when {{ kind_label }} sees the download folder under a different path than PeriodiCool does.</p>
-    {% if errors.get("path_map") %}<p class="field__error" role="alert">{{ errors["path_map"] }}</p>{% endif %}
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th scope="col">{{ kind_label }}'s path</th><th scope="col">PeriodiCool's path</th></tr></thead>
-        <tbody>
-          {% for remote, local in values.get("path_map", []) %}
-          <tr>
-            <td><label class="visually-hidden" for="mr-{{ loop.index }}">{{ kind_label }}'s path {{ loop.index }}</label><input class="input input--mono" id="mr-{{ loop.index }}" name="map_remote" value="{{ remote }}" placeholder="/data/complete/mags"></td>
-            <td><label class="visually-hidden" for="ml-{{ loop.index }}">PeriodiCool's path {{ loop.index }}</label><input class="input input--mono" id="ml-{{ loop.index }}" name="map_local" value="{{ local }}" placeholder="/downloads"></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </fieldset>
   <div class="modal__foot">
     <button class="btn" type="button" hx-post="/settings/downloads/test" hx-include="closest form" hx-swap="none">Test</button>
     <span class="spinner" aria-hidden="true"></span>

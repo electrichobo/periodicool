@@ -1,10 +1,16 @@
 {% extends "system/_layout.html" %}
 {% import "_macros.html" as ui %}
 {% block system %}
+<section class="panel" aria-labelledby="ls-title" style="margin-bottom: 1.5rem">
+  <h2 class="panel__label" id="ls-title">Folder</h2>
+  {% set action = "/system/logs/settings" %}{% set placeholder = "/config/logs" %}
+  {% include "system/_fields.html" %}
+  <p class="field__help">Now writing to <code>{{ folder }}</code>. A new folder takes effect when you save; files already written stay where they are.</p>
+</section>
 <section class="panel" aria-labelledby="lf-title">
   <h2 class="panel__label" id="lf-title">Log files</h2>
   {% if not files %}
-  {{ ui.empty("No log files", "The log file appears in /config/logs once something is logged.") }}
+  {{ ui.empty("No log files", "The log file appears in the log folder once something is logged.") }}
   {% else %}
   <div class="table-wrap">
     <table class="table">
@@ -19,6 +25,10 @@
             <div class="cluster row-actions">
               <a class="btn btn--small" href="/system/logs/{{ name }}">View</a>
               <a class="btn btn--small" href="/system/logs/{{ name }}/download" download>Download</a>
+              {% if name != "periodicool.txt" %}
+              <button class="btn btn--small btn--icon" type="button" hx-post="/system/logs/{{ name }}/delete" hx-swap="none"
+                      hx-confirm="Delete the old log file {{ name }}?" title="Delete" aria-label="Delete {{ name }}">{{ ui.icon("trash") }}</button>
+              {% endif %}
             </div>
           </td>
         </tr>

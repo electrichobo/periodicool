@@ -39,7 +39,7 @@
             <td><input type="checkbox" class="row-select" name="ids" value="{{ r.issue.id }}" aria-label="Select {{ r.mag.title }} {{ r.label }}"></td>
             <td><a href="/magazines/{{ r.mag.id }}">{{ r.mag.title }}</a></td>
             <td><button class="linklike" type="button" hx-get="/issues/{{ r.issue.id }}" hx-target="#modal-body" title="Details">{{ r.label }}</button></td>
-            <td>{{ r.issue.cover_date or "" }}</td>
+            <td data-sort="{{ r.issue.cover_date or '' }}">{{ r.issue.cover_date | shortdate }}</td>
             <td data-sort="{{ r.state }}">{{ ui.led(r.led, r.state_label) }}</td>
             <td data-sort="{{ r.last_search.isoformat() if r.last_search else '' }}">{{ (r.last_search | when("%Y-%m-%d %H:%M")) if r.last_search else "Never" }}</td>
             <td>{{ ui.search_buttons(r.mag.id, r.issue.key, r.mag.title ~ " " ~ r.label) }}</td>

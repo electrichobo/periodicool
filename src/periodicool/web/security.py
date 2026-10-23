@@ -21,6 +21,12 @@ def is_public(path: str) -> bool:
     return path in PUBLIC_PATHS or path.startswith("/static/")
 
 
+def route_path(request: Request) -> str:
+    """The path without the URL base, as the routes see it."""
+    path, base = request.url.path, request.scope.get("root_path", "")
+    return (path[len(base) :] or "/") if base and path.startswith(base) else path
+
+
 def _is_https(request: Request, trust_proxy: bool) -> bool:
     if request.url.scheme == "https":
         return True
@@ -57,13 +63,13 @@ async def auth_middleware(request: Request, call_next):
     request.state.csrf_basis = basis
     request.state.csrf_token = auth.csrf_token(state.secret, basis)
 
-    if allowed or is_public(request.url.path):
+    if allowed or is_public(route_path(request)):
         response = await call_next(request)
     else:
         if cfg.mode == "required" and not has_user:
             target = "/setup"
         else:
-            here = request.url.path + (f"?{request.url.query}" if request.url.query else "")
+            here = route_path(request) + (f"?{request.url.query}" if request.url.query else "")
             target = "/login?next=" + quote(here, safe="")
         if request.headers.get("hx-request"):
             response = Response(status_code=401, headers={"HX-Redirect": target})

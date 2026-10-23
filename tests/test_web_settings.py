@@ -211,7 +211,7 @@ def test_first_prowlarr_may_use_the_environment_key(client, monkeypatch):
     assert "Enter the API key." in second.text
 
 
-def test_download_client_form_path_map_and_category(client):
+def test_download_client_category_and_kept_mappings(client):
     base = {
         "kind": "sabnzbd",
         "name": "SABnzbd",
@@ -221,22 +221,105 @@ def test_download_client_form_path_map_and_category(client):
         "enabled": "on",
         "category": "mags",
     }
-    half = client.post(
-        "/settings/downloads/save", data=base | {"map_remote": ["/data"], "map_local": [""]}
-    )
-    assert "needs both" in half.text
     no_cat = client.post("/settings/downloads/save", data=base | {"category": ""})
     assert "its own category" in no_cat.text
-    ok = client.post(
-        "/settings/downloads/save",
-        data=base | {"map_remote": ["/data/complete/mags", ""], "map_local": ["/downloads/", ""]},
-    )
-    assert ok.status_code == 204
+    assert client.post("/settings/downloads/save", data=base).status_code == 204
     with session(client) as s:
         row = s.scalars(select(DownloadClient)).one()
-        assert row.path_map == [["/data/complete/mags", "/downloads"]] and row.category == "mags"
+        assert row.path_map == [] and row.category == "mags"
+        row.path_map = [["/data", "/downloads"]]
+        s.commit()
+        row_id = row.id
+    # Editing the client keeps its mappings; they have their own list now.
+    edit = client.post("/settings/downloads/save", data=base | {"id": str(row_id), "api_key": ""})
+    assert edit.status_code == 204
+    with session(client) as s:
+        assert s.get(DownloadClient, row_id).path_map == [["/data", "/downloads"]]
     page = client.get("/settings/downloads").text
     assert "SABnzbd" in page and "sab-key-1" not in page and "<code>mags</code>" in page
+    assert 'id="mappings"' in page and "<code>/data</code>" in page
+
+
+def test_remote_path_mappings_across_two_clients(client):
+    with session(client) as s:
+        one = add_client(s, "http://sab:8080", "k1-secret", "First")
+        two = add_client(s, "http://sab2:8080", "k2-secret", "Second", category="mags2")
+        s.commit()
+        one_id, two_id = one.id, two.id
+    form = client.get("/settings/downloads/mappings/new").text
+    assert 'data-browse="src-local"' in form and "First" in form and "Second" in form
+    half = client.post(
+        "/settings/downloads/mappings/save", data={"client_id": str(one_id), "remote": "/data"}
+    )
+    assert "Enter the same folder as PeriodiCool sees it." in half.text
+    for cid, remote, local in [
+        (one_id, "/data/complete/mags/", "/downloads/"),
+        (two_id, "/mnt/sab2", "/downloads2"),
+        (one_id, "/other", "/x"),
+    ]:
+        resp = client.post(
+            "/settings/downloads/mappings/save",
+            data={"client_id": str(cid), "remote": remote, "local": local},
+        )
+        assert resp.status_code == 204
+    with session(client) as s:
+        assert s.get(DownloadClient, one_id).path_map == [
+            ["/data/complete/mags", "/downloads"],
+            ["/other", "/x"],
+        ]
+        assert s.get(DownloadClient, two_id).path_map == [["/mnt/sab2", "/downloads2"]]
+    page = client.get("/settings/downloads").text
+    assert page.count("/settings/downloads/mappings/") >= 6  # edit and delete per mapping
+    edit = client.get(f"/settings/downloads/mappings/{one_id}/1").text
+    assert 'value="/other"' in edit and 'name="old_index" value="1"' in edit
+    # Moving a mapping to the other client takes it off the first.
+    moved = {
+        "client_id": str(two_id),
+        "remote": "/other",
+        "local": "/y",
+        "old_client": str(one_id),
+        "old_index": "1",
+    }
+    assert client.post("/settings/downloads/mappings/save", data=moved).status_code == 204
+    with session(client) as s:
+        assert s.get(DownloadClient, one_id).path_map == [["/data/complete/mags", "/downloads"]]
+        assert s.get(DownloadClient, two_id).path_map == [
+            ["/mnt/sab2", "/downloads2"],
+            ["/other", "/y"],
+        ]
+    client.post(f"/settings/downloads/mappings/{two_id}/0/delete")
+    with session(client) as s:
+        assert s.get(DownloadClient, two_id).path_map == [["/other", "/y"]]
+    assert client.post(f"/settings/downloads/mappings/{two_id}/5/delete").status_code == 404
+
+
+def test_folder_browser_lists_folders_only(client, tmp_path):
+    (tmp_path / "Comics").mkdir()
+    (tmp_path / "Mags").mkdir()
+    (tmp_path / ".hidden").mkdir()
+    (tmp_path / "notes.txt").write_text("x")
+    page = client.get(
+        "/filesystem", params={"path": tmp_path.as_posix(), "target": "src-local"}
+    ).text
+    assert "Comics/" in page and "Mags/" in page
+    assert "notes.txt" not in page and ".hidden" not in page
+    assert f'data-pick-folder="{tmp_path.as_posix()}" data-target="src-local"' in page
+    assert "Up one level" in page
+    # A missing folder shows its nearest existing parent; a bad target is dropped.
+    missing = client.get(
+        "/filesystem", params={"path": (tmp_path / "nope" / "deeper").as_posix(), "target": 'x"y'}
+    ).text
+    assert "Comics/" in missing and "data-pick-folder" not in missing
+
+
+def test_folder_browser_needs_login(settings):
+    from fastapi.testclient import TestClient
+
+    from periodicool.main import create_app
+
+    with TestClient(create_app(settings)) as anon:
+        resp = anon.get("/filesystem", follow_redirects=False)
+        assert resp.status_code in (302, 303, 307, 401)
 
 
 def test_connection_tests_without_setup(client):
@@ -282,7 +365,15 @@ def test_auth_mode_choice(client):
 
 
 def test_first_weekday_changes_the_calendar(client):
-    client.post("/settings/ui", data={"ui__first_weekday": "6"})
+    form = {
+        "ui__first_weekday": "6",
+        "ui__week_header": "ddd m/d",
+        "ui__short_date": "iso",
+        "ui__long_date": "day-mon-d-y",
+        "ui__time_format": "24",
+        "ui__theme": "auto",
+    }
+    assert client.post("/settings/ui", data=form, follow_redirects=False).status_code == 303
     page = client.get("/calendar").text
     assert page.index('title="Sunday"') < page.index('title="Monday"')
 

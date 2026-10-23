@@ -16,6 +16,9 @@ from pathlib import Path
 from periodicool.config import DB_FILENAME
 
 BACKUP_DIR = "backups"
+FOLDER_KEY = "backup.folder"
+# A folder chosen in System, Backups; loaded at start and on save. None: /config/backups.
+FOLDER: dict[str, str | None] = {"path": None}
 EXTRA_FILES = ("secret.key", "api.key")
 NAME = re.compile(r"periodicool-\d{8}-\d{6}-\d{6}(?:-[a-z]+)?\.zip")
 
@@ -32,7 +35,7 @@ class BackupFile:
 
 
 def backup_dir(config_dir: Path) -> Path:
-    return config_dir / BACKUP_DIR
+    return Path(FOLDER["path"]) if FOLDER["path"] else config_dir / BACKUP_DIR
 
 
 def list_backups(config_dir: Path) -> list[BackupFile]:
@@ -55,6 +58,11 @@ def backup_path(config_dir: Path, name: str) -> Path:
     if not path.is_file():
         raise BackupError("no such backup")
     return path
+
+
+def delete_backup(config_dir: Path, name: str) -> None:
+    """Delete one listed backup. Only files named like our backups, in the backup folder."""
+    backup_path(config_dir, name).unlink()
 
 
 def _copy_database(db_path: Path, target: Path) -> None:

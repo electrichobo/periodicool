@@ -23,6 +23,15 @@ from periodicool.models import LogEvent
 
 LOGGER = "periodicool"
 LOG_DIR = "logs"
+FOLDER_KEY = "log.folder"
+# A folder chosen in System, Log files; loaded at start and on save. None: /config/logs.
+FOLDER: dict[str, str | None] = {"path": None}
+
+
+def log_dir(config_dir: Path) -> Path:
+    return Path(FOLDER["path"]) if FOLDER["path"] else config_dir / LOG_DIR
+
+
 LOG_FILE = "periodicool.txt"
 FILE_BYTES = 1_000_000
 FILE_COUNT = 5
@@ -159,13 +168,15 @@ class LogSetup:
     def __init__(self, config_dir: Path, session_factory, level: str = "info") -> None:
         self.logger = logging.getLogger(LOGGER)
         self.redactor = Redactor(known_secrets(config_dir))
-        log_dir = config_dir / LOG_DIR
-        log_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir = config_dir
+        folder = log_dir(config_dir)
+        folder.mkdir(parents=True, exist_ok=True)
         fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
         self.file = logging.handlers.RotatingFileHandler(
-            log_dir / LOG_FILE, maxBytes=FILE_BYTES, backupCount=FILE_COUNT, encoding="utf-8"
+            folder / LOG_FILE, maxBytes=FILE_BYTES, backupCount=FILE_COUNT, encoding="utf-8"
         )
         self.file.setFormatter(fmt)
+        self._fmt = fmt
         self.db = DbLogHandler(session_factory)
         self._old_level = self.logger.level
         self.base_level = getattr(logging, level.upper(), logging.INFO)
@@ -176,6 +187,22 @@ class LogSetup:
             handler.addFilter(self.redactor)
         self.logger.addHandler(self.file)
         self.logger.addHandler(self.db)
+
+    def move_file(self) -> Path:
+        """Write the log file in the folder now chosen (System, Log files)."""
+        folder = log_dir(self.config_dir)
+        folder.mkdir(parents=True, exist_ok=True)
+        new = logging.handlers.RotatingFileHandler(
+            folder / LOG_FILE, maxBytes=FILE_BYTES, backupCount=FILE_COUNT, encoding="utf-8"
+        )
+        new.setFormatter(self._fmt)
+        new.setLevel(self.file.level)
+        new.addFilter(self.redactor)
+        old, self.file = self.file, new
+        self.logger.addHandler(new)
+        self.logger.removeHandler(old)
+        old.close()
+        return folder
 
     def set_verbose(self, on: bool) -> None:
         """Debug lines on or off, for the file, the event table and the console."""

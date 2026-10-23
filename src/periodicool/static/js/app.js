@@ -83,6 +83,44 @@
       if (dlg) dlg.close();
     }
   });
+  // Folder browser: a [data-browse] button opens it for the field it names; inside it,
+  // folders open further and "Use this folder" fills the field.
+  function browse(path, target) {
+    if (!window.htmx) return;
+    var meta = document.querySelector('meta[name="url-base"]');
+    var url = (meta ? meta.content : "") + "/filesystem?target=" + encodeURIComponent(target) + "&path=" + encodeURIComponent(path || "");
+    window.htmx.ajax("GET", url, "#picker-body");
+  }
+  document.addEventListener("click", function (event) {
+    var el = event.target.closest && event.target.closest("[data-browse], [data-browse-to], [data-pick-folder], [data-close-picker]");
+    if (!el) return;
+    var picker = document.getElementById("picker");
+    if (el.hasAttribute("data-browse")) {
+      var field = document.getElementById(el.getAttribute("data-browse"));
+      browse(field ? field.value : "", el.getAttribute("data-browse"));
+    } else if (el.hasAttribute("data-browse-to")) {
+      browse(el.getAttribute("data-browse-to"), el.getAttribute("data-target"));
+    } else if (el.hasAttribute("data-pick-folder")) {
+      var input = document.getElementById(el.getAttribute("data-target"));
+      if (input) {
+        input.value = el.getAttribute("data-pick-folder");
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      if (picker) picker.close();
+      if (input) input.focus();
+    } else if (picker) {
+      picker.close();
+    }
+  });
+  document.addEventListener("htmx:afterSwap", function (event) {
+    if (event.detail.target && event.detail.target.id === "picker-body") {
+      var picker = document.getElementById("picker");
+      if (picker && !picker.open) picker.showModal();
+      var title = document.getElementById("picker-title");
+      if (title) { title.setAttribute("tabindex", "-1"); title.focus(); }
+    }
+  });
+
   // A click on an issue row (but not on its switch, buttons or links) opens its details.
   document.addEventListener("click", function (event) {
     var row = event.target.closest && event.target.closest("tr[data-open]");

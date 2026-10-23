@@ -8,7 +8,7 @@ sense.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -27,6 +27,10 @@ from periodicool.parser import FORMATS, ParsedRelease, parse_release
 from periodicool.schedule import Reference, generation_range, identify
 
 MIN_SIZE_KEY = "release.min_size_mb"
+# 0 means no limit for these three, as in Sonarr.
+MAX_SIZE_KEY = "release.max_size_mb"
+MIN_AGE_KEY = "release.min_age_min"
+RETENTION_KEY = "release.retention_days"
 EARLY_DAYS_KEY = "search.early_days"
 MUST_CONTAIN_KEY = "release.must_contain"
 MUST_NOT_CONTAIN_KEY = "release.must_not_contain"
@@ -39,6 +43,9 @@ NEW_ONLY_DAYS = 60
 @dataclass(frozen=True)
 class Options:
     min_size_mb: float = DEFAULT_MIN_SIZE_MB
+    max_size_mb: float = 0
+    min_age_min: int = 0
+    retention_days: int = 0
     early_days: int = DEFAULT_EARLY_DAYS
     # Release rules for every magazine, on top of each magazine's own.
     must_contain: tuple[str, ...] = ()
@@ -50,6 +57,9 @@ def load_options(session: Session) -> Options:
 
     return Options(
         min_size_mb=get_setting(session, MIN_SIZE_KEY, DEFAULT_MIN_SIZE_MB),
+        max_size_mb=get_setting(session, MAX_SIZE_KEY, 0) or 0,
+        min_age_min=get_setting(session, MIN_AGE_KEY, 0) or 0,
+        retention_days=get_setting(session, RETENTION_KEY, 0) or 0,
         early_days=get_setting(session, EARLY_DAYS_KEY, DEFAULT_EARLY_DAYS),
         must_contain=tuple(get_setting(session, MUST_CONTAIN_KEY, []) or ()),
         must_not_contain=tuple(get_setting(session, MUST_NOT_CONTAIN_KEY, []) or ()),
@@ -143,6 +153,7 @@ def evaluate(
     published: datetime | None = None,
     options: Options | None = None,
     guid: str | None = None,
+    now: datetime | None = None,
 ) -> Evaluation:
     options = options or Options()
     reasons: list[str] = []
@@ -150,6 +161,24 @@ def evaluate(
         reasons.append(f"protocol {protocol} (usenet only)")
     if size is not None and size < options.min_size_mb * 1024 * 1024:
         reasons.append(f"size {size / 1048576:.1f} MB is under {options.min_size_mb} MB")
+    if size is not None and options.max_size_mb and size > options.max_size_mb * 1024 * 1024:
+        reasons.append(f"size {size / 1048576:.1f} MB is over {options.max_size_mb:g} MB")
+    undated = False
+    if options.min_age_min or options.retention_days:
+        if published is None:
+            undated = True
+        else:
+            posted = published if published.tzinfo else published.replace(tzinfo=UTC)
+            age = (now or datetime.now(UTC)) - posted
+            if options.min_age_min and age < timedelta(minutes=options.min_age_min):
+                minutes = max(0, int(age.total_seconds() // 60))
+                reasons.append(
+                    f"posted {minutes} min ago; the minimum age is {options.min_age_min} min"
+                )
+            if options.retention_days and age > timedelta(days=options.retention_days):
+                reasons.append(
+                    f"posted {age.days} days ago, beyond the {options.retention_days} day retention"
+                )
 
     parsed = parse_release(title, TitleIndex.from_magazines(magazines))
     ev = Evaluation(accepted=False, reasons=reasons, parsed=parsed)
@@ -204,6 +233,8 @@ def evaluate(
         return ev
     ev.issue_key = ident.key
     ev.notes = list(ident.notes) + [f"agrees: {a}" for a in ident.agreements]
+    if undated:
+        ev.notes.append("no posting date, so minimum age and retention were not checked")
     ev.rank = _rank(parsed, mag, size, published, len(ident.agreements))
 
     if mag.monitored is False:

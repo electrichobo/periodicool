@@ -674,6 +674,9 @@ main {
     transparent 3px
   );
 }
+.panel .crt {
+  color: var(--crt-fg);
+}
 .crt__dim {
   color: var(--crt-dim);
 }
@@ -2017,4 +2020,29 @@ html[data-effects="off"] .brand__mark {
   flex-wrap: wrap;
   gap: 0.45rem;
   margin-top: 1.25rem;
+}
+
+/* Folder browser */
+.picker__path {
+  overflow-wrap: anywhere;
+}
+.picker__list {
+  max-height: 50vh;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.picker__list li {
+  padding: 0.35rem 0.25rem;
+  border-bottom: 1px solid var(--line-row);
+}
+/* A path field with its Browse button */
+.path-field {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.path-field .input {
+  flex: 1;
 }

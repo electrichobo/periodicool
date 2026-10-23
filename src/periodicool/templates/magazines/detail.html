@@ -115,7 +115,7 @@
               </td>
               <td><button class="linklike" type="button" hx-get="/issues/{{ i.id }}" hx-target="#modal-body" title="Details">{{ r.label }}</button>{% if i.special %} <span class="tag tag--yellow">Special</span>{% endif %}</td>
               <td>{{ ("No " ~ i.issue_number) if i.issue_number is not none else (("Vol " ~ i.volume_number) if i.volume_number is not none else "") }}</td>
-              <td>{{ i.cover_date or "" }}</td>
+              <td data-sort="{{ i.cover_date or '' }}">{{ i.cover_date | shortdate }}</td>
               <td>{{ ui.led(r.led, r.state_label) }}</td>
               <td>{{ (i.file_format or "") | upper }}</td>
               <td class="num">{{ (i.file_size | filesize) if i.file_size else "" }}</td>

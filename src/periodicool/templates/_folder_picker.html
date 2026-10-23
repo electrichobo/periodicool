@@ -1,0 +1,25 @@
+{# Folder browser in the #picker dialog. Choosing fills the field named by target. #}
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel stack">
+  <div class="modal__head">
+    <h2 class="modal__title" id="picker-title">Choose a folder</h2>
+    <button class="btn btn--small" type="button" data-close-picker aria-label="Close">&#10005;</button>
+  </div>
+  <p class="crt picker__path"><code>{{ current }}</code></p>
+  {% if error %}<p role="alert">{{ ui.led("bad", "Error") }} {{ error }}</p>{% endif %}
+  <ul class="picker__list">
+    {% if parent %}
+    <li><button class="linklike" type="button" data-browse-to="{{ parent }}" data-target="{{ target }}">&uarr; Up one level</button></li>
+    {% endif %}
+    {% for name, path in folders %}
+    <li><button class="linklike" type="button" data-browse-to="{{ path }}" data-target="{{ target }}">{{ name }}/</button></li>
+    {% else %}
+    <li class="muted">No folders in here.</li>
+    {% endfor %}
+  </ul>
+  {% if truncated %}<p class="field__help">Only the first 1,000 folders are listed.</p>{% endif %}
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-picker>Cancel</button>
+    {% if target %}<button class="btn btn--primary" type="button" data-pick-folder="{{ current }}" data-target="{{ target }}">Use this folder</button>{% endif %}
+  </div>
+</div>

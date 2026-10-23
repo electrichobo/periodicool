@@ -1,0 +1,21 @@
+{# Settings fields on a System page. Expects fields, values, errors and an action URL. #}
+<form class="stack" hx-post="{{ action }}" hx-swap="none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="form-row">
+  {% for f in fields %}
+  <div class="field">
+    <label class="field__label" for="s-{{ f.name }}">{{ f.label }}{% if f.unit %} ({{ f.unit }}){% endif %}</label>
+    {% if f.kind == "folder" %}
+    <div class="path-field">
+      <input class="input input--mono" id="s-{{ f.name }}" name="{{ f.name }}" value="{{ values[f.name] or '' }}" placeholder="{{ placeholder }}"{% if f.help %} aria-describedby="h-{{ f.name }}"{% endif %}>
+      <button class="btn btn--small" type="button" data-browse="s-{{ f.name }}">Browse</button>
+    </div>
+    {% else %}
+    <input class="input" id="s-{{ f.name }}" name="{{ f.name }}" value="{{ values[f.name] }}" inputmode="numeric"{% if f.help %} aria-describedby="h-{{ f.name }}"{% endif %}>
+    {% endif %}
+    {% if f.help %}<span class="field__help" id="h-{{ f.name }}">{{ f.help }}</span>{% endif %}
+  </div>
+  {% endfor %}
+  </div>
+  <div><button class="btn btn--primary" type="submit">Save</button></div>
+</form>
