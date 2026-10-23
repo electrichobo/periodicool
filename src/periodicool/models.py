@@ -17,6 +17,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
+from sqlalchemy import false as sa_false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from periodicool.db import Base
@@ -239,6 +240,8 @@ class ImportItem(Base):
     reason_code: Mapped[ReasonCode | None] = mapped_column(_enum(ReasonCode))
     reason: Mapped[str | None] = mapped_column(String(2000))
     status: Mapped[ItemStatus] = mapped_column(_enum(ItemStatus), default=ItemStatus.PENDING)
+    # A torrent's file stays where it is (it keeps seeding): link or copy, never move.
+    keep_source: Mapped[bool] = mapped_column(default=False, server_default=sa_false())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now, onupdate=_now
@@ -281,6 +284,8 @@ class Release(Base):
     publish_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     categories: Mapped[list[int]] = mapped_column(JSON, default=list)
     protocol: Mapped[str | None] = mapped_column(String(20))
+    seeders: Mapped[int | None]  # torrents only
+    peers: Mapped[int | None]
     info_url: Mapped[str | None] = mapped_column(String(2000))
     # Never holds an API key: it is stripped before saving.
     download_url: Mapped[str | None] = mapped_column(String(2000))
@@ -377,7 +382,8 @@ class Grab(Base):
     client_id: Mapped[int | None] = mapped_column(
         ForeignKey("download_clients.id", ondelete="SET NULL")
     )
-    job_id: Mapped[str] = mapped_column(String(200), unique=True)
+    job_id: Mapped[str] = mapped_column(String(200), unique=True)  # a torrent's info hash
+    protocol: Mapped[str] = mapped_column(String(10), default="usenet", server_default="usenet")
     category: Mapped[str] = mapped_column(String(100))
     status: Mapped[GrabStatus] = mapped_column(_enum(GrabStatus), default=GrabStatus.QUEUED)
     client_status: Mapped[str | None] = mapped_column(String(50))

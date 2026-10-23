@@ -175,3 +175,37 @@ def test_fresh_install_has_empty_lists(tmp_path):
         assert conn.execute(text("SELECT count(*) FROM indexers")).scalar() == 0
         assert conn.execute(text("SELECT count(*) FROM download_clients")).scalar() == 0
     engine.dispose()
+
+
+def test_torrent_columns_and_existing_grabs(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    cfg = db.alembic_config(url)
+    command.upgrade(cfg, "0010")
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO grabs (issue_key, title, client, job_id, category, status, progress,"
+                " grabbed_at, updated_at) VALUES ('n1', 'T', 'sabnzbd', 'J1', 'mags', 'queued', 0,"
+                " '2026-10-01', '2026-10-01')"
+            )
+        )
+    engine.dispose()
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT protocol FROM grabs")).scalar() == "usenet"
+        cols = {r[1] for r in conn.execute(text("PRAGMA table_info(releases)"))}
+        assert {"seeders", "peers"} <= cols
+        cols = {r[1] for r in conn.execute(text("PRAGMA table_info(import_items)"))}
+        assert "keep_source" in cols
+    engine.dispose()
+    command.downgrade(cfg, "0010")
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        cols = {r[1] for r in conn.execute(text("PRAGMA table_info(grabs)"))}
+        assert "protocol" not in cols
+        assert conn.execute(text("SELECT job_id FROM grabs")).scalar() == "J1"
+    engine.dispose()
