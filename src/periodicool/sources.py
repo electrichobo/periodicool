@@ -151,6 +151,10 @@ class Sources:
                 return client
         return None
 
+    def client_for_id(self, row_id: int):
+        """An enabled client by its entry, or None when it is off or gone."""
+        return next((c for c in self.clients if c.row_id == row_id), None)
+
     def client_for_grab(self, grab: Grab):
         for client in self.clients:
             if client.row_id == grab.client_id:

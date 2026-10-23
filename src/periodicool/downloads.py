@@ -27,6 +27,7 @@ from sqlalchemy.orm import Session
 
 from periodicool import history, pdf_text
 from periodicool.clients.base import ClientError, JobStatus
+from periodicool.clients.registry import CLIENT_PROTOCOLS
 from periodicool.config import Settings
 from periodicool.decisions import evaluate, format_rank, load_options
 from periodicool.library import (
@@ -127,7 +128,15 @@ def _indexer_for(prowlarr, release: Release):
     return prowlarr
 
 
-def _client_for(client, protocol: str | None):
+def _client_for(client, protocol: str | None, entry: Indexer | None = None):
+    """The client a release goes to: the indexer entry's own download client when it
+    names one (only that one, as in Sonarr), else the first enabled client for the
+    protocol."""
+    pinned = entry.download_client_id if entry is not None else None
+    if pinned is not None:
+        if hasattr(client, "client_for_id"):
+            return client.client_for_id(pinned)
+        return client if getattr(client, "row_id", None) == pinned else None
     if hasattr(client, "client_for"):
         return client.client_for(protocol)
     return client
@@ -327,10 +336,18 @@ def grab(
     if indexer is None:
         result.reasons.append("the indexer this release came from is removed or disabled")
     protocol = release.protocol or "usenet"
-    target = _client_for(client, protocol)
+    target = _client_for(client, protocol, entry)
     category = getattr(target, "category", "") if target is not None else ""
-    if target is None:
+    if target is None and entry is not None and entry.download_client_id is not None:
+        pinned = session.get(DownloadClientRow, entry.download_client_id)
+        name = f" {pinned.name}" if pinned else ""
+        result.reasons.append(f"the indexer's download client{name} is not available")
+    elif target is None:
         result.reasons.append(f"no enabled {protocol} download client")
+    elif (takes := CLIENT_PROTOCOLS.get(target.name)) and takes != protocol:
+        result.reasons.append(
+            f"the indexer's download client {client_label(target)} takes {takes}, not {protocol}"
+        )
     elif not category:
         result.reasons.append(
             f"no category set for {client_label(target)} (Settings, Download clients)"

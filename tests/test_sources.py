@@ -305,3 +305,54 @@ def test_no_entry_has_the_mode_on(env, fake_n):
         search.search_magazine(
             e.session, sources(e, fake_n), linux(e), TODAY, now=NOW, mode="interactive"
         )
+
+
+# The indexer's own download client
+
+
+def _found(e, fake_n, nz):
+    fake_n.search_titles = [L311]
+    src = sources(e, fake_n)
+    search.search_magazine(e.session, src, linux(e), TODAY, now=NOW)
+    rel = e.session.scalars(
+        select(Release).where(Release.title == L311, Release.source_id == nz.id)
+    ).one()
+    return src, rel
+
+
+def test_releases_go_to_the_indexers_own_client(env, fake_n):
+    e = env
+    backup = add_client(e.session, "http://sab2:8080", SAB_KEY, "Backup", "mags2", priority=5)
+    nz = with_newznab(e)
+    nz.download_client_id = backup.id
+    e.session.flush()
+    src, rel = _found(e, fake_n, nz)
+    res = downloads.grab(e.session, rel, src, src, TODAY)
+    assert res.ok and res.grab.client_id == backup.id and res.client_name == "Backup"
+    assert e.fake_s.added[0][0] == "mags2"
+
+
+def test_a_disabled_own_client_refuses_and_never_falls_back(env, fake_n):
+    e = env
+    backup = add_client(e.session, "http://sab2:8080", SAB_KEY, "Backup", "mags2", priority=5)
+    backup.enabled = False
+    nz = with_newznab(e)
+    nz.download_client_id = backup.id
+    e.session.flush()
+    src, rel = _found(e, fake_n, nz)
+    res = downloads.grab(e.session, rel, src, src, TODAY)
+    assert not res.ok and "the indexer's download client Backup is not available" in res.reasons
+    assert e.fake_s.added == []
+
+
+def test_an_own_client_of_the_other_protocol_is_refused(env, fake_n):
+    e = env
+    qbit = add_client(
+        e.session, "http://qbit:8080", None, "qBit", "mags", kind="qbittorrent", protocol="torrent"
+    )
+    nz = with_newznab(e)
+    nz.download_client_id = qbit.id
+    e.session.flush()
+    src, rel = _found(e, fake_n, nz)
+    res = downloads.grab(e.session, rel, src, src, TODAY)
+    assert not res.ok and any("takes torrent, not usenet" in r for r in res.reasons)
