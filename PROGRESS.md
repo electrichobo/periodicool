@@ -27,6 +27,8 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **Add search and Monitor button, 2026-10-22:** `add_search.py` groups release names (from `search.search_term`, which runs through `search_magazine`'s cache and limits) into cards and guesses numbering, frequency and the latest issue; `loc.candidates` (serials only by MARC leader) and `wikidata.candidates` give several matches, cached as `list|...` rows; `service.remember` stores the picked records as the new magazine's lookup answers. Add page: search box, cards, short form pop-up (`_add_form.html`) with More options. Monitor pop-up at `/magazines/{id}/monitoring` (the old `/monitor` toggles the switch). Fixture finding: Fortean Times releases are mostly date-named (97 of 109 have a month, 20 a number), so the guess is date numbering at 13 a year; CLAUDE.md lists it as numbered. Make: has too few dated names for a sure frequency. Checked live with the dev lookups on (then off again): "Wired" gives one merged LoC and Wikidata card. 1448 tests pass.
 
+- **v0.1.6 tagged 2026-10-22** (torrents, add search, Monitor button); maintainer confirmed it on the server 2026-10-23.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
