@@ -4,7 +4,7 @@
 {% block content %}
 <div class="page-head">
   <h1 class="page-title">Magazines</h1>
-  <a class="btn btn--primary" href="/magazines/add">+ Add magazine</a>
+  <a class="btn btn--primary btn--big" href="/magazines/add">+ Add magazine</a>
 </div>
 {% if saved %}<div class="crt flash" role="status">{{ ui.led("ok", "Done") }} {{ saved }}</div>{% endif %}
 {% if lookup_notice %}
@@ -69,7 +69,6 @@
       {% for s in summaries %}
       {% set m = s.mag %}
       <a class="cassette{% if not m.monitored %} cassette--off{% endif %}" href="/magazines/{{ m.id }}"
-         style="--stripe: {{ ['var(--orange)', 'var(--tape-blue)', 'var(--amber)'][loop.index0 % 3] }}"
          data-filter-row="mag-list"
          data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}"
          data-tags="|{{ m.tags | map('lower') | join('|') }}|">
@@ -83,12 +82,15 @@
           </div>
         </div>
         <div class="cassette__window">
-          <span class="reel" aria-hidden="true"></span>
-          {{ ui.counter(s.have, 3, s.have ~ " issues in the library") }}
-          <span class="reel" aria-hidden="true"></span>
+          <span class="lampdot{{ ' lampdot--on' if m.monitored }}" aria-hidden="true"></span>
+          <span class="cassette__reading">
+            {{ ui.counter(s.have, 3, s.have ~ " of " ~ s.total ~ " issues in the library") }}
+            <span class="counter-total" aria-hidden="true">/ {{ s.total }}</span>
+          </span>
+          <span class="lampdot{{ ' lampdot--on' if s.downloading }}" aria-hidden="true"></span>
         </div>
-        <div class="stack" style="--gap: 0.3rem">
-          <span class="cassette__count" id="have-{{ m.id }}">{{ s.have }} / {{ s.total }} issues</span>
+        <div class="cassette__bar">
+          <span class="visually-hidden" id="have-{{ m.id }}">{{ s.have }} of {{ s.total }} issues</span>
           {{ ui.segbar(s.percent, "have-" ~ m.id, plain=true) }}
         </div>
         <div class="cassette__leds">

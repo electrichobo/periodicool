@@ -289,3 +289,15 @@ def test_health_flags_an_unwritable_downloads_folder(client, settings, monkeypat
     page = client.get("/system/health").text
     assert "is not writable by PeriodiCool" in page
     assert "same owner and permissions" in page
+
+
+def test_header_shows_the_worst_health_check(client, monkeypatch):
+    # The test library folder was never made, so the header reports a fault.
+    page = client.get("/calendar").text
+    assert 'class="sysstate"' in page and "Sys fault" in page and "led--bad" in page
+    monkeypatch.setattr(
+        health, "local_checks", lambda session, settings: [health.Check("x", "info", "y")]
+    )
+    client.app.state.sys_state = None  # drop the one-minute cache
+    page = client.get("/calendar").text
+    assert "Sys nominal" in page and "Sys fault" not in page

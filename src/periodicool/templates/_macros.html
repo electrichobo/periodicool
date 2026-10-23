@@ -5,16 +5,16 @@
 {%- endmacro %}
 
 {% macro counter(value, digits=3, label=none) -%}
-{% set text = value | string %}
+{% set text = (("%0" ~ digits ~ "d") | format(value)) if value is number else value | string %}
 <span class="counter" aria-label="{{ label or value }}">
   <span class="counter__ghost" aria-hidden="true">{{ "8" * [digits, text | length] | max }}</span>
   <span class="counter__value" aria-hidden="true">{{ text }}</span>
 </span>
 {%- endmacro %}
 
-{% macro segbar(percent, label_id, plain=false) -%}
+{% macro segbar(percent, label_id, plain=false, dark=false, amber=false) -%}
 {% set p = [[percent | float, 0] | max, 100] | min %}
-<div class="segbar{{ ' segbar--plain' if plain }}" role="progressbar" aria-labelledby="{{ label_id }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" style="--value: {{ p }}">
+<div class="segbar{{ ' segbar--plain' if plain }}{{ ' segbar--dark' if dark }}{{ ' segbar--amber' if amber }}" role="progressbar" aria-labelledby="{{ label_id }}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ p | round(0) | int }}" style="--value: {{ p }}">
   <div class="segbar__fill"></div>
 </div>
 {%- endmacro %}
@@ -62,7 +62,10 @@
     <defs>
       <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
         <rect width="6" height="6" class="chart-wanted"></rect>
-        <line x1="0" y1="0" x2="0" y2="6" stroke="#1e1c19" stroke-width="2" opacity="0.35"></line>
+        <line x1="0" y1="0" x2="0" y2="6" stroke="#1a1c1a" stroke-width="2" opacity="0.3"></line>
+      </pattern>
+      <pattern id="hatch-missing" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="8" stroke="#df6a24" stroke-width="2.5" opacity="0.35"></line>
       </pattern>
     </defs>
     {% for f in [0.25, 0.5, 0.75, 1] %}
@@ -76,7 +79,7 @@
     {% set y0 = height - pad_b %}
     <rect class="chart-have" x="{{ x }}" y="{{ y0 - have * scale }}" width="{{ bar }}" height="{{ have * scale }}"><title>{{ label }}: {{ have }} have</title></rect>
     <rect class="chart-wanted-hatch" x="{{ x }}" y="{{ y0 - (have + wanted) * scale }}" width="{{ bar }}" height="{{ wanted * scale }}"><title>{{ label }}: {{ wanted }} wanted</title></rect>
-    <rect class="chart-missing" x="{{ x }}" y="{{ y0 - (have + wanted + missing) * scale }}" width="{{ bar }}" height="{{ missing * scale }}" stroke="#1e1c19" stroke-width="1"><title>{{ label }}: {{ missing }} missing</title></rect>
+    <rect class="chart-missing" x="{{ x }}" y="{{ y0 - (have + wanted + missing) * scale }}" width="{{ bar }}" height="{{ missing * scale }}" stroke-width="1"><title>{{ label }}: {{ missing }} missing</title></rect>
     <text class="chart-axis" x="{{ x + bar / 2 }}" y="{{ height - 6 }}" text-anchor="middle">{{ label }}</text>
     {% endfor %}
   </svg>
@@ -94,6 +97,6 @@
 {% set pct = (used / total * 100) if total else 0 %}
 <div class="stack" style="--gap: 0.3rem">
   <div class="field__label" id="{{ label_id }}">{{ label }} · {{ used | filesize }} of {{ total | filesize }} used ({{ pct | round(0) | int }}%)</div>
-  {{ segbar(pct, label_id) }}
+  {{ segbar(pct, label_id, dark=true, amber=true) }}
 </div>
 {%- endmacro %}

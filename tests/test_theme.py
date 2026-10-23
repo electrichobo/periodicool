@@ -13,9 +13,16 @@ ROOT = Path(__file__).parent.parent
 THEME = ROOT / "src" / "periodicool" / "static" / "css" / "theme.css"
 
 
-def tokens() -> dict[str, str]:
-    root = re.search(r":root\s*{(.*?)}", THEME.read_text(encoding="utf-8"), re.S).group(1)
-    return dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;", root))
+def tokens(mode: str = "light") -> dict[str, str]:
+    """Color tokens; dark mode is the light set overridden by the dark block."""
+    css = THEME.read_text(encoding="utf-8")
+    blocks = [re.search(r":root\s*{(.*?)}", css, re.S).group(1)]
+    if mode == "dark":
+        blocks.append(re.search(r':root\[data-theme="dark"\]\s*{(.*?)}', css, re.S).group(1))
+    found: dict[str, str] = {}
+    for block in blocks:
+        found |= dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;", block))
+    return found
 
 
 def luminance(hex_color: str) -> float:
@@ -32,44 +39,74 @@ def contrast(a: str, b: str) -> float:
 TEXT = 4.5  # normal text
 UI = 3.0  # large text, focus rings, control borders
 
+# Lamp faces: the average color of the middle of each lamp tile, where the label sits
+# (sampled from static/img/lamps; also the fallback colors in theme.css).
+LAMP_OFF = "#572007"
+LAMP_ON = "#d27328"
+LAMP_BLUE_ON = "#3083bf"
+LAMP_GREEN_OFF = "#403916"
+LAMP_GREEN_ON = "#82ab42"
+
 # (foreground, background, minimum). Names are tokens; literals are colors used directly.
 PAIRS = [
-    ("on-chassis", "chassis", TEXT),
-    ("on-chassis-muted", "chassis", TEXT),
-    ("on-chassis", "chassis-raised", TEXT),
-    ("on-chassis-muted", "chassis-raised", TEXT),
+    ("ink", "page", TEXT),
     ("ink", "panel", TEXT),
-    ("ink-muted", "panel", TEXT),
     ("ink", "panel-recess", TEXT),
+    ("ink", "input-bg", TEXT),
+    ("ink", "row-selected", TEXT),
+    ("ink", "cal-other", TEXT),
+    ("ink-label", "page", TEXT),
+    ("ink-label", "panel", TEXT),
+    ("ink-muted", "page", TEXT),
+    ("ink-muted", "panel", TEXT),
     ("ink-muted", "panel-recess", TEXT),
-    ("amber-ink", "panel", TEXT),
+    ("orange-ink", "panel", TEXT),  # link hover, naming tokens
     ("tape-red", "panel", TEXT),  # field error text
-    ("ink", "#fbf8f0", TEXT),  # input text
-    ("ink", "#d9d0ba", TEXT),  # default button, darkest part of its gradient
-    ("on-orange", "orange", TEXT),  # primary button
-    ("#ffffff", "#c0362b", TEXT),  # danger button
-    ("on-chassis", "#302d29", TEXT),  # chassis button
-    ("chassis", "amber", TEXT),  # active nav item
-    ("on-orange", "amber", TEXT),  # skip link
-    ("crt-fg", "crt-bg", TEXT),
-    ("crt-dim", "crt-bg", TEXT),
-    ("amber", "#0d0c0b", UI),  # tape counter, large digits
-    ("on-tape", "tape-black", TEXT),
-    ("on-tape", "tape-red", TEXT),
-    ("on-tape", "tape-blue", TEXT),
+    ("on-dark", "dark", TEXT),  # header
+    ("on-dark-muted", "dark", TEXT),
+    ("green-text", "dark", TEXT),  # console, API key
+    ("orange-bright", "dark", UI),  # counter digits, large
+    ("counter-dim", "dark", UI),  # "/ 322" on the counter, large
+    ("on-lamp", LAMP_OFF, TEXT),  # unlit buttons
+    ("on-lamp-lit", LAMP_ON, TEXT),  # lit orange: current, primary
+    ("on-lamp-blue", LAMP_BLUE_ON, TEXT),  # lit blue: chosen view
+    ("on-lamp", LAMP_GREEN_OFF, TEXT),  # switch off
+    ("#10240a", LAMP_GREEN_ON, TEXT),  # switch on
     ("on-tape-yellow", "tape-yellow", TEXT),
-    ("ink", "#e8d9b0", TEXT),  # VU meter face
+    ("#ffffff", "#b3261e", TEXT),  # red tag
+    ("#ffffff", "tape-blue", TEXT),  # blue tag
     ("focus", "panel", UI),
-    ("focus", "chassis", UI),
+    ("focus", "page", UI),
 ]
 
 
+@pytest.mark.parametrize("mode", ["light", "dark"])
 @pytest.mark.parametrize(("fg", "bg", "minimum"), PAIRS, ids=lambda v: str(v))
-def test_contrast(fg, bg, minimum):
-    t = tokens()
+def test_contrast(fg, bg, minimum, mode):
+    t = tokens(mode)
     a, b = (t[x] if not x.startswith("#") else x for x in (fg, bg))
     ratio = contrast(a, b)
-    assert ratio >= minimum, f"{fg} on {bg}: {ratio:.2f} < {minimum}"
+    assert ratio >= minimum, f"{mode}: {fg} on {bg}: {ratio:.2f} < {minimum}"
+
+
+def test_dark_mode_follows_the_system_and_the_setting():
+    css = THEME.read_text(encoding="utf-8")
+    auto = re.search(
+        r"@media \(prefers-color-scheme: dark\)\s*{\s*"
+        r':root:not\(\[data-theme="light"\]\)\s*{(.*?)}',
+        css,
+        re.S,
+    ).group(1)
+    forced = re.search(r':root\[data-theme="dark"\]\s*{(.*?)}', css, re.S).group(1)
+    assert auto.split() == forced.split()
+
+
+def test_lamp_tiles_and_font_are_served(client):
+    for name in ("orange-off", "orange-on", "blue-on", "green-off", "green-on"):
+        resp = client.get(f"/static/img/lamps/lamp-{name}.png")
+        assert resp.status_code == 200 and resp.content[:4] == b"\x89PNG"
+    font = client.get("/static/vendor/chelsea-market/ChelseaMarket-Regular.woff2")
+    assert font.status_code == 200 and font.content[:4] == b"wOF2"
 
 
 def test_reduced_motion_turns_effects_off():

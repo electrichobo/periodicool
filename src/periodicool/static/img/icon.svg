@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Placeholder app icon (the logo lamp) until the real icon is drawn. -->
+  <defs>
+    <radialGradient id="g" cx="0.38" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#ffc38f"/>
+      <stop offset="0.45" stop-color="#ef7a2e"/>
+      <stop offset="1" stop-color="#b9541c"/>
+    </radialGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#1a1c1a"/>
+  <circle cx="16" cy="16" r="9" fill="url(#g)" stroke="#3a3024" stroke-width="2"/>
+</svg>

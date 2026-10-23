@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "_macros.html" as ui %}
 {% block title %}{{ mag.title }} · PeriodiCool{% endblock %}
+{% block eyebrow %}{% endblock %}
 {% block content %}
 <div class="toolbar">
   <div class="toolbar__group">
@@ -49,7 +50,7 @@
     <div class="stack" style="--gap: 0.3rem; max-width: 32rem">
       <span class="field__label" id="have-detail">{{ s.have }} / {{ s.total }} issues in the library
         {% if s.missing %}· {{ s.missing }} missing{% endif %}{% if s.downloading %} · {{ s.downloading }} downloading{% endif %}</span>
-      {{ ui.segbar(s.percent, "have-detail", plain=true) }}
+      {{ ui.segbar(s.percent, "have-detail", plain=true, dark=true) }}
     </div>
   </div>
 </section>

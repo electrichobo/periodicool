@@ -81,9 +81,40 @@ templates.env.filters["sum_parts"] = lambda row: sum(row[1:])
 router = APIRouter()
 
 
+SYS_STATE_SECONDS = 60
+SYS_STATE_TEXT = {"ok": "Sys nominal", "warn": "Sys warning", "bad": "Sys fault"}
+
+
+def system_state(request: Request) -> tuple[str, str] | None:
+    """The header light: the worst local health check, refreshed once a minute."""
+    import time
+
+    state = request.app.state
+    sessions = getattr(state, "sessions", None)
+    if sessions is None:
+        return None
+    now = time.monotonic()
+    cached = getattr(state, "sys_state", None)
+    if cached is not None and now - cached[0] < SYS_STATE_SECONDS:
+        return cached[1]
+    from periodicool import health
+
+    try:
+        with sessions() as session:
+            kinds = {c.kind for c in health.local_checks(session, state.settings)}
+    except Exception:  # noqa: BLE001  the header must never break a page
+        return None
+    kind = "bad" if "bad" in kinds else "warn" if "warn" in kinds else "ok"
+    result = (kind, SYS_STATE_TEXT[kind])
+    state.sys_state = (now, result)
+    return result
+
+
 def render(request: Request, name: str, /, **context) -> HTMLResponse:
     context.setdefault("csrf_token", getattr(request.state, "csrf_token", ""))
     context.setdefault("user", getattr(request.state, "user", None))
+    if context.get("nav", True):
+        context.setdefault("sys_state", system_state(request))
     return templates.TemplateResponse(request, name, context)
 
 

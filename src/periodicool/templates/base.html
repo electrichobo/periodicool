@@ -1,10 +1,12 @@
 <!doctype html>
-<html lang="en" data-effects="on">
+{% import "_macros.html" as ui %}
+<html lang="en" data-effects="on" data-theme="{{ ui_theme | default('auto') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token | default('') }}">
   <title>{% block title %}PeriodiCool{% endblock %}</title>
+  <link rel="icon" href="{{ static('img/icon.svg') }}" type="image/svg+xml">
   <link rel="stylesheet" href="{{ static('css/theme.css') }}">
   <script src="{{ static('js/app.js') }}"></script>
   <script src="{{ static('vendor/htmx/htmx.min.js') }}" defer></script>
@@ -13,9 +15,10 @@
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="deck-bar">
     <a class="brand" href="/">
-      <span class="brand__mark" aria-hidden="true">&#9673;</span>
+      {# Icon slot: swap this lamp for <span class="brand__icon"><img src="..." alt=""></span> once the app icon exists. #}
+      <span class="brand__mark" aria-hidden="true"></span>
       PeriodiCool
-      <span class="brand__sub">magazine deck</span>
+      <span class="brand__sub">Magazine deck</span>
     </a>
     {% if nav is not defined or nav %}
     <nav aria-label="Main">
@@ -28,6 +31,9 @@
         {% endfor %}
       </ul>
     </nav>
+    {% if sys_state %}
+    <a class="sysstate" href="/system" title="System status">{{ ui.led(sys_state[0], sys_state[1]) }}</a>
+    {% endif %}
     {% if user %}
     <form class="logout" method="post" action="/logout">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -40,6 +46,8 @@
     {% for kind, text in flashes | default([]) %}
     <div class="crt flash" role="status"><span class="led led--{{ kind }}">{{ kind }}</span> {{ text }}</div>
     {% endfor %}
+    {% set sectors = {"/": "01", "/calendar": "02", "/activity": "03", "/wanted": "04", "/library": "05", "/settings": "06", "/system": "07"} %}
+    {% block eyebrow %}{% if active is defined and active in sectors %}<p class="page-eyebrow">Sector {{ sectors[active] }}</p>{% endif %}{% endblock %}
     {% block content %}{% endblock %}
   </main>
   <dialog id="modal" class="modal" aria-labelledby="modal-title">
