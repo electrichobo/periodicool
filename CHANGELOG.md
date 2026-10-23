@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-10-22
+
 ### Changed
 
 - Add magazine is a search now: type a title or ISSN, pick one of the likely matches, and confirm a short form (title, frequency, numbering, what to monitor, format profile); everything else waits under More options. Matches come from your indexers (release names grouped into magazines, with frequency, numbering and the latest issue guessed from them; one cached search) and, when you turned them on, the Library of Congress and Wikidata (magazines and journals only). What the catalogs said about the match you pick becomes the magazine's metadata, so its Metadata pop-up does not ask again.
@@ -126,7 +128,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/electrichobo/periodicool/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/electrichobo/periodicool/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/electrichobo/periodicool/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/electrichobo/periodicool/compare/v0.1.2...v0.1.3
