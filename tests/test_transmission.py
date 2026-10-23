@@ -73,3 +73,11 @@ def test_remove_keeps_files_and_only_ours():
     assert tr.remove(FOREIGN_HASH, "mags") is False
     assert tr.remove(job, "mags") is True
     assert fake.removed == [([job], False)] and FOREIGN_HASH in fake.torrents
+
+
+def test_tracker_messages_are_not_failures():
+    fake = FakeTransmission()
+    tr = client(fake)
+    job = tr.add_torrent("Linux 311", "mags", torrent=make_torrent())
+    fake.set_state(job, 4, 0.4, error=2, error_string="tracker gone")
+    assert tr.jobs([job], "mags")[0].fail_message is None

@@ -203,7 +203,7 @@ class TransmissionClient:
                     client_status=str(code),
                     progress=done * 100,
                     storage_path=f"{folder}/{name}" if folder else None,
-                    fail_message=t.get("errorString") or None
+                    fail_message=(t.get("errorString") or None)
                     if status is JobStatus.FAILED
                     else None,
                     size_bytes=t.get("totalSize"),
