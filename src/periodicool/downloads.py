@@ -169,8 +169,23 @@ def check_nzb(nzb: bytes) -> str | None:
         names = nzb_file_names(nzb)
     except ET.ParseError:
         return "not a valid NZB"
+    return check_names(names, "NZB")
+
+
+def check_torrent(torrent: bytes) -> str | None:
+    """None if the torrent may hold a magazine file, else the reason it cannot."""
+    from periodicool.bencode import BencodeError, file_names
+
+    try:
+        names = file_names(torrent)
+    except BencodeError:
+        return "not a valid torrent file"
+    return check_names(names, "torrent")
+
+
+def check_names(names: list[str], what: str) -> str | None:
     if not names:
-        return "NZB lists no files"
+        return f"{what} lists no files"
     exts = set()
     for name in names:
         m = re.search(r"\.([A-Za-z0-9]{2,5})$", name)
@@ -180,7 +195,7 @@ def check_nzb(nzb: bytes) -> str | None:
             return None
         exts.add(ext)
     if exts and exts <= _NOT_MAGAZINE:
-        return f"NZB holds no pdf/epub/cbz/cbr (only {', '.join(sorted(exts))})"
+        return f"{what} holds no pdf/epub/cbz/cbr (only {', '.join(sorted(exts))})"
     return None  # archives or obfuscated names: unknown until downloaded
 
 
@@ -286,6 +301,8 @@ def grab(
 
     result = GrabResult(release)
     magazines = list(session.scalars(select(Magazine)))
+    entry = session.get(Indexer, release.source_id) if release.source_id else None
+    entry_settings = (entry.settings if entry is not None else None) or {}
     ev = evaluate(
         session,
         release.title,
@@ -296,6 +313,8 @@ def grab(
         published=release.publish_date,
         options=load_options(session),
         guid=release.guid,
+        seeders=release.seeders,
+        min_seeders=entry_settings.get("min_seeders"),
     )
     if not ev.accepted:
         result.reasons = list(ev.reasons)
@@ -328,18 +347,34 @@ def grab(
         return result
 
     try:
-        nzb = indexer.fetch_nzb(release.download_url, release.indexer_id)
+        kind, payload = indexer.fetch_download(release.download_url, release.indexer_id)
     except ProwlarrError as exc:
-        result.reasons.append(f"NZB download failed: {exc}")
-        log.warning("Not grabbed %s: NZB download failed: %s", release.title, exc)
+        result.reasons.append(f"download failed: {exc}")
+        log.warning("Not grabbed %s: download failed: %s", release.title, exc)
         return result
-    if bad := check_nzb(nzb):
+    got = "usenet" if kind == "nzb" else "torrent"
+    if got != protocol:
+        result.reasons.append(f"the indexer sent a {got} download for a {protocol} release")
+        return result
+    if kind != "magnet" and (
+        bad := check_nzb(payload) if kind == "nzb" else check_torrent(payload)
+    ):
         blocklist(session, release, release.title, mag.id, ev.issue_key, bad)
         result.reasons.append(bad)
         return result
     try:
-        job_id = target.add_nzb(nzb, release.title, category)
-    except ClientError as exc:
+        if kind == "nzb":
+            job_id = target.add_nzb(payload, release.title, category)
+        else:
+            job_id = target.add_torrent(
+                release.title,
+                category,
+                torrent=payload if kind == "torrent" else None,
+                magnet=payload if kind == "magnet" else None,
+                seed_ratio=_number(entry_settings.get("seed_ratio")),
+                seed_time_min=_number(entry_settings.get("seed_time_min")),
+            )
+    except (ClientError, AttributeError) as exc:
         result.reasons.append(f"not sent to {client_label(target)}: {exc}")
         return result
 
@@ -361,6 +396,7 @@ def grab(
         client=target.name,
         client_id=getattr(target, "row_id", None),
         job_id=job_id,
+        protocol=protocol,
         category=category,
         status=GrabStatus.QUEUED,
         progress=0.0,
@@ -378,6 +414,10 @@ def grab(
     )
     log.info("Grabbed %s for %s %s as job %s", release.title, mag.title, ev.issue_key, job_id)
     return result
+
+
+def _number(value):
+    return value if isinstance(value, int | float) and value >= 0 else None
 
 
 def _candidates(session: Session, mag_id: int | None = None, key: str | None = None):
@@ -568,6 +608,7 @@ _LOCAL_FAILURES = (
     "not enough free space",
     "read-only file system",
     "write error",
+    "missingfiles",  # qBittorrent: its files were moved or deleted on that side
 )
 
 
@@ -731,6 +772,7 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         None,
         f"download {g.job_id}",
     )
+    item.keep_source = g.protocol == "torrent"
     session.add(item)
     session.flush()
     g.import_item_id = item.id
@@ -754,7 +796,8 @@ def import_download(session: Session, g: Grab, settings: Settings) -> str:
         pdf_issn=pdf_issn,
     )
     log.info("Imported %s to %s", best, final)
-    if get_setting(session, LEFTOVERS_KEY, True) and local.is_dir():
+    # A torrent keeps seeding from its folder: never clean that up.
+    if g.protocol != "torrent" and get_setting(session, LEFTOVERS_KEY, True) and local.is_dir():
         if why := _safe_to_remove(local, downloads, library_root):
             log.warning("Leftovers kept at %s: %s", local, why)
         else:

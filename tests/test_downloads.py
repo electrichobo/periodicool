@@ -473,7 +473,7 @@ def test_retry_import_after_the_cause_is_fixed(env, monkeypatch):
     finish(e, g, {"Linux311.pdf": b"magazine"})
     real_move = library_module._move
 
-    def refused(src, dst, allow_copy):
+    def refused(src, dst, allow_copy, keep_source=False):
         raise PermissionError(13, "Permission denied", str(dst.parent))
 
     monkeypatch.setattr(library_module, "_move", refused)

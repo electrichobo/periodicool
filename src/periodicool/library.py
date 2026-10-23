@@ -537,8 +537,13 @@ class MoveError(Exception):
     pass
 
 
-def _move(src: Path, dst: Path, allow_copy: bool) -> str:
-    """Move src to dst without ever replacing dst. Returns the method used."""
+def _move(src: Path, dst: Path, allow_copy: bool, keep_source: bool = False) -> str:
+    """Move src to dst without ever replacing dst. Returns the method used.
+
+    keep_source (a torrent that goes on seeding): a hard link where possible, else a
+    verified copy; the original is never renamed or removed."""
+    if keep_source:
+        return _link_or_copy(src, dst)
     if dst.exists():
         if _same_file(src, dst):  # case-only rename on a case-insensitive disk
             src.rename(dst)
@@ -573,7 +578,27 @@ def _drop_source(src: Path, method: str) -> str:
     return method
 
 
+def _link_or_copy(src: Path, dst: Path) -> str:
+    if dst.exists():
+        raise FileExistsError(dst)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        os.link(src, dst)  # fails if dst exists: no overwrite
+        return "link"
+    except FileExistsError:
+        raise
+    except OSError:
+        # Another filesystem, or no hard links there: copy instead.
+        _copy(src, dst)
+        return "copy"
+
+
 def _copy_then_remove(src: Path, dst: Path) -> str:
+    _copy(src, dst)
+    return _drop_source(src, "copy")  # removed only after a verified copy
+
+
+def _copy(src: Path, dst: Path) -> None:
     tmp = dst.with_name(f".{dst.name}.periodicool-tmp")
     try:
         with src.open("rb") as fin, tmp.open("xb") as fout:
@@ -588,7 +613,6 @@ def _copy_then_remove(src: Path, dst: Path) -> str:
     except BaseException:
         tmp.unlink(missing_ok=True)  # our own partial copy
         raise
-    return _drop_source(src, "copy")  # removed only after a verified copy
 
 
 def _fields_for_issue(item: ImportItem) -> dict:
@@ -686,7 +710,10 @@ def apply_item(session: Session, item: ImportItem, library_root: Path, result: d
     move = FileMove(item_id=item.id, source=str(src), target=str(dst), ok=False)
     try:
         move.method = _move(
-            src, dst, allow_copy=item.origin in (ScanKind.IMPORT, ScanKind.DOWNLOAD)
+            src,
+            dst,
+            allow_copy=item.origin in (ScanKind.IMPORT, ScanKind.DOWNLOAD),
+            keep_source=bool(item.keep_source),
         )
     except FileExistsError:
         move.error = "target exists"

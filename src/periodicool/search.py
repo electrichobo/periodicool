@@ -303,7 +303,19 @@ def _apply_evaluation(rel: Release, ev: Evaluation) -> None:
     rel.rank = list(ev.rank)
 
 
-def _evaluate(session, title, size, protocol, published, magazines, today, options, guid=None):
+def _evaluate(
+    session,
+    title,
+    size,
+    protocol,
+    published,
+    magazines,
+    today,
+    options,
+    guid=None,
+    seeders=None,
+    min_seeders=None,
+):
     return evaluate(
         session,
         title,
@@ -314,7 +326,16 @@ def _evaluate(session, title, size, protocol, published, magazines, today, optio
         published=_aware(published),
         options=options,
         guid=guid,
+        seeders=seeders,
+        min_seeders=min_seeders,
     )
+
+
+def min_seeders(client) -> int | None:
+    """The indexer entry's minimum seeders for torrents (None: the default)."""
+    row = getattr(client, "row", None)
+    value = ((row.settings if row is not None else None) or {}).get("min_seeders")
+    return int(value) if isinstance(value, int | float) else None
 
 
 @dataclass
@@ -372,6 +393,8 @@ def rss_sync(session: Session, source, today: date, now: datetime | None = None)
                     today,
                     options,
                     f.guid,
+                    f.seeders,
+                    min_seeders(client),
                 )
                 rel, new = _upsert(session, f, ReleaseSource.RSS, ev, now, client.source_id)
                 result.seen += 1
@@ -455,6 +478,8 @@ def search_magazine(
                         today,
                         options,
                         rel.guid,
+                        rel.seeders,
+                        min_seeders(client),
                     )
                     _apply_evaluation(rel, ev)
                     session.flush()
@@ -502,6 +527,8 @@ def search_magazine(
                     today,
                     options,
                     f.guid,
+                    f.seeders,
+                    min_seeders(client),
                 )
                 rel, new = _upsert(session, f, ReleaseSource.SEARCH, ev, now, client.source_id)
                 session.flush()

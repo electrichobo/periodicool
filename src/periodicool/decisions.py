@@ -47,6 +47,9 @@ class Options:
     min_age_min: int = 0
     retention_days: int = 0
     early_days: int = DEFAULT_EARLY_DAYS
+    # Protocols with an enabled download client; usenet is always considered (a
+    # missing usenet client is reported when grabbing, as before).
+    protocols: frozenset[str] = frozenset({"usenet"})
     # Release rules for every magazine, on top of each magazine's own.
     must_contain: tuple[str, ...] = ()
     must_not_contain: tuple[str, ...] = ()
@@ -63,7 +66,20 @@ def load_options(session: Session) -> Options:
         early_days=get_setting(session, EARLY_DAYS_KEY, DEFAULT_EARLY_DAYS),
         must_contain=tuple(get_setting(session, MUST_CONTAIN_KEY, []) or ()),
         must_not_contain=tuple(get_setting(session, MUST_NOT_CONTAIN_KEY, []) or ()),
+        protocols=frozenset({"usenet"}) | _enabled_protocols(session),
     )
+
+
+def _enabled_protocols(session: Session) -> frozenset[str]:
+    from periodicool.models import DownloadClient
+
+    return frozenset(
+        session.scalars(select(DownloadClient.protocol).where(DownloadClient.enabled.is_(True)))
+    )
+
+
+# A torrent entry without its own minimum: at least one seeder, as in Sonarr.
+DEFAULT_MIN_SEEDERS = 1
 
 
 @dataclass
@@ -154,11 +170,21 @@ def evaluate(
     options: Options | None = None,
     guid: str | None = None,
     now: datetime | None = None,
+    seeders: int | None = None,
+    min_seeders: int | None = None,
 ) -> Evaluation:
     options = options or Options()
     reasons: list[str] = []
-    if protocol and protocol != "usenet":
-        reasons.append(f"protocol {protocol} (usenet only)")
+    early_notes: list[str] = []
+    torrent = protocol == "torrent"
+    if protocol and protocol not in options.protocols:
+        reasons.append(f"no enabled {protocol} download client")
+    if torrent:
+        needed = DEFAULT_MIN_SEEDERS if min_seeders is None else min_seeders
+        if seeders is None:
+            early_notes.append("the indexer did not say how many seeders it has")
+        elif seeders < needed:
+            reasons.append(f"{seeders} seeders, minimum {needed}")
     if size is not None and size < options.min_size_mb * 1024 * 1024:
         reasons.append(f"size {size / 1048576:.1f} MB is under {options.min_size_mb} MB")
     if size is not None and options.max_size_mb and size > options.max_size_mb * 1024 * 1024:
@@ -175,7 +201,11 @@ def evaluate(
                 reasons.append(
                     f"posted {minutes} min ago; the minimum age is {options.min_age_min} min"
                 )
-            if options.retention_days and age > timedelta(days=options.retention_days):
+            if (
+                options.retention_days
+                and not torrent  # retention is a usenet provider's limit
+                and age > timedelta(days=options.retention_days)
+            ):
                 reasons.append(
                     f"posted {age.days} days ago, beyond the {options.retention_days} day retention"
                 )
@@ -235,6 +265,7 @@ def evaluate(
     ev.notes = list(ident.notes) + [f"agrees: {a}" for a in ident.agreements]
     if undated:
         ev.notes.append("no posting date, so minimum age and retention were not checked")
+    ev.notes += early_notes
     ev.rank = _rank(parsed, mag, size, published, len(ident.agreements))
 
     if mag.monitored is False:

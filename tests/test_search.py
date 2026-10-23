@@ -84,7 +84,11 @@ def test_accepts_current_issue(session):
 @pytest.mark.parametrize(
     ("title", "kw", "reason"),
     [
-        ("Linux Magazine USA - Issue 311, October 2026", {"protocol": "torrent"}, "protocol"),
+        (
+            "Linux Magazine USA - Issue 311, October 2026",
+            {"protocol": "torrent"},
+            "no enabled torrent download client",
+        ),
         ("Linux Magazine USA - Issue 311, October 2026", {"size": 1000}, "under 1 MB"),
         ("People.Australia.TruePDF-08.April.2019", {}, "region Australia, wanted USA"),
         ("Linux Magazine #03 (2026)", {}, "does not fit 2026"),
@@ -109,6 +113,33 @@ def test_rejections(session, title, kw, reason):
 def test_all_reasons_are_collected(session):
     e = ev(session, "Linux Magazine USA - Issue 311, October 2026", protocol="torrent", size=10)
     assert len(e.reasons) >= 2
+
+
+def test_torrent_rules(session):
+    title = "Linux Magazine USA - Issue 311, October 2026"
+    with_qbit = Options(protocols=frozenset({"usenet", "torrent"}), retention_days=30)
+    ok = ev(session, title, protocol="torrent", seeders=3, options=with_qbit)
+    assert ok.accepted
+    few = ev(session, title, protocol="torrent", seeders=2, min_seeders=5, options=with_qbit)
+    assert few.reasons == ["2 seeders, minimum 5"]
+    none = ev(session, title, protocol="torrent", seeders=0, options=with_qbit)
+    assert none.reasons == ["0 seeders, minimum 1"]
+    unknown = ev(session, title, protocol="torrent", options=with_qbit)
+    assert unknown.accepted and "the indexer did not say how many seeders it has" in unknown.notes
+    # Retention is a usenet provider's limit; it does not apply to torrents.
+    old = ev(
+        session,
+        title,
+        protocol="torrent",
+        seeders=4,
+        options=with_qbit,
+        published=NOW - timedelta(days=400),
+        now=NOW,
+    )
+    assert old.accepted
+    assert not ev(
+        session, title, options=with_qbit, published=NOW - timedelta(days=400), now=NOW
+    ).accepted
 
 
 def test_release_rules(session):
