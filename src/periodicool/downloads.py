@@ -12,6 +12,7 @@ Safety (CLAUDE.md):
 
 from __future__ import annotations
 
+import calendar
 import logging
 import os
 import re
@@ -362,9 +363,10 @@ def grab(
         blocklist(session, release, release.title, mag.id, ev.issue_key, bad)
         result.reasons.append(bad)
         return result
+    extra = add_options(target, _cover_date(session, mag.id, ev), today)
     try:
         if kind == "nzb":
-            job_id = target.add_nzb(payload, release.title, category)
+            job_id = target.add_nzb(payload, release.title, category, **extra)
         else:
             job_id = target.add_torrent(
                 release.title,
@@ -373,6 +375,7 @@ def grab(
                 magnet=payload if kind == "magnet" else None,
                 seed_ratio=_number(entry_settings.get("seed_ratio")),
                 seed_time_min=_number(entry_settings.get("seed_time_min")),
+                **extra,
             )
     except (ClientError, AttributeError) as exc:
         result.reasons.append(f"not sent to {client_label(target)}: {exc}")
@@ -418,6 +421,52 @@ def grab(
 
 def _number(value):
     return value if isinstance(value, int | float) and value >= 0 else None
+
+
+RECENT_DAYS = 14  # Sonarr's line between recent and older priority
+
+
+def _cover_date(session: Session, mag_id: int, ev) -> date | None:
+    """The day an issue counts from for recent or older priority. A month-only date
+    counts from the month's last day (an October issue is current all October)."""
+    issue = _issue(session, mag_id, ev.issue_key)
+    fields = ev.fields
+    if issue is not None and issue.year:
+        fields = {
+            "year": issue.year,
+            "month": issue.month,
+            "month_end": issue.month_end,
+            "day": issue.day,
+        }
+    year, month = fields.get("year"), fields.get("month_end") or fields.get("month")
+    if not year or not month:
+        return None
+    try:
+        if fields.get("day") and not fields.get("month_end"):
+            return date(year, month, fields["day"])
+        return date(year, month, calendar.monthrange(year, month)[1])
+    except ValueError:
+        return None
+
+
+def add_options(client, cover: date | None, today: date) -> dict:
+    """The add options a client entry was set up with: priority (recent or older, by
+    the issue's cover date, as Sonarr does), add paused, and directory. Only options
+    the user set are passed, so each client keeps its own defaults otherwise."""
+    opts = getattr(client, "options", None) or {}
+    recent = cover is None or (today - cover).days <= RECENT_DAYS
+    out: dict = {}
+    priority = opts.get("recent_priority" if recent else "older_priority")
+    if priority not in (None, ""):
+        out["priority"] = str(priority)
+    state = opts.get("initial_state")
+    if opts.get("add_paused") or state == "pause":
+        out["paused"] = True
+    if state == "force_start":
+        out["force_start"] = True
+    if opts.get("directory"):
+        out["directory"] = str(opts["directory"])
+    return out
 
 
 def _candidates(session: Session, mag_id: int | None = None, key: str | None = None):
@@ -552,6 +601,7 @@ def _import(session, g, settings, prowlarr, client, today, result) -> None:
     outcome = import_download(session, g, settings)
     if outcome == "imported":
         result.imported.append(g)
+        after_import(_client_for_grab(client, g), g)
         from periodicool.covers import refresh_covers
 
         refresh_covers(session, settings.library_dir, settings.config_dir, g.magazine_id)
@@ -564,6 +614,29 @@ def _import(session, g, settings, prowlarr, client, today, result) -> None:
         result.failed.append(g)
     else:
         result.review.append(g)
+
+
+def after_import(client, g: Grab) -> None:
+    """What the client entry asks for once our download is in the library: a torrent
+    moves to the post-import category, or a usenet job leaves the client's history
+    (remove completed). Only our own job, and never its files. A failure here is
+    logged and does not undo the import."""
+    if client is None:
+        return
+    opts = getattr(client, "options", None) or {}
+    try:
+        if g.protocol == "torrent" and opts.get("post_import_category"):
+            client.set_category(g.job_id, g.category, str(opts["post_import_category"]))
+            log.info(
+                "Moved %s to %s in %s", g.title, opts["post_import_category"], client_label(client)
+            )
+        elif g.protocol != "torrent" and opts.get("remove_completed"):
+            done = [s for s in client.jobs([g.job_id], g.category) if s.in_history]
+            if done and done[0].status is JobStatus.COMPLETED:
+                client.remove(g.job_id, g.category)
+                log.info("Removed %s from %s history", g.title, client_label(client))
+    except (ClientError, AttributeError) as exc:
+        log.warning("After importing %s, %s: %s", g.title, client_label(client), exc)
 
 
 def retry_import(

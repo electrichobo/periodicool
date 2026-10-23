@@ -130,6 +130,7 @@ class NzbgetClient:
         category: str,
         priority: int | None = None,
         paused: bool = False,
+        **_,
     ) -> str:
         if not category:
             raise ClientError("no NZBGet category set")

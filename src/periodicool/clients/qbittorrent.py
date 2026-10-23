@@ -191,6 +191,10 @@ class QbittorrentClient:
         magnet: str | None = None,
         seed_ratio: float | None = None,
         seed_time_min: int | None = None,
+        priority: str | None = None,
+        paused: bool = False,
+        force_start: bool = False,
+        **_,
     ) -> str:
         """Add a torrent file or magnet in our category. Returns its info hash, which is
         how we find it again. Seed goals apply to this torrent only."""
@@ -200,7 +204,8 @@ class QbittorrentClient:
             job = info_hash(torrent) if torrent is not None else magnet_hash(magnet or "")
         except BencodeError as exc:
             raise ClientError(str(exc)) from exc
-        fields: dict = {"category": category, "paused": "false", "stopped": "false"}
+        state = "true" if paused else "false"
+        fields: dict = {"category": category, "paused": state, "stopped": state}
         if seed_ratio is not None:
             fields["ratioLimit"] = f"{seed_ratio:g}"
         if seed_time_min is not None:
@@ -214,6 +219,17 @@ class QbittorrentClient:
         raw = self._request("POST", "/api/v2/torrents/add", multipart=_multipart(fields, files))
         if raw.strip() != b"Ok.":
             raise ClientError(f"qBittorrent did not add the torrent: {self.redact(raw[:200])}")
+        try:
+            if priority in ("first", "last"):
+                path = "topPrio" if priority == "first" else "bottomPrio"
+                self._request("POST", f"/api/v2/torrents/{path}", form={"hashes": job})
+            if force_start and not paused:
+                self._request(
+                    "POST", "/api/v2/torrents/setForceStart", form={"hashes": job, "value": "true"}
+                )
+        except ClientError as exc:
+            # Queueing off in qBittorrent answers 409 here; the torrent is added anyway.
+            log.info("qBittorrent queue position not set for %s: %s", job, exc)
         return job
 
     def jobs(self, job_ids: list[str], category: str) -> list[JobState]:
@@ -255,6 +271,17 @@ class QbittorrentClient:
                 )
             )
         return out
+
+    def set_category(self, job_id: str, category: str, new: str) -> bool:
+        """Move one of our torrents to another category (post-import category)."""
+        if not [s for s in self.jobs([job_id], category) if s.job_id == job_id.lower()]:
+            return False
+        self._request(
+            "POST",
+            "/api/v2/torrents/setCategory",
+            form={"hashes": job_id.lower(), "category": new},
+        )
+        return True
 
     def remove(self, job_id: str, category: str) -> bool:
         """Remove one of our torrents from qBittorrent. Its files always stay."""

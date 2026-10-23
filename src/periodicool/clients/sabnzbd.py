@@ -115,7 +115,10 @@ class SabnzbdClient:
             )
         return version
 
-    def add_nzb(self, nzb: bytes, name: str, category: str) -> str:
+    def add_nzb(
+        self, nzb: bytes, name: str, category: str, priority: str | None = None, **_
+    ) -> str:
+        """Add an NZB in our category. Priority -100 means SABnzbd's category default."""
         if not category:
             raise ClientError("no SABnzbd category set")
         boundary = f"periodicool-{uuid.uuid4().hex}"
@@ -130,7 +133,7 @@ class SabnzbdClient:
             + f"\r\n--{boundary}--\r\n".encode()
         )
         data = self._call(
-            {"mode": "addfile", "cat": category, "nzbname": name, "priority": -100},
+            {"mode": "addfile", "cat": category, "nzbname": name, "priority": _priority(priority)},
             body=body,
             content_type=f"multipart/form-data; boundary={boundary}",
         )
@@ -203,6 +206,13 @@ class SabnzbdClient:
             params = {"mode": "queue", "name": "delete", "value": job_id, "del_files": 1}
         self._call(params)
         return True
+
+
+def _priority(value) -> int:
+    try:
+        return int(value) if value not in (None, "") else -100
+    except TypeError, ValueError:
+        return -100
 
 
 def _int(value) -> int | None:

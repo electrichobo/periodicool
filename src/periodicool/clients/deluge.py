@@ -169,6 +169,7 @@ class DelugeClient:
         priority: str | None = None,
         paused: bool = False,
         directory: str | None = None,
+        **_,
     ) -> str:
         """Add a torrent, then set our label (Deluge labels are lower case) and the seed
         ratio on it. Deluge has no seeding-time limit per torrent."""
@@ -245,6 +246,13 @@ class DelugeClient:
                 )
             )
         return out
+
+    def set_category(self, job_id: str, category: str, new: str) -> bool:
+        """Move one of our torrents to another label (post-import category)."""
+        if not [s for s in self.jobs([job_id], category) if s.job_id == job_id.lower()]:
+            return False
+        self._call("label.set_torrent", job_id.lower(), new.lower())
+        return True
 
     def remove(self, job_id: str, category: str) -> bool:
         """Remove one of our torrents from Deluge. Its files always stay."""

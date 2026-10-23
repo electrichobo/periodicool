@@ -64,4 +64,6 @@ class DownloadClient(Protocol):
 
     # Torrent clients also have add_torrent(name, category, torrent=bytes | None,
     # magnet=str | None, seed_ratio=..., seed_time_min=...) -> info hash; usenet
-    # clients have add_nzb. Downloads picks by the release's protocol.
+    # clients have add_nzb. Downloads picks by the release's protocol. Both also take
+    # the entry's add options (priority, paused, directory, ...) and ignore the rest.
+    # Torrent clients with a post-import category have set_category(job, ours, new).

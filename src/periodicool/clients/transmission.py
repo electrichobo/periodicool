@@ -132,6 +132,7 @@ class TransmissionClient:
         priority: str | None = None,
         paused: bool = False,
         directory: str | None = None,
+        **_,
     ) -> str:
         """Add a torrent with our label. Returns its info hash. Transmission has a seed
         ratio per torrent but no seeding time, so the time goal is left to it."""

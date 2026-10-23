@@ -418,7 +418,15 @@ def cmd_entries_add(session, settings, args, out) -> int:
     if args.noun == "indexer":
         fields |= {"categories": [], "settings": {}}
     else:
+        from periodicool.clients import registry
+
+        kind = registry.KINDS[args.kind]
         fields |= {"category": args.category, "path_map": []}
+        fields["settings"] = registry.defaults(args.kind) | registry.split_url(url)
+        fields["url"] = registry.compose_url(fields["settings"])
+        if kind.required_secret != "api_key":  # the secret is the client's password
+            fields["password"] = fields.pop("api_key")
+            fields["username"] = args.username or None
     row = model(**fields)
     session.add(row)
     session.flush()
@@ -611,6 +619,7 @@ def build_parser() -> argparse.ArgumentParser:
         add.add_argument("--priority", type=int)
         if noun == "client":
             add.add_argument("--category", required=True)
+            add.add_argument("--username", help="for clients that log in with a username")
         add.set_defaults(func=cmd_entries_add, noun=noun)
         rm = entries.add_parser("remove")
         rm.add_argument("id", type=int)

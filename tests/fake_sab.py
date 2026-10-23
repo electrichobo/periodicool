@@ -48,6 +48,7 @@ class FakeSab:
         self.queue = {}  # nzo_id -> slot
         self.history = {}
         self.deleted = []  # (mode, nzo_id, del_files)
+        self.priorities = []  # priority sent with each addfile
         self._ids = itertools.count(1)
 
     def complete(self, job_id, storage, status="Completed", fail_message=""):
@@ -78,6 +79,7 @@ class FakeSab:
             assert method == "POST" and "multipart/form-data" in headers["Content-Type"]
             job = f"SABnzbd_nzo_{next(self._ids)}"
             self.added.append((q["cat"], q["nzbname"], body))
+            self.priorities.append(q.get("priority"))
             self.queue[job] = {
                 "nzo_id": job,
                 "filename": q["nzbname"],

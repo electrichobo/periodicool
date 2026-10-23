@@ -59,6 +59,8 @@ class FakeQbit:
         self.calls = []
         self.added = []  # dicts of the add form
         self.deleted = []  # (hash, deleteFiles)
+        self.queue_moves = []  # (path, hashes)
+        self.recategorized = []  # (hashes, category)
         self.logged_in = False
         self.fail_login = False
         self.torrents = {
@@ -124,6 +126,19 @@ class FakeQbit:
             wanted = set(query.get("hashes", "").split("|")) | {FOREIGN_HASH}
             rows = [t for h, t in self.torrents.items() if h in wanted]
             return 200, json.dumps(rows).encode(), {}
+        if path in (
+            "/api/v2/torrents/topPrio",
+            "/api/v2/torrents/bottomPrio",
+            "/api/v2/torrents/setForceStart",
+        ):
+            form = dict(urllib.parse.parse_qsl(body.decode()))
+            self.queue_moves.append((path.rsplit("/", 1)[1], form["hashes"]))
+            return 200, b"", {}
+        if path == "/api/v2/torrents/setCategory":
+            form = dict(urllib.parse.parse_qsl(body.decode()))
+            self.recategorized.append((form["hashes"], form["category"]))
+            self.torrents[form["hashes"]]["category"] = form["category"]
+            return 200, b"", {}
         if path == "/api/v2/torrents/delete":
             form = dict(urllib.parse.parse_qsl(body.decode()))
             self.deleted.append((form["hashes"], form["deleteFiles"]))

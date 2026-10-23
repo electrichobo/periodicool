@@ -89,3 +89,32 @@ def test_indexer_and_client_entries(tmp_path, monkeypatch):
     code, out = run(settings, "indexer", "remove", "1")
     assert code == 0 and "removed indexer 1" in out
     assert "no indexer entries" in run(settings, "indexer", "list")[1]
+
+
+def test_client_add_splits_the_address_and_keeps_a_password(tmp_path, monkeypatch):
+    from sqlalchemy import select
+
+    from periodicool import cli, db
+    from periodicool.models import DownloadClient
+
+    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config")})
+    monkeypatch.setattr(cli, "KEY_PROMPT", lambda: "typed-pass-123")
+    code, out = run(
+        settings,
+        "client",
+        "add",
+        "deluge",
+        "Deluge",
+        "https://deluge.example:8112/web",
+        "--category",
+        "mags",
+    )
+    assert code == 0 and "typed-pass-123" not in out
+    session = db.make_session_factory(db.make_engine(settings.db_url))()
+    row = session.scalars(select(DownloadClient)).one()
+    assert row.password == "typed-pass-123" and row.api_key is None
+    assert row.settings["host"] == "deluge.example" and row.settings["port"] == 8112
+    assert row.settings["use_ssl"] is True and row.settings["url_base"] == "/web"
+    assert row.url == "https://deluge.example:8112/web"
+    assert "key set" in run(settings, "client", "list")[1]
+    session.close()

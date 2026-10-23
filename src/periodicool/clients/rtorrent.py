@@ -135,6 +135,7 @@ class RtorrentClient:
         priority: str | None = None,
         paused: bool = False,
         directory: str | None = None,
+        **_,
     ) -> str:
         """Add a torrent with our label. Returns its info hash. rTorrent's seed goals
         are ratio groups in its own settings, so they are left to it."""
@@ -201,6 +202,13 @@ class RtorrentClient:
                 )
             )
         return out
+
+    def set_category(self, job_id: str, category: str, new: str) -> bool:
+        """Move one of our torrents to another label (post-import category)."""
+        if not self.jobs([job_id], category):
+            return False
+        self._call("d.custom1.set", job_id.upper(), _clean(new))
+        return True
 
     def remove(self, job_id: str, category: str) -> bool:
         """Remove one of our torrents from rTorrent. `d.erase` never deletes files."""

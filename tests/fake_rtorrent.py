@@ -20,6 +20,7 @@ ALLOWED = {
     "load.normal",
     "load.start",
     "d.erase",
+    "d.custom1.set",
 }
 
 
@@ -85,6 +86,9 @@ class FakeRtorrent:
             for command in commands:
                 if command.startswith("d.custom1.set="):
                     self.torrents[job]["d.custom1"] = command.split("=", 1)[1]
+            return ok(0)
+        if name == "d.custom1.set":
+            self.torrents[params[0]]["d.custom1"] = params[1]
             return ok(0)
         if name == "d.erase":
             self.erased.append(params[0])
