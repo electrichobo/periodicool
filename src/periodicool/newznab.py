@@ -60,11 +60,15 @@ class NewznabClient(ProwlarrClient):
             raise ProwlarrError(f"indexer error {root.get('code')}: {root.get('description')}")
         server = root.find("server")
         search = root.find("searching/search")
-        categories = [
-            (int(c.get("id")), c.get("name", ""))
-            for c in root.iter("category")
-            if (c.get("id") or "").isdigit()
-        ]
+        # Subcategories (7010 Magazines under 7000 Books) are <subcat> elements.
+        categories = []
+        for c in root.iter("category"):
+            if (c.get("id") or "").isdigit():
+                categories.append((int(c.get("id")), c.get("name", "")))
+            for sub in c.findall("subcat"):
+                if (sub.get("id") or "").isdigit():
+                    name = f"{c.get('name', '')} > {sub.get('name', '')}".strip(" >")
+                    categories.append((int(sub.get("id")), name))
         return {
             "title": server.get("title") if server is not None else None,
             "search": search is None or search.get("available", "yes") == "yes",

@@ -168,7 +168,9 @@ def test_add_edit_delete_indexer_with_write_only_key(client):
         "name": "Direct <b>",
         "url": "https://nzb.example/api/",
         "priority": "10",
-        "enabled": "on",
+        "enable_rss": "on",
+        "enable_automatic_search": "on",
+        "enable_interactive_search": "on",
         "categories": "7010",
         "daily_cap": "100",
     }
@@ -180,12 +182,14 @@ def test_add_edit_delete_indexer_with_write_only_key(client):
     with session(client) as s:
         row = s.scalars(select(Indexer)).one()
         assert row.url == "https://nzb.example/api" and row.api_key == "sekrit-key-123"
-        assert row.settings == {"daily_cap": 100} and row.priority == 10
+        assert row.settings == {"api_path": "/api", "additional_parameters": "", "daily_cap": 100}
+        assert row.priority == 10 and row.enable_rss and row.enable_interactive_search
         row_id = row.id
     page = client.get("/settings/indexers").text
     assert "Direct &lt;b&gt;" in page and "sekrit-key-123" not in page
     # An empty key field keeps the saved key.
-    edit = base | {"id": str(row_id), "name": "Direct", "enabled": ""}
+    off = {"enable_rss": "", "enable_automatic_search": "", "enable_interactive_search": ""}
+    edit = base | {"id": str(row_id), "name": "Direct"} | off
     client.post("/settings/indexers/save", data=edit)
     with session(client) as s:
         row = s.get(Indexer, row_id)
@@ -495,7 +499,9 @@ def test_torznab_indexer_form_with_seed_goals(client):
         "url": "https://tracker.example/api",
         "api_key": "tracker-key-1",
         "priority": "20",
-        "enabled": "on",
+        "enable_rss": "on",
+        "enable_automatic_search": "on",
+        "enable_interactive_search": "on",
         "seed_ratio": "1.5",
         "seed_time_min": "4320",
         "min_seeders": "3",
@@ -506,9 +512,84 @@ def test_torznab_indexer_form_with_seed_goals(client):
     with session(client) as s:
         row = s.scalars(select(Indexer)).one()
         assert row.protocol == "torrent"
-        assert row.settings == {"seed_ratio": 1.5, "seed_time_min": 4320, "min_seeders": 3}
+        assert (
+            row.settings.items()
+            >= {"seed_ratio": 1.5, "seed_time_min": 4320, "min_seeders": 3}.items()
+        )
+        assert row.settings["reject_blocklisted_hashes"] is False
         row_id = row.id
     edit = client.get(f"/settings/indexers/{row_id}/edit").text
     assert 'value="1.5"' in edit and 'value="4320"' in edit
     prowlarr = client.get("/settings/indexers/new?kind=prowlarr").text
     assert "Seed ratio" in prowlarr and "API calls per day" not in prowlarr
+
+
+def test_indexer_picker_has_sonarr_presets_and_the_form_its_fields(client):
+    picker = client.get("/settings/indexers/new").text
+    assert "Usenet" in picker and "Torrents" in picker and "NZBgeek" in picker
+    assert "kind=newznab&amp;preset=Tabula%20Rasa" in picker
+    form = client.get("/settings/indexers/new?kind=newznab&preset=Tabula%20Rasa").text
+    assert 'value="Tabula Rasa"' in form and 'value="https://www.tabula-rasa.pw"' in form
+    assert 'value="/api/v1/api"' in form
+    for label in ("Enable RSS", "Enable automatic search", "Enable interactive search"):
+        assert label in form
+    assert 'class="advanced"' in form and "Show advanced" in form and "Download client" in form
+    assert form.count('role="switch" name="enable_') == 3 and form.count("checked") >= 3
+
+
+def test_indexer_api_path_parameters_and_client_are_saved(client):
+    with session(client) as s:
+        sab = s.scalars(select(DownloadClient)).first()
+        sab_id = sab.id if sab else None
+    data = {
+        "kind": "newznab",
+        "name": "Tabula",
+        "url": "https://www.tabula-rasa.pw",
+        "api_key": "tabula-key-1",
+        "priority": "25",
+        "enable_rss": "on",
+        "api_path": "api/v1/api/",
+        "additional_parameters": "&apikey=steal",
+        "download_client_id": str(sab_id or ""),
+    }
+    bad = client.post("/settings/indexers/save", data=data)
+    assert "set by PeriodiCool" in bad.text
+    ok = client.post("/settings/indexers/save", data=data | {"additional_parameters": "maxage=900"})
+    assert ok.status_code == 204
+    with session(client) as s:
+        row = s.scalars(select(Indexer).where(Indexer.name == "Tabula")).one()
+        assert row.settings["api_path"] == "/api/v1/api"
+        assert row.settings["additional_parameters"] == "maxage=900"
+        assert row.enable_rss and not row.enable_automatic_search
+        assert row.download_client_id == sab_id
+
+
+def test_indexer_categories_load_from_caps(client):
+    from fake_newznab import NZ_KEY, NZ_URL, FakeNewznab
+
+    fake = FakeNewznab()
+    client.app.state.newznab_transport = fake
+    form = {"kind": "newznab", "url": NZ_URL, "api_key": NZ_KEY, "categories": "7010"}
+    page = client.post("/settings/indexers/categories", data=form).text
+    assert 'value="7010" checked' in page and 'value="7000"' in page
+    assert page.index('value="7010"') < page.index('value="7000"')  # magazines first
+    assert fake.calls[-1]["query"]["t"] == "caps"
+    failed = client.post(
+        "/settings/indexers/categories",
+        data=form | {"api_key": "wrong", "categories": "7010, 7020"},
+    ).text
+    assert "Could not load" in failed and 'value="7010, 7020"' in failed
+    prowlarr = client.post("/settings/indexers/categories", data={"kind": "prowlarr"}).text
+    assert 'value="7030"' in prowlarr and "Books &gt; Magazines" in prowlarr
+    saved = client.post(
+        "/settings/indexers/save",
+        content="kind=newznab&name=Caps&url=https%3A%2F%2Fnzb.test&api_key=k1&priority=25"
+        "&enable_rss=on&categories=7000&categories=7010",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    assert saved.status_code == 204
+    with session(client) as s:
+        assert s.scalars(select(Indexer).where(Indexer.name == "Caps")).one().categories == [
+            7000,
+            7010,
+        ]

@@ -21,6 +21,9 @@
             {% elif not item.has_key %}{{ ui.led("bad", "No API key") }}
             {% elif item.backoff %}{{ ui.led("warn", "Backing off") }} <span class="muted small">until {{ item.backoff | when }}</span>
             {% else %}{{ ui.led("ok", "Enabled") }}{% endif %}
+            {% if row.enabled %}<div class="cluster small indexer-modes">
+              {% for on, label in ((row.enable_rss, "RSS"), (row.enable_automatic_search, "Auto"), (row.enable_interactive_search, "Interactive")) %}{{ ui.led("ok" if on else "off", label ~ (" on" if on else " off")) }}{% endfor %}
+            </div>{% endif %}
           </td>
           <td>{{ row.priority }}</td>
           <td>

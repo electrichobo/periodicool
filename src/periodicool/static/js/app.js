@@ -383,6 +383,22 @@
     });
     (scope || document).querySelectorAll("table.table").forEach(initTable);
     (scope || document).querySelectorAll('[role="tablist"]').forEach(initTabs);
+    (scope || document).querySelectorAll("[data-advanced-form]").forEach(initAdvanced);
+  }
+
+  // Indexer form: Sonarr's Show advanced switch, remembered in this browser only.
+  var ADVANCED = "periodicool.advanced";
+  function initAdvanced(form) {
+    var box = form.querySelector("[data-advanced-switch]");
+    if (!box || box.dataset.ready) return;
+    box.dataset.ready = "1";
+    function apply() { form.classList.toggle("advanced-hidden", !box.checked); }
+    box.checked = store(ADVANCED) === "on";
+    apply();
+    box.addEventListener("change", function () {
+      store(ADVANCED, box.checked ? "on" : "off");
+      apply();
+    });
   }
 
   document.addEventListener("DOMContentLoaded", function () {

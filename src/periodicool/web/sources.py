@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import os
 import re
+import urllib.parse
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from periodicool import sources
+from periodicool import indexer_kinds, sources
 from periodicool.clients import registry
 from periodicool.clients.base import ClientError
 from periodicool.models import ACTIVE_GRAB, DownloadClient, Grab, Indexer, Release
@@ -80,6 +81,13 @@ def _common(session: Session, model, form: dict, row_id: int | None, kinds: dict
 # Indexers
 
 
+def _form_bools(form: dict) -> list[str]:
+    """Switch fields on the indexer form, so a redisplay keeps them as set."""
+    kind = indexer_kinds.KINDS.get(form.get("kind", ""))
+    names = [name for name, _, _ in TOGGLES]
+    return names + [f.name for f in (kind.fields if kind else ()) if f.type == "bool"]
+
+
 def _indexer_rows(session: Session):
     return list(session.scalars(select(Indexer).order_by(Indexer.priority, Indexer.id)))
 
@@ -104,102 +112,171 @@ def indexer_context(session: Session) -> dict:
     return {"indexer_rows": rows}
 
 
-def _indexer_values(row: Indexer | None, kind: str) -> dict:
+TOGGLES = (
+    ("enable_rss", "Enable RSS", "Look for new releases in the indexer's RSS feed."),
+    (
+        "enable_automatic_search",
+        "Enable automatic search",
+        "Used by scheduled searches, Wanted searches and the Search buttons.",
+    ),
+    (
+        "enable_interactive_search",
+        "Enable interactive search",
+        "Used by interactive search and the Add magazine search.",
+    ),
+)
+# Bounds for the numeric settings: (low, high, label).
+INDEXER_NUMBERS = {
+    "seed_time_min": (0, 525_600, "Seed time"),
+    "min_seeders": (0, 10_000, "Minimum seeders"),
+    "daily_cap": (1, 100_000, "API calls per day"),
+    "grab_cap": (1, 100_000, "Downloads per day"),
+}
+
+
+def _indexer_values(row: Indexer | None, kind: str, preset: str = "") -> dict:
+    found = indexer_kinds.KINDS.get(row.kind if row else kind)
+    values = {name: True for name, _, _ in TOGGLES}
+    if found is not None:
+        values |= {f.name: _blank(f.default) for f in found.fields if f.store == "settings"}
     if row is None:
-        return {
+        values |= {
             "kind": kind,
-            "name": sources.INDEXER_KINDS.get(kind, ""),
+            "name": indexer_kinds.INDEXER_KINDS.get(kind, ""),
             "priority": 25,
-            "enabled": True,
-            "categories": "",
-            "daily_cap": "",
-            "grab_cap": "",
-            "seed_ratio": "",
-            "seed_time_min": "",
-            "min_seeders": "",
+            "categories": str(indexer_kinds.MAGAZINES),
+            "download_client_id": "",
         }
-    settings = row.settings or {}
-    return {
+        if chosen := indexer_kinds.preset(kind, preset):
+            values |= {"name": chosen.name, "url": chosen.url, "api_path": chosen.api_path}
+        return values
+    values |= {k: _blank(v) for k, v in (row.settings or {}).items()}
+    values |= {name: getattr(row, name) for name, _, _ in TOGGLES}
+    return values | {
         "id": row.id,
         "kind": row.kind,
         "name": row.name,
         "url": row.url,
         "priority": row.priority,
-        "enabled": row.enabled,
         "categories": ", ".join(map(str, row.categories or [])),
-        "daily_cap": settings.get("daily_cap") or "",
-        "grab_cap": settings.get("grab_cap") or "",
-        "seed_ratio": _blank(settings.get("seed_ratio")),
-        "seed_time_min": _blank(settings.get("seed_time_min")),
-        "min_seeders": _blank(settings.get("min_seeders")),
+        "download_client_id": row.download_client_id or "",
     }
 
 
-def _blank(value) -> str:
-    return "" if value is None else f"{value:g}" if isinstance(value, float) else str(value)
+def _blank(value) -> object:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, float):
+        return f"{value:g}"
+    if isinstance(value, list):
+        return ", ".join(map(str, value))
+    return value
 
 
 def _indexer_form(request, session, values: dict, errors=None, row=None):
+    kind = indexer_kinds.KINDS.get(values.get("kind", ""))
+    protocols = (
+        {"usenet", "torrent"}
+        if values.get("kind") == "prowlarr"
+        else {kind.protocol if kind else "usenet"}
+    )
+    clients = [
+        (c.id, c.name)
+        for c in session.scalars(
+            select(DownloadClient).order_by(DownloadClient.priority, DownloadClient.id)
+        )
+        if c.protocol in protocols
+    ]
     return _render(
         request,
         "settings/_indexer_form.html",
         values=values,
         errors=errors or {},
+        kind=kind,
+        toggles=TOGGLES,
+        clients=clients,
         has_key=bool(row is not None and sources.indexer_key(session, row)),
         env_fallback=_uses_env(session, row, sources.indexer_key),
-        kinds=sources.INDEXER_KINDS,
         key_help=KEY_HELP,
     )
 
 
-def _parse_indexer(session: Session, form: dict, row: Indexer | None) -> tuple[dict, dict]:
+def _parse_indexer(
+    session: Session, form: dict, row: Indexer | None, lists: dict | None = None
+) -> tuple[dict, dict]:
     errors, kind, name, url, priority = _common(
         session, Indexer, form, row.id if row else None, sources.INDEXER_KINDS
     )
-    categories = []
-    for part in (form.get("categories") or "").replace(" ", "").split(","):
+    lists = lists or {}
+    categories: list[int] = []
+    typed = ",".join(lists.get("categories") or [form.get("categories") or ""])
+    for part in typed.replace(" ", "").split(","):
         if not part:
             continue
         if not part.isdigit():
             errors["categories"] = "Categories are numbers separated by commas, such as 7010."
             break
-        categories.append(int(part))
-    extra = {}
-    if kind in ("prowlarr", "torznab"):
-        # Seed goals and minimum seeders for torrents found through this entry.
-        ratio = (form.get("seed_ratio") or "").strip()
-        if ratio:
-            try:
-                extra["seed_ratio"] = float(ratio)
-                if not 0 <= extra["seed_ratio"] <= 100:
-                    raise ValueError
-            except ValueError:
-                errors["seed_ratio"] = "The seed ratio is a number from 0 to 100, such as 1.5."
-                extra.pop("seed_ratio", None)
-        for field, label, high in (
-            ("seed_time_min", "Seed time", 525_600),
-            ("min_seeders", "Minimum seeders", 10_000),
-        ):
-            value = _int(form.get(field, ""), 0, high, label, errors, field)
+        if int(part) not in categories:
+            categories.append(int(part))
+    found = indexer_kinds.KINDS.get(kind)
+    settings: dict = {}
+    for f in found.fields if found else ():
+        if f.store != "settings":
+            continue
+        raw = (form.get(f.name) or "").strip()
+        if f.type == "bool":
+            settings[f.name] = form.get(f.name) == "on"
+        elif f.type == "int":
+            low, high, label = INDEXER_NUMBERS.get(f.name, (0, 1_000_000, f.label))
+            value = _int(raw, low, high, label, errors, f.name)
             if value is not None:
-                extra[field] = value
-    if kind in ("newznab", "torznab"):
-        for field, label in (("daily_cap", "Daily API limit"), ("grab_cap", "Daily grab limit")):
-            value = _int(form.get(field, ""), 1, 100_000, label, errors, field)
-            if value:
-                extra[field] = value
+                settings[f.name] = value
+        elif f.type == "decimal":
+            if raw:
+                try:
+                    number = float(raw)
+                    if not 0 <= number <= 100:
+                        raise ValueError
+                    settings[f.name] = number
+                except ValueError:
+                    errors[f.name] = (
+                        f"The {f.label.lower()} is a number from 0 to 100, such as 1.5."
+                    )
+        elif f.name == "api_path":
+            path = "/" + raw.strip("/") if raw.strip("/") else indexer_kinds.DEFAULT_API_PATH
+            if not re.fullmatch(r"(/[\w.\-~]+)+", path):
+                errors[f.name] = "The API path is a path such as /api."
+            settings[f.name] = path
+        elif f.name == "additional_parameters":
+            _, problem = indexer_kinds.parse_parameters(raw)
+            if problem:
+                errors[f.name] = problem
+            settings[f.name] = raw
+        else:
+            settings[f.name] = raw
+    toggles = {name: form.get(name) == "on" for name, _, _ in TOGGLES}
+    client_id = None
+    if (form.get("download_client_id") or "").isdigit():
+        client = session.get(DownloadClient, int(form["download_client_id"]))
+        if client is None:
+            errors["download_client_id"] = "That download client no longer exists."
+        else:
+            client_id = client.id
     key = (form.get("api_key") or "").strip()
     if _key_missing(session, Indexer, kind, row, key):
         errors["api_key"] = "Enter the API key."
     return errors, {
         "kind": kind,
-        "protocol": "torrent" if kind == "torznab" else "usenet",
+        "protocol": indexer_kinds.INDEXER_PROTOCOLS.get(kind, "usenet"),
         "name": name,
         "url": url,
         "priority": priority or 25,
-        "enabled": form.get("enabled") == "on",
+        **toggles,
+        "download_client_id": client_id,
         "categories": categories,
-        "settings": extra,
+        "settings": settings,
         "api_key": key,
     }
 
@@ -222,25 +299,29 @@ def _uses_env(session: Session, row, getter) -> bool:
 
 
 @router.get("/settings/indexers/new", response_class=HTMLResponse)
-def indexer_new(request: Request, kind: str = "") -> HTMLResponse:
+def indexer_new(request: Request, kind: str = "", preset: str = "") -> HTMLResponse:
     if kind not in sources.INDEXER_KINDS:
+        kinds = indexer_kinds.KINDS
+        usenet = [(k.kind, k.label, k.info) for k in kinds.values() if k.protocol == "usenet"] + [
+            (
+                f"newznab&preset={urllib.parse.quote(p.name)}",
+                p.name,
+                f"Newznab. Fills in {p.url}; you add your API key.",
+            )
+            for p in kinds["newznab"].presets
+        ]
+        torrents = [(k.kind, k.label, k.info) for k in kinds.values() if k.protocol == "torrent"]
         return _render(
             request,
             "settings/_kind_picker.html",
             what="indexer",
             base="/settings/indexers/new",
-            kinds=[
-                ("prowlarr", "Prowlarr", "Searches every usenet indexer you set up in Prowlarr."),
-                ("newznab", "Newznab", "One usenet indexer, added directly with its own API key."),
-                (
-                    "torznab",
-                    "Torznab",
-                    "One torrent indexer (or Jackett), added directly. Needs a torrent client.",
-                ),
-            ],
+            intro="Pick an indexer kind, or one of the usenet indexers below to fill in its "
+            "address, as in Sonarr. Nothing is contacted until you test or save.",
+            groups=[("Usenet", usenet), ("Torrents", torrents)],
         )
     with request.app.state.sessions() as session:
-        return _indexer_form(request, session, _indexer_values(None, kind))
+        return _indexer_form(request, session, _indexer_values(None, kind, preset))
 
 
 @router.get("/settings/indexers/{row_id:int}/edit", response_class=HTMLResponse)
@@ -255,15 +336,17 @@ def indexer_edit(request: Request, row_id: int) -> HTMLResponse:
 @router.post("/settings/indexers/save", response_class=HTMLResponse)
 async def indexer_save(request: Request) -> Response:
     form = await form_data(request)
+    lists = await form_lists(request)
     with request.app.state.sessions() as session:
         row = None
         if form.get("id"):
             row = session.get(Indexer, int(form["id"])) if form["id"].isdigit() else None
             if row is None:
                 raise HTTPException(status_code=404)
-        errors, data = _parse_indexer(session, form, row)
+        errors, data = _parse_indexer(session, form, row, lists)
         if errors:
-            values = {**form, "enabled": form.get("enabled") == "on"}
+            values = {**form, **{k: form.get(k) == "on" for k in _form_bools(form)}}
+            values["categories"] = ",".join(lists.get("categories") or [form.get("categories", "")])
             return _indexer_form(request, session, values, errors, row)
         key = data.pop("api_key")
         if row is None:
@@ -327,14 +410,17 @@ async def indexer_test_form(request: Request) -> Response:
         kind = form.get("kind", "")
         if kind not in sources.INDEXER_KINDS:
             return _toast("Pick a kind first.", "warn")
+        errors, data = _parse_indexer(session, {**form, "name": "probe"}, stored)
+        if bad := {k: v for k, v in errors.items() if k not in ("name", "api_key")}:
+            return _toast(next(iter(bad.values())), "warn")
         probe = Indexer(
             id=stored.id if stored else None,
             name=(form.get("name") or kind).strip(),
             kind=kind,
             url=url,
             api_key=(form.get("api_key") or "").strip() or (stored.api_key if stored else None),
-            settings={},
-            categories=[],
+            settings=data["settings"],
+            categories=data["categories"],
         )
         _learn(request, probe.api_key)
         try:
@@ -344,6 +430,68 @@ async def indexer_test_form(request: Request) -> Response:
             return _toast(f"Test failed: {exc}", "bad")
         session.commit()
     return _toast(text)
+
+
+@router.post("/settings/indexers/categories", response_class=HTMLResponse)
+async def indexer_categories(request: Request) -> HTMLResponse:
+    """The categories the indexer reports (Newznab caps), as ticks, as Sonarr loads
+    them. Prowlarr's combined endpoint has none, so it gets Newznab's book categories.
+    Nothing is stored."""
+    form = await form_data(request)
+    lists = await form_lists(request)
+    typed = ",".join(lists.get("categories") or [form.get("categories") or ""])
+    picked = [int(p) for p in typed.replace(" ", "").split(",") if p.isdigit()]
+    values = {"categories": typed}
+    available, problem = [], None
+    kind = form.get("kind", "")
+    with request.app.state.sessions() as session:
+        if kind == "prowlarr":
+            available = list(indexer_kinds.BOOK_CATEGORIES)
+        else:
+            stored = None
+            if (form.get("id") or "").isdigit():
+                stored = session.get(Indexer, int(form["id"]))
+            errors, data = _parse_indexer(session, {**form, "name": "probe"}, stored, lists)
+            url = data.get("url")
+            if not url or errors.get("url"):
+                problem = "Enter the indexer's address first."
+            elif bad := errors.get("api_path") or errors.get("additional_parameters"):
+                problem = bad
+            else:
+                probe = Indexer(
+                    id=stored.id if stored else None,
+                    name=(form.get("name") or kind).strip(),
+                    kind=kind,
+                    url=url,
+                    api_key=data["api_key"] or (stored.api_key if stored else None),
+                    settings=data["settings"],
+                    categories=[],
+                )
+                _learn(request, probe.api_key)
+                client = sources.build_indexer(
+                    session, probe, sources.transports_from(request.app.state)
+                )
+                try:
+                    if client is None:
+                        raise ProwlarrError("the address and API key are both needed")
+                    available = client.caps()["categories"]
+                    session.commit()
+                except ProwlarrError as exc:
+                    session.rollback()
+                    problem = str(exc)
+    if available:
+        # Magazines first, as the categories that matter here.
+        available.sort(key=lambda c: (c[0] // 1000 != 7, c[0] != 7010, c[0]))
+        picked = picked or [indexer_kinds.MAGAZINES]
+    return _render(
+        request,
+        "settings/_indexer_categories.html",
+        values=values,
+        errors={},
+        available=available,
+        picked=picked,
+        load_error=problem,
+    )
 
 
 @router.post("/settings/indexers/{row_id:int}/test", response_class=HTMLResponse)

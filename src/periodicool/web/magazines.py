@@ -561,7 +561,9 @@ def interactive(request: Request, mag_id: int, issue: str = "", force: bool = Fa
             error = NO_PROWLARR
         else:
             try:
-                result = search.search_magazine(session, client, mag, _today(request), force=force)
+                result = search.search_magazine(
+                    session, client, mag, _today(request), force=force, mode="interactive"
+                )
                 session.commit()
                 from_cache, skipped = result.from_cache, result.skipped
                 now = datetime.now(UTC)

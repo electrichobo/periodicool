@@ -247,3 +247,61 @@ def test_qbittorrent_entry_is_the_torrent_client(env, fake_n):
     assert isinstance(torrent, QbittorrentClient) and torrent.display_name == "qBit"
     assert torrent.check(torrent.category).startswith("v5")
     assert src.client_for("usenet").display_name == "SABnzbd"
+
+
+# Sonarr's three switches per entry
+
+
+def test_rss_skips_an_entry_with_rss_off(env, fake_n):
+    e = env
+    nz = with_newznab(e)
+    nz.enable_rss = False
+    e.session.flush()
+    fake_n.rss_titles = [L311_ALT]
+    search.rss_sync(e.session, sources(e, fake_n), TODAY, NOW)
+    assert fake_n.calls == []
+
+
+def test_automatic_and_interactive_search_switches(env, fake_n):
+    e = env
+    nz = with_newznab(e)
+    nz.enable_automatic_search = False
+    e.session.flush()
+    fake_n.search_titles = [L311_ALT]
+    e.fake_p.search_results = [release_json(L311)]
+    auto = search.search_magazine(e.session, sources(e, fake_n), linux(e), TODAY, now=NOW)
+    assert fake_n.calls == [] and L311_ALT not in {r.title for r, _ in auto.candidates}
+    found = search.search_magazine(
+        e.session, sources(e, fake_n), linux(e), TODAY, now=NOW, mode="interactive"
+    )
+    assert L311_ALT in {r.title for r, _ in found.candidates}
+    # The cache is per entry: the automatic search now uses what interactive found.
+    nz.enable_automatic_search, nz.enable_interactive_search = True, False
+    e.session.flush()
+    calls = len(fake_n.calls)
+    again = search.search_magazine(e.session, sources(e, fake_n), linux(e), TODAY, now=NOW)
+    assert len(fake_n.calls) == calls and L311_ALT in {r.title for r, _ in again.candidates}
+
+
+def test_an_entry_with_every_switch_off_is_never_built(env, fake_n):
+    e = env
+    nz = with_newznab(e)
+    nz.enabled = False
+    e.session.flush()
+    assert (nz.enable_rss, nz.enable_automatic_search, nz.enable_interactive_search) == (
+        False,
+        False,
+        False,
+    )
+    assert "Direct" not in {c.source_name for c in sources(e, fake_n).indexers}
+
+
+def test_no_entry_has_the_mode_on(env, fake_n):
+    e = env
+    prowlarr = e.session.scalars(select(Indexer)).one()
+    prowlarr.enable_interactive_search = False
+    e.session.flush()
+    with pytest.raises(search.Unavailable, match="interactive search on"):
+        search.search_magazine(
+            e.session, sources(e, fake_n), linux(e), TODAY, now=NOW, mode="interactive"
+        )

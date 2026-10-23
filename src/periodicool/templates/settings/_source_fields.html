@@ -31,3 +31,12 @@
   </label>
 </div>
 {%- endmacro %}
+
+{% macro switch(name, label, help=none) -%}
+<div class="field">
+  <label class="switch">{{ label }}
+    <input type="checkbox" role="switch" name="{{ name }}"{% if values.get(name) %} checked{% endif %}{% if help %} aria-describedby="src-{{ name }}-help"{% endif %}><span class="switch__state" aria-hidden="true"></span>
+  </label>
+  {% if help %}<span class="field__help" id="src-{{ name }}-help">{{ help }}</span>{% endif %}
+</div>
+{%- endmacro %}

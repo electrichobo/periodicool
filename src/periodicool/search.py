@@ -95,18 +95,29 @@ def enabled_protocols(session: Session) -> set[str]:
     )
 
 
-def _clients(source) -> list:
-    """A Sources object gives every enabled indexer entry; a single client is itself.
-    Torznab entries are left out while no torrent client is enabled."""
+# Sonarr's three switches per indexer entry: which one each kind of call needs.
+TOGGLES = {
+    "rss": ("enable_rss", "RSS"),
+    "automatic": ("enable_automatic_search", "automatic search"),
+    "interactive": ("enable_interactive_search", "interactive search"),
+}
+
+
+def _clients(source, mode: str | None = None) -> list:
+    """A Sources object gives every enabled indexer entry with `mode` (rss, automatic,
+    interactive) switched on; a single client is itself. Torznab entries are left out
+    while no torrent client is enabled."""
     from periodicool.sources import Sources
 
     if isinstance(source, Sources):
         protocols = source.protocols()
+        toggle = TOGGLES[mode][0] if mode else None
         return [
             c
             for c in source.indexers
             if getattr(c, "protocol", "usenet") in protocols | {"usenet"}
             and (getattr(c, "kind", "") != "torznab" or "torrent" in protocols)
+            and (toggle is None or getattr(getattr(c, "row", None), toggle, True))
         ]
     return [] if source is None else [source]
 
@@ -355,7 +366,7 @@ def rss_sync(session: Session, source, today: date, now: datetime | None = None)
     magazines = list(session.scalars(select(Magazine)))
     options = load_options(session)
     cats = _categories(session)
-    for client in _clients(source):
+    for client in _clients(source, "rss"):
         if why := _backoff_reason(client, now):
             result.skipped[_name(client)] = why
             continue
@@ -437,9 +448,12 @@ def search_magazine(
     force: bool = False,
     scheduled: bool = False,
     now: datetime | None = None,
+    mode: str = "automatic",
 ) -> SearchResult:
-    """Search one magazine on every enabled indexer entry. One search covers all of
-    its issues. Raises Unavailable when no entry could search and nothing was cached."""
+    """Search one magazine on every enabled indexer entry with `mode` (automatic or
+    interactive search) switched on. One search covers all of its issues; the cache is
+    per entry, so both modes share it. Raises Unavailable when no entry could search
+    and nothing was cached."""
     now = now or _now()
     result = SearchResult(magazine=mag)
     magazines = list(session.scalars(select(Magazine)))
@@ -447,8 +461,10 @@ def search_magazine(
     cats = _categories(session)
     terms = list(dict.fromkeys([mag.search_term or default_search_term(mag), *(mag.aliases or [])]))
     cache_age = timedelta(hours=get_setting(session, CACHE_HOURS_KEY, 6))
-    clients = _clients(source)
+    clients = _clients(source, mode)
     if not clients:
+        if _clients(source):
+            raise Unavailable(f"no indexer has {TOGGLES[mode][1]} on (Settings, Indexers)")
         raise Unavailable("no indexer is set up (Settings, Indexers)")
     problems: list[str] = []
     answered = False
@@ -629,7 +645,7 @@ def search_term(
     Goes through search_magazine, so the per-entry cache, limits and backoff apply."""
     probe = Magazine(title=term, aliases=[], search_term=term)
     try:
-        result = search_magazine(session, source, probe, today, now=now)
+        result = search_magazine(session, source, probe, today, now=now, mode="interactive")
     except Unavailable as exc:
         return [], str(exc)
     except ProwlarrError as exc:

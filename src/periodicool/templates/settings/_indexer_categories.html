@@ -1,0 +1,16 @@
+{# The indexer's categories: typed, or ticked from the list the indexer reports
+   (Load categories). Expects values, errors; `available` when loaded. #}
+{% import "_macros.html" as ui %}
+<span class="field__label" id="src-categories-label">Categories</span>
+{% if available %}
+<div class="category-picks" role="group" aria-labelledby="src-categories-label">
+  {% for id, label in available %}
+  <label class="check"><input type="checkbox" name="categories" value="{{ id }}"{% if id in picked %} checked{% endif %}> <span class="category-picks__id">{{ id }}</span> {{ label }}</label>
+  {% endfor %}
+</div>
+{% else %}
+<input class="input input--mono" id="src-categories" name="categories" type="text" inputmode="numeric" placeholder="7010" value="{{ values.get('categories', '') }}" aria-labelledby="src-categories-label" aria-describedby="src-categories-help{% if errors.get('categories') %} src-categories-err{% endif %}"{% if errors.get('categories') %} aria-invalid="true"{% endif %}>
+{% endif %}
+<span class="field__help" id="src-categories-help">{% if load_error %}{{ ui.led("warn", "Could not load") }} {{ load_error }} {% endif %}The indexer's categories to search, as numbers separated by commas. Empty uses the categories set below the list (7010 is magazines).</span>
+{% if errors.get("categories") %}<span class="field__error" id="src-categories-err">{{ errors.categories }}</span>{% endif %}
+<button class="btn btn--small" type="button" hx-post="/settings/indexers/categories" hx-include="closest form" hx-target="#indexer-categories">Load categories</button>
