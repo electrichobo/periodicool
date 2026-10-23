@@ -305,3 +305,58 @@ def test_settings_test_buttons(client, fake):
     assert "answered: 2600" in toast(client.post("/settings/metadata/test/loc"))["text"]
     assert "13 items" in toast(client.post("/settings/metadata/test/archive"))["text"]
     assert client.post("/settings/metadata/test/bogus").status_code == 404
+
+
+# Monitor pop-up
+
+
+def test_monitor_popup_adds_back_issues(client, mags):
+    mag_id = mags["American Cinematographer"]
+    page = client.get(f"/magazines/{mag_id}").text
+    assert f'hx-get="/magazines/{mag_id}/monitoring"' in page
+    popup = client.get(f"/magazines/{mag_id}/monitoring").text
+    assert "New issues only" in popup and "From a year" in popup and "All issues" in popup
+    with session(client) as s:
+        before = s.scalars(select(Issue).where(Issue.magazine_id == mag_id)).all()
+        assert all(i.year is None or i.year >= 2026 for i in before)
+    bad = client.post(
+        f"/magazines/{mag_id}/monitoring", data={"monitored": "on", "monitor_mode": "from_year"}
+    )
+    assert "Enter a year" in bad.text
+    resp = client.post(
+        f"/magazines/{mag_id}/monitoring",
+        data={
+            "monitored": "on",
+            "monitor_mode": "from_year",
+            "monitor_from_year": "2022",
+            "monitor_existing": "on",
+        },
+    )
+    text = toast(resp)["text"]
+    assert resp.headers["HX-Refresh"] == "true" and "expected issues added" in text
+    added = int(text.split()[0])
+    assert added >= 40  # 2022 through 2025 at least
+    with session(client) as s:
+        mag = s.get(Magazine, mag_id)
+        assert mag.monitor_mode is MonitorMode.FROM_YEAR and mag.monitor_from_year == 2022
+        years = set(s.scalars(select(Issue.year).where(Issue.magazine_id == mag_id)))
+        assert {2022, 2023, 2024, 2025} <= years
+    again = client.post(
+        f"/magazines/{mag_id}/monitoring",
+        data={"monitored": "on", "monitor_mode": "new_only"},
+    )
+    assert toast(again)["text"].startswith("0 expected issues added")
+
+
+def test_monitor_popup_offers_archive_issues_when_on(client, mags, fake):
+    mag_id = mags[T2600]
+    turn_on(client, "archive")
+    resp = client.post(
+        f"/magazines/{mag_id}/monitoring",
+        data={"monitored": "on", "monitor_mode": "from_year", "monitor_from_year": "1998"},
+    )
+    assert "HX-Refresh" not in resp.headers
+    assert "Past issues from the Internet Archive" in resp.text
+    assert "expected issues added" in resp.text
+    # The schedule already lists every season from 1998, so nothing new is offered.
+    assert "No new past issues" in resp.text

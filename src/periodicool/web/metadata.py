@@ -216,3 +216,78 @@ def test_source(request: Request, source: str) -> Response:
     if source == "archive":
         return _toast(f"Internet Archive answered: {len(answer.data.get('items', []))} items.")
     return _toast(f"{SOURCES[source]} answered: {answer.record.title}.")
+
+
+# Monitor pop-up (the magazine page's Monitor button)
+
+
+def _monitor_popup(request, session, mag, done=None, error=None):
+    states = _states(session)
+    back = _back_issues(session, request, mag) if states["archive"] and done else None
+    return _render(
+        request,
+        "magazines/_monitor.html",
+        mag=mag,
+        done=done,
+        error=error,
+        back=back,
+        numbered=mag.numbering in (Numbering.ISSUE, Numbering.VOLUME),
+        this_year=date.today().year,
+    )
+
+
+@router.get("/magazines/{mag_id:int}/monitoring", response_class=HTMLResponse)
+def monitor_popup(request: Request, mag_id: int) -> HTMLResponse:
+    with request.app.state.sessions() as session:
+        return _monitor_popup(request, session, _magazine(session, mag_id))
+
+
+@router.post("/magazines/{mag_id:int}/monitoring", response_class=HTMLResponse)
+async def monitor_save(request: Request, mag_id: int) -> Response:
+    """Change what is monitored, add the expected issues that brings in, and offer the
+    Internet Archive's past issues when that lookup is on."""
+    from periodicool.jobs import today_in
+    from periodicool.schedule import generation_range, sync_expected_issues
+
+    form = await form_data(request)
+    today = today_in(request.app.state.settings.tz)
+    with request.app.state.sessions() as session:
+        mag = _magazine(session, mag_id)
+        try:
+            mode = MonitorMode(form.get("monitor_mode", ""))
+        except ValueError:
+            return _monitor_popup(request, session, mag, error="Pick which issues to monitor.")
+        year = (form.get("monitor_from_year") or "").strip()
+        if mode is MonitorMode.FROM_YEAR:
+            if not (year.isdigit() and 1800 <= int(year) <= today.year):
+                return _monitor_popup(
+                    request, session, mag, error=f"Enter a year from 1800 to {today.year}."
+                )
+            mag.monitor_from_year = int(year)
+        mag.monitor_mode = mode
+        mag.monitored = form.get("monitored") == "on"
+        session.flush()
+        added = sync_expected_issues(session, mag, today)
+        relisted = 0
+        span = generation_range(mag, today)
+        if form.get("monitor_existing") == "on" and span is not None and mag.monitored:
+            for issue in mag.issues:
+                if (
+                    not issue.monitored
+                    and not issue.file_path
+                    and issue.cover_date is not None
+                    and span[0] <= issue.cover_date <= span[1]
+                ):
+                    issue.monitored = True
+                    relisted += 1
+        session.commit()
+        parts = [f"{len(added)} expected issues added"]
+        if relisted:
+            parts.append(f"{relisted} listed issues now monitored")
+        done = ", ".join(parts) + "."
+        if not _states(session)["archive"] or mode is MonitorMode.NEW_ONLY:
+            response = _toast(done)
+            response.headers["HX-Refresh"] = "true"
+            return response
+        session.refresh(mag)
+        return _monitor_popup(request, session, mag, done=done)

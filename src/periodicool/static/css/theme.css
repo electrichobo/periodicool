@@ -2046,3 +2046,13 @@ html[data-effects="off"] .brand__mark {
 .path-field .input {
   flex: 1;
 }
+
+/* Monitor pop-up choices */
+.monitor-choice {
+  align-items: flex-start;
+  padding: 0.4rem 0;
+  font-size: 1rem;
+}
+.monitor-choice input {
+  margin-top: 0.3rem;
+}

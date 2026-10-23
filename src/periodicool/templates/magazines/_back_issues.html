@@ -1,0 +1,34 @@
+{# Past issues the Internet Archive lists. Expects mag, back, numbered, ui. #}
+  {% if back is none %}
+  <p class="field__help">Shown when this magazine is monitored for all issues or from a year on.</p>
+  {% elif back.error %}
+  <p role="alert">{{ ui.led("bad", "Internet Archive") }} {{ back.error }}</p>
+  {% elif not back.issues %}
+  {{ ui.empty("No new past issues", "Nothing found that is not already in the issue list" ~ (" (" ~ back.skipped ~ " items could not be read with confidence)." if back.skipped else ".")) }}
+  {% else %}
+  <form hx-post="/magazines/{{ mag.id }}/metadata/back-issues" hx-swap="none">
+    <p class="field__help">Found from item titles only; check them before adding. {% if back.skipped %}{{ back.skipped }} items could not be read with confidence and are left out.{% endif %}</p>
+    <div class="table-wrap">
+      <table class="table" id="back-table">
+        <thead><tr>
+          <th scope="col"><input type="checkbox" class="select-all" aria-label="Select all"></th>
+          <th scope="col">Issue</th><th scope="col">Cover date</th><th scope="col">Number</th><th scope="col">From the title</th>
+          {% if numbered %}<th scope="col">Known issue</th>{% endif %}
+        </tr></thead>
+        <tbody>
+          {% for b in back.issues %}
+          <tr>
+            <td><input type="checkbox" class="row-select" name="keys" value="{{ b.key }}" aria-label="Add {{ b.label }}"></td>
+            <td>{{ b.label }}</td>
+            <td>{{ b.cover_date or "" }}</td>
+            <td>{% if b.volume_number is not none %}Vol {{ b.volume_number }}{% endif %}{% if b.issue_number is not none %} No {{ b.issue_number }}{% endif %}</td>
+            <td class="wrap">{{ b.source_title }}</td>
+            {% if numbered %}<td>{% if b.cover_date and (b.issue_number is not none or b.volume_number is not none) %}<label class="pick"><input type="radio" name="anchor" value="{{ b.key }}"> use</label>{% endif %}</td>{% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal__foot"><button class="btn btn--primary" type="submit">Add selected as expected issues</button></div>
+  </form>
+  {% endif %}

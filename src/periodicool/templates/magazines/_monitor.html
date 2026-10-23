@@ -1,0 +1,48 @@
+{# Monitor pop-up: what to monitor, and the past issues that brings in. #}
+{% import "_macros.html" as ui %}
+<form class="panel modal__panel stack" hx-post="/magazines/{{ mag.id }}/monitoring" hx-target="#modal-body">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Monitor {{ mag.title }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% if done %}<p class="crt" role="status">{{ ui.led("ok", "Saved") }} {{ done }}</p>{% endif %}
+  {% if error %}<p class="field__error" role="alert">{{ error }}</p>{% endif %}
+  <div class="field">
+    <label class="switch">Monitored
+      <input type="checkbox" role="switch" name="monitored"{% if mag.monitored %} checked{% endif %}><span class="switch__state" aria-hidden="true"></span>
+    </label>
+    <span class="field__help">Off: nothing is searched for or grabbed for this magazine.</span>
+  </div>
+  <fieldset class="form-section">
+    <legend>Which issues</legend>
+    {% for value, label, help in [
+      ("new_only", "New issues only", "From the current issue on."),
+      ("from_year", "From a year", "Every issue from the start of that year."),
+      ("all", "All issues", "Every issue since the schedule starts" ~ (" (" ~ mag.schedule_start ~ ")" if mag.schedule_start else ", or since the known issue when no start is set") ~ "."),
+    ] %}
+    <label class="pick monitor-choice">
+      <input type="radio" name="monitor_mode" value="{{ value }}"{% if mag.monitor_mode.value == value %} checked{% endif %}>
+      <span><strong>{{ label }}</strong><br><span class="field__help">{{ help }}</span></span>
+    </label>
+    {% endfor %}
+    <div class="field">
+      <label class="field__label" for="mon-year">Year</label>
+      <input class="input input--compact" id="mon-year" name="monitor_from_year" inputmode="numeric" value="{{ mag.monitor_from_year or '' }}" placeholder="{{ this_year - 3 }}">
+      <span class="field__help">For "From a year".</span>
+    </div>
+  </fieldset>
+  <label class="switch">Also monitor issues already listed in that range
+    <input type="checkbox" role="switch" name="monitor_existing" checked><span class="switch__state" aria-hidden="true"></span>
+  </label>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Close</button>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </div>
+</form>
+{% if back is not none %}
+<section class="panel modal__panel stack" aria-labelledby="back-title" style="margin-top: 1rem">
+  <h2 class="panel__label" id="back-title">Past issues from the Internet Archive</h2>
+  {% include "magazines/_back_issues.html" %}
+</section>
+{% endif %}

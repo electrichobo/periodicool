@@ -13,6 +13,7 @@
     <span class="spinner" aria-hidden="true"></span>
   </div>
   <div class="toolbar__group">
+    <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/monitoring" hx-target="#modal-body">Monitor</button>
     <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/metadata" hx-target="#modal-body">Metadata</button>
     <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/edit" hx-target="#modal-body">Edit</button>
     <button class="btn btn--danger btn--small" type="button" hx-post="/magazines/{{ mag.id }}/delete" hx-swap="none"
