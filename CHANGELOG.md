@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-23
+
 ### Added
 
 - Download clients the Sonarr way. Add lists every supported client, grouped under Usenet and Torrents, each with a More info note. New: NZBGet, Transmission, Deluge (Label plugin) and rTorrent (also through ruTorrent).
@@ -139,7 +141,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/electrichobo/periodicool/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/electrichobo/periodicool/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/electrichobo/periodicool/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/electrichobo/periodicool/compare/v0.1.3...v0.1.4
