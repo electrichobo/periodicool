@@ -219,7 +219,7 @@ def source_checks(session: Session, now: datetime, env=None) -> list[Check]:
     for row in clients:
         if not row.enabled:
             continue
-        if not client_key(session, row, env):
+        if row.kind != "qbittorrent" and not client_key(session, row, env):
             checks.append(Check(row.name, "bad", "No API key.", "Settings, Download clients."))
         elif not row.category:
             checks.append(Check(row.name, "bad", "No category set.", "Settings, Download clients."))

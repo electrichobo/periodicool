@@ -58,7 +58,7 @@
           <td><code>{{ row.category }}</code></td>
           <td>
             {% if not row.enabled %}{{ ui.led("off", "Disabled") }}
-            {% elif not item.has_key %}{{ ui.led("bad", "No API key") }}
+            {% elif not item.has_key and row.kind != "qbittorrent" %}{{ ui.led("bad", "No API key") }}
             {% else %}{{ ui.led("ok", "Enabled") }}{% endif %}
           </td>
           <td>{{ row.priority }}</td>

@@ -112,6 +112,9 @@ def _indexer_values(row: Indexer | None, kind: str) -> dict:
             "categories": "",
             "daily_cap": "",
             "grab_cap": "",
+            "seed_ratio": "",
+            "seed_time_min": "",
+            "min_seeders": "",
         }
     settings = row.settings or {}
     return {
@@ -124,7 +127,14 @@ def _indexer_values(row: Indexer | None, kind: str) -> dict:
         "categories": ", ".join(map(str, row.categories or [])),
         "daily_cap": settings.get("daily_cap") or "",
         "grab_cap": settings.get("grab_cap") or "",
+        "seed_ratio": _blank(settings.get("seed_ratio")),
+        "seed_time_min": _blank(settings.get("seed_time_min")),
+        "min_seeders": _blank(settings.get("min_seeders")),
     }
+
+
+def _blank(value) -> str:
+    return "" if value is None else f"{value:g}" if isinstance(value, float) else str(value)
 
 
 def _indexer_form(request, session, values: dict, errors=None, row=None):
@@ -153,7 +163,25 @@ def _parse_indexer(session: Session, form: dict, row: Indexer | None) -> tuple[d
             break
         categories.append(int(part))
     extra = {}
-    if kind == "newznab":
+    if kind in ("prowlarr", "torznab"):
+        # Seed goals and minimum seeders for torrents found through this entry.
+        ratio = (form.get("seed_ratio") or "").strip()
+        if ratio:
+            try:
+                extra["seed_ratio"] = float(ratio)
+                if not 0 <= extra["seed_ratio"] <= 100:
+                    raise ValueError
+            except ValueError:
+                errors["seed_ratio"] = "The seed ratio is a number from 0 to 100, such as 1.5."
+                extra.pop("seed_ratio", None)
+        for field, label, high in (
+            ("seed_time_min", "Seed time", 525_600),
+            ("min_seeders", "Minimum seeders", 10_000),
+        ):
+            value = _int(form.get(field, ""), 0, high, label, errors, field)
+            if value is not None:
+                extra[field] = value
+    if kind in ("newznab", "torznab"):
         for field, label in (("daily_cap", "Daily API limit"), ("grab_cap", "Daily grab limit")):
             value = _int(form.get(field, ""), 1, 100_000, label, errors, field)
             if value:
@@ -163,6 +191,7 @@ def _parse_indexer(session: Session, form: dict, row: Indexer | None) -> tuple[d
         errors["api_key"] = "Enter the API key."
     return errors, {
         "kind": kind,
+        "protocol": "torrent" if kind == "torznab" else "usenet",
         "name": name,
         "url": url,
         "priority": priority or 25,
@@ -201,6 +230,11 @@ def indexer_new(request: Request, kind: str = "") -> HTMLResponse:
             kinds=[
                 ("prowlarr", "Prowlarr", "Searches every usenet indexer you set up in Prowlarr."),
                 ("newznab", "Newznab", "One usenet indexer, added directly with its own API key."),
+                (
+                    "torznab",
+                    "Torznab",
+                    "One torrent indexer (or Jackett), added directly. Needs a torrent client.",
+                ),
             ],
         )
     with request.app.state.sessions() as session:
@@ -266,7 +300,7 @@ def _test_indexer(request, session, row: Indexer) -> str:
     client = sources.build_indexer(session, row, sources.transports_from(request.app.state))
     if client is None:
         raise ProwlarrError("the address and API key are both needed")
-    if row.kind == "newznab":
+    if row.kind in ("newznab", "torznab"):
         caps = client.caps()
         title = caps["title"] or row.name
         if not caps["search"]:
@@ -274,7 +308,7 @@ def _test_indexer(request, session, row: Indexer) -> str:
         mags = "has" if caps["magazines"] else "does not list"
         return f"{title} answered; it {mags} a magazines category (7000 or 7010)."
     limits = indexer_limits(session, client)
-    return f"Prowlarr answered; {len(limits)} usenet indexers carry magazines."
+    return f"Prowlarr answered; {len(limits)} indexers carry magazines."
 
 
 @router.post("/settings/indexers/test")
@@ -369,6 +403,7 @@ def _client_values(row: DownloadClient | None, kind: str) -> dict:
             "priority": 1,
             "enabled": True,
             "category": "",
+            "username": "",
         }
     return {
         "id": row.id,
@@ -378,6 +413,7 @@ def _client_values(row: DownloadClient | None, kind: str) -> dict:
         "priority": row.priority,
         "enabled": row.enabled,
         "category": row.category,
+        "username": row.username or "",
     }
 
 
@@ -405,15 +441,19 @@ def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dic
     elif len(category) > 100:
         errors["category"] = "Keep the category under 100 characters."
     key = (form.get("api_key") or "").strip()
-    if _key_missing(session, DownloadClient, kind, row, key):
+    # qBittorrent: the secret field is its password, and both may be empty when
+    # qBittorrent skips login for PeriodiCool's address.
+    if kind != "qbittorrent" and _key_missing(session, DownloadClient, kind, row, key):
         errors["api_key"] = "Enter the API key."
     return errors, {
         "kind": kind,
+        "protocol": sources.CLIENT_PROTOCOLS.get(kind, "usenet"),
         "name": name,
         "url": url,
         "priority": priority or 1,
         "enabled": form.get("enabled") == "on",
         "category": category,
+        "username": (form.get("username") or "").strip()[:200] or None,
         "api_key": key,
     }
 
@@ -427,7 +467,13 @@ def client_new(request: Request, kind: str = "") -> HTMLResponse:
             what="download client",
             base="/settings/downloads/new",
             kinds=[
-                ("sabnzbd", "SABnzbd", "Usenet downloads. NZBGet and torrent clients come later.")
+                ("sabnzbd", "SABnzbd", "Usenet downloads. NZBGet comes later."),
+                (
+                    "qbittorrent",
+                    "qBittorrent",
+                    "Torrents. Files are hard-linked or copied into the library, never moved, "
+                    "so they keep seeding.",
+                ),
             ],
         )
     with request.app.state.sessions() as session:
@@ -458,15 +504,16 @@ async def client_save(request: Request) -> Response:
             values = {**form, "enabled": form.get("enabled") == "on"}
             return _client_form(request, session, values, errors, row)
         key = data.pop("api_key")
+        secret = "password" if data["kind"] == "qbittorrent" else "api_key"
         if row is None:
-            session.add(DownloadClient(**data, path_map=[], api_key=key or None))
+            session.add(DownloadClient(**data, path_map=[], **{secret: key or None}))
         else:
             if row.kind != data["kind"]:
                 raise HTTPException(status_code=400)
             for field, value in data.items():
                 setattr(row, field, value)
             if key:
-                row.api_key = key
+                setattr(row, secret, key)
         session.commit()
         _learn(request, key)
     return Response(status_code=204, headers={"HX-Redirect": "/settings/downloads?saved=1"})
@@ -499,7 +546,8 @@ def _check_client(request, session, row: DownloadClient) -> str:
     if client is None:
         raise ClientError("the address and API key are both needed")
     version = client.check(row.category)
-    return f"{row.name}: SABnzbd {version} answered, and the category {row.category!r} exists."
+    kind = sources.CLIENT_KINDS.get(row.kind, row.kind)
+    return f"{row.name}: {kind} {version} answered, and the category {row.category!r} exists."
 
 
 @router.post("/settings/downloads/test")
@@ -524,7 +572,13 @@ async def client_test_form(request: Request) -> Response:
             category=(form.get("category") or "").strip(),
             path_map=[],
         )
-        _learn(request, probe.api_key)
+        if probe.kind == "qbittorrent":
+            probe.username = (form.get("username") or "").strip()
+            probe.password = (form.get("api_key") or "").strip() or (
+                stored.password if stored else None
+            )
+            probe.api_key = None
+        _learn(request, probe.api_key, probe.password)
         try:
             text = _check_client(request, session, probe)
         except ClientError as exc:

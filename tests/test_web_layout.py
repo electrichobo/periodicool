@@ -4,7 +4,7 @@ import re
 
 from periodicool.models import Magazine, MonitorMode
 
-from test_web_magazines import mags  # noqa: F401
+from test_web_magazines import fakes, mags  # noqa: F401
 
 
 def test_library_is_gone_from_the_nav_and_redirects(client):
@@ -96,3 +96,22 @@ def test_wanted_pages_keep_the_filter(client, mags):  # noqa: F811
     page = client.get("/wanted/missing", params={"magazine": mags["People"]}).text
     if 'class="pager"' in page:
         assert f"?magazine={mags['People']}&amp;page=2" in page
+
+
+def test_interactive_search_shows_torrents(client, mags, fakes):  # noqa: F811
+    from fake_qbit import QB_URL, FakeQbit
+    from rows import add_client
+
+    from fake_prowlarr import release_json
+
+    fake_p, _ = fakes
+    client.app.state.qbit_transport = FakeQbit()
+    with client.app.state.sessions() as s:
+        add_client(s, QB_URL, name="qBit", kind="qbittorrent", protocol="torrent", category="mags")
+        s.commit()
+    fake_p.search_results = [
+        release_json("Linux Magazine USA - Issue 311, October 2026", indexer_id=3)
+        | {"protocol": "torrent", "seeders": 8, "leechers": 2}
+    ]
+    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive").text
+    assert '<span class="tag">Torrent</span> 8 seeders, 2 peers' in page

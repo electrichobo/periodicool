@@ -11,14 +11,14 @@
 </div>
 {%- endmacro %}
 
-{% macro key_field(has_key, env_fallback, help, label="API key") -%}
+{% macro key_field(has_key, env_fallback, help, label="API key", set_text="Key set") -%}
 <div class="field">
   <label class="field__label" for="src-api_key">{{ label }}</label>
   <input class="input input--mono" id="src-api_key" name="api_key" type="password" value="" autocomplete="new-password" spellcheck="false"
     placeholder="{% if env_fallback %}From the environment variable{% elif has_key %}Saved (hidden){% endif %}"
     {%- if errors.get("api_key") %} aria-invalid="true"{% endif %} aria-describedby="src-api_key-help{% if errors.get('api_key') %} src-api_key-err{% endif %}">
   <span class="field__help" id="src-api_key-help">
-    {%- if has_key %}{{ ui.led("ok", "Key set") }} {% endif %}{{ help }}
+    {%- if has_key %}{{ ui.led("ok", set_text) }} {% endif %}{{ help }}
     {%- if env_fallback %} Right now the key comes from the environment variable; a key saved here takes its place.{% endif %}</span>
   {% if errors.get("api_key") %}<span class="field__error" id="src-api_key-err">{{ errors["api_key"] }}</span>{% endif %}
 </div>

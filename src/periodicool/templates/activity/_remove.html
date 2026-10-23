@@ -4,7 +4,11 @@
     <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
   </div>
   <p class="wrap">{{ g.title }}</p>
+  {% if g.protocol == "torrent" %}
+  <p>This removes the torrent from {{ g.client_label }} (PeriodiCool's torrent only). Its files stay in {{ g.client_label }}'s folder; PeriodiCool never deletes a torrent's files.</p>
+  {% else %}
   <p>This removes the job from {{ g.client_label }} (PeriodiCool's job only). An unfinished download's partial files are removed by {{ g.client_label }}; a finished download keeps its files.</p>
+  {% endif %}
   <label class="switch">Add to blocklist
     <input type="checkbox" role="switch" name="blocklist"><span class="switch__state" aria-hidden="true"></span>
   </label>

@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Torrents, alongside usenet:
+  - qBittorrent as a download client (username and write-only password; both may be empty when qBittorrent skips login for PeriodiCool).
+  - Torznab indexers added directly, and the torrent indexers in Prowlarr. Torrent indexers are only searched while a torrent client is enabled, so a usenet-only setup spends no API hits on them.
+  - Seed ratio, seed time and minimum seeders per indexer entry. The seed goals go to qBittorrent with each torrent, and qBittorrent decides what happens when they are met.
+  - Interactive search shows torrents with their seeders and peers.
+- A torrent is imported by hard link (or a copy when the library is on another disk), never moved, so it keeps seeding. PeriodiCool never deletes a torrent's files: Remove takes the torrent out of qBittorrent only, and leftover cleanup skips torrents.
+- PeriodiCool never reads or changes qBittorrent's settings, and only ever sees torrents it added, in its own category.
+
 ## [0.1.5] - 2026-10-22
 
 ### Changed

@@ -445,3 +445,70 @@ def test_tags_rename_and_delete(client, mags):
         toast(client.post("/settings/tags/rename", data={"old": "weird", "new": ""}))["kind"]
         == "warn"
     )
+
+
+def test_qbittorrent_client_form_and_write_only_password(client):
+    picker = client.get("/settings/downloads/new").text
+    assert "?kind=qbittorrent" in picker and "keep seeding" in picker
+    form = client.get("/settings/downloads/new?kind=qbittorrent").text
+    assert 'name="username"' in form and ">Password<" in form and "never moved" in form
+    base = {
+        "kind": "qbittorrent",
+        "name": "qBit",
+        "url": "http://qbit:8080",
+        "username": "admin",
+        "api_key": "qbit-secret-pass",
+        "priority": "1",
+        "enabled": "on",
+        "category": "mags",
+    }
+    assert client.post("/settings/downloads/save", data=base).status_code == 204
+    with session(client) as s:
+        row = s.scalars(select(DownloadClient)).one()
+        assert (row.protocol, row.username, row.password, row.api_key) == (
+            "torrent",
+            "admin",
+            "qbit-secret-pass",
+            None,
+        )
+        row_id = row.id
+    edit = client.get(f"/settings/downloads/{row_id}/edit").text
+    assert "qbit-secret-pass" not in edit and "Password set" in edit
+    # An empty password field keeps the saved one; no password at all is allowed.
+    client.post("/settings/downloads/save", data=base | {"id": str(row_id), "api_key": ""})
+    with session(client) as s:
+        assert s.get(DownloadClient, row_id).password == "qbit-secret-pass"
+    open_qbit = base | {"name": "Open", "username": "", "api_key": "", "category": "m2"}
+    assert client.post("/settings/downloads/save", data=open_qbit).status_code == 204
+    page = client.get("/settings/downloads").text
+    assert "qbit-secret-pass" not in page and page.count("No API key") == 0
+
+
+def test_torznab_indexer_form_with_seed_goals(client):
+    picker = client.get("/settings/indexers/new").text
+    assert "?kind=torznab" in picker
+    form = client.get("/settings/indexers/new?kind=torznab").text
+    assert "Seed ratio" in form and "Minimum seeders" in form and "API calls per day" in form
+    data = {
+        "kind": "torznab",
+        "name": "Tracker",
+        "url": "https://tracker.example/api",
+        "api_key": "tracker-key-1",
+        "priority": "20",
+        "enabled": "on",
+        "seed_ratio": "1.5",
+        "seed_time_min": "4320",
+        "min_seeders": "3",
+    }
+    bad = client.post("/settings/indexers/save", data=data | {"seed_ratio": "lots"})
+    assert "seed ratio is a number" in bad.text
+    assert client.post("/settings/indexers/save", data=data).status_code == 204
+    with session(client) as s:
+        row = s.scalars(select(Indexer)).one()
+        assert row.protocol == "torrent"
+        assert row.settings == {"seed_ratio": 1.5, "seed_time_min": 4320, "min_seeders": 3}
+        row_id = row.id
+    edit = client.get(f"/settings/indexers/{row_id}/edit").text
+    assert 'value="1.5"' in edit and 'value="4320"' in edit
+    prowlarr = client.get("/settings/indexers/new?kind=prowlarr").text
+    assert "Seed ratio" in prowlarr and "API calls per day" not in prowlarr

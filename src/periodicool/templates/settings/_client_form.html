@@ -13,8 +13,14 @@
   {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
   {{ enabled() }}
   {{ text("name", "Name") }}
-  {{ text("url", "Address", "For example http://sabnzbd:8080.", "url", 'placeholder="http://" required') }}
+  {{ text("url", "Address", "For example http://qbittorrent:8080 (its Web UI address)." if values.get("kind") == "qbittorrent" else "For example http://sabnzbd:8080.", "url", 'placeholder="http://" required') }}
+  {% if values.get("kind") == "qbittorrent" %}
+  {{ text("username", "Username", "Leave both empty if qBittorrent skips login for PeriodiCool's address.", attrs='autocomplete="off"') }}
+  {{ key_field(has_key, false, "Stored in PeriodiCool's database and never shown again. Leave empty to keep the saved password.", "Password", "Password set") }}
+  <p class="field__help">Files are hard-linked into the library (or copied when the library is on another disk), never moved, so the torrent keeps seeding. Seed goals come from each indexer entry; qBittorrent decides what happens when they are met. PeriodiCool never changes qBittorrent's own settings.</p>
+  {% else %}
   {{ key_field(has_key, env_fallback, key_help) }}
+  {% endif %}
   {{ text("category", "Category", "PeriodiCool adds jobs only in this category, and only ever reads or removes its own jobs. Create the category in " ~ kind_label ~ " first.", attrs="required") }}
   {{ text("priority", "Priority", "1 to 50. New downloads go to the enabled client with the lowest number.", attrs='inputmode="numeric"') }}
   <div class="modal__foot">

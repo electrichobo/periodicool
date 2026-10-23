@@ -69,6 +69,12 @@ python -m periodicool downloads       # grabs and their status
 
 Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every usenet indexer you set up in it, or a single Newznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
 
+### Torrents
+
+Add qBittorrent under Settings, Download clients, and either Prowlarr (its torrent indexers are used once a torrent client exists) or a Torznab indexer under Settings, Indexers. Each indexer entry can set a seed ratio, a seed time and a minimum number of seeders. The seed goals go to qBittorrent with each torrent, and qBittorrent applies its own action when they are met; PeriodiCool never changes qBittorrent's settings.
+
+A torrent keeps seeding from qBittorrent's folder, so PeriodiCool hard-links the finished file into the library and never moves or deletes the original. Hard links only work within one filesystem: when the library is on another disk or share, the file is copied instead, which uses the space twice. Torrents and usenet releases compete on format and quality alone, then on indexer priority.
+
 PeriodiCool only adds jobs in each client's own category (create it in the client first) and only ever reads the jobs it created. If the client sees its completed folder at a different path than PeriodiCool does, add a remote path mapping under Settings, Download clients. Automatic grabbing is off until `config set grab.auto true`.
 
 API keys are stored in PeriodiCool's database with their entry. They are never shown again after saving (an empty key field keeps the saved key), are scrubbed from the logs, and are included in backups, so keep backups private. The command line asks for a key or reads it from an environment variable you name (`--api-key-env`), never from the command line itself. Indexer API limits are whatever you set per indexer in Prowlarr (or on a Newznab entry); PeriodiCool reads them and stays within them.

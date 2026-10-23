@@ -14,13 +14,22 @@
   {{ enabled() }}
   {{ text("name", "Name") }}
   {% if values.get("kind") == "prowlarr" %}
-  {{ text("url", "Prowlarr address", "For example http://prowlarr:9696. PeriodiCool searches every usenet indexer Prowlarr has that carries magazines.", "url", 'placeholder="http://" required') }}
+  {{ text("url", "Prowlarr address", "For example http://prowlarr:9696. PeriodiCool searches every indexer Prowlarr has that carries magazines (torrent indexers only while a torrent client is set up).", "url", 'placeholder="http://" required') }}
   {% else %}
   {{ text("url", "Indexer address", "The indexer's site or its /api address, for example https://indexer.example.", "url", 'placeholder="https://" required') }}
   {% endif %}
   {{ key_field(has_key, env_fallback, key_help) }}
   {{ text("categories", "Categories", "Leave empty to use the categories set below the list (7010 is magazines).", attrs='inputmode="numeric" placeholder="7010"') }}
-  {% if values.get("kind") == "newznab" %}
+  {% if values.get("kind") in ("prowlarr", "torznab") %}
+  <fieldset class="form-section">
+    <legend>Torrents</legend>
+    <p class="field__help">{% if values.get("kind") == "prowlarr" %}For torrent indexers in Prowlarr, used only while a torrent client is set up. {% endif %}Seed goals go to the torrent client with each torrent; it decides what to do once they are met. Leave empty to use the client's own.</p>
+    {{ text("seed_ratio", "Seed ratio", attrs='inputmode="decimal" placeholder="1.0"') }}
+    {{ text("seed_time_min", "Seed time (minutes)", attrs='inputmode="numeric" placeholder="4320"') }}
+    {{ text("min_seeders", "Minimum seeders", "Torrents with fewer seeders are rejected. Empty means 1.", attrs='inputmode="numeric" placeholder="1"') }}
+  </fieldset>
+  {% endif %}
+  {% if values.get("kind") in ("newznab", "torznab") %}
   <fieldset class="form-section">
     <legend>Limits</legend>
     <p class="field__help">Most indexers cap API calls and downloads per day. PeriodiCool stops at these numbers; leave empty for no limit.</p>

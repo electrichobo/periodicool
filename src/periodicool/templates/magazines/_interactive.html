@@ -49,7 +49,7 @@
           <td data-sort="{{ 0 if ev.accepted else 1 }}">{{ ui.led("ok", "Accept") if ev.accepted else ui.led("bad", "Reject") }}</td>
           <td class="wrap">{{ rel.title }}</td>
           <td>{{ ev.issue_key or "" }}{% if r.other_magazine %} <span class="tag tag--yellow">{{ ev.magazine.title }}</span>{% endif %}</td>
-          <td>{{ rel.indexer or "" }}</td>
+          <td>{{ rel.indexer or "" }}{% if rel.protocol == "torrent" %}<div class="small"><span class="tag">Torrent</span> {% if rel.seeders is not none %}{{ rel.seeders }} seeders{% if rel.peers is not none %}, {{ rel.peers }} peers{% endif %}{% endif %}</div>{% endif %}</td>
           <td class="num" data-sort="{{ rel.size or 0 }}">{{ (rel.size | filesize) if rel.size else "" }}</td>
           <td data-sort="{{ r.age | replace(' d', '') | replace('today', '0') }}">{{ r.age }}</td>
           <td>{% for f in r.formats %}<span class="tag">{{ f | upper }}</span> {% endfor %}{% if r.true_pdf %}<span class="tag tag--blue">TruePDF</span>{% endif %}</td>
