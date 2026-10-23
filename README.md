@@ -69,7 +69,7 @@ python -m periodicool downloads       # grabs and their status
 
 Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every usenet indexer you set up in it, or a single Newznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
 
-PeriodiCool only adds jobs in each client's own category (create it in the client first) and only ever reads the jobs it created. If the client sees its completed folder at a different path than PeriodiCool does, add a remote path mapping in that client's settings. Automatic grabbing is off until `config set grab.auto true`.
+PeriodiCool only adds jobs in each client's own category (create it in the client first) and only ever reads the jobs it created. If the client sees its completed folder at a different path than PeriodiCool does, add a remote path mapping under Settings, Download clients. Automatic grabbing is off until `config set grab.auto true`.
 
 API keys are stored in PeriodiCool's database with their entry. They are never shown again after saving (an empty key field keeps the saved key), are scrubbed from the logs, and are included in backups, so keep backups private. The command line asks for a key or reads it from an environment variable you name (`--api-key-env`), never from the command line itself. Indexer API limits are whatever you set per indexer in Prowlarr (or on a Newznab entry); PeriodiCool reads them and stays within them.
 
@@ -86,7 +86,9 @@ Only paths, process settings and secrets come from the environment. Everything e
 | `PERIODICOOL_DOWNLOADS_DIR` | `/downloads` | Download client's completed folder for PeriodiCool's category |
 | `PERIODICOOL_IMPORT_DIR` | unset | Optional drop-in import folder |
 | `PERIODICOOL_HOST` | `0.0.0.0` | Bind address |
-| `PERIODICOOL_PORT` | `8383` | Port |
+| `PERIODICOOL_PORT` | `8383` | Port. Can also be set in Settings, General; this variable wins when set |
+| `PERIODICOOL_URL_BASE` | unset | Serve under a path such as `/periodicool` (for a reverse proxy). Also in Settings, General |
+| `PERIODICOOL_ALLOWED_HOSTS` | unset | Comma-separated host names to answer to (localhost always works). Also in Settings, General |
 | `PUID` / `PGID` | `99` / `100` | User and group the container runs as |
 | `UMASK` | `002` | File creation mask |
 | `TZ` | `UTC` | Time zone |

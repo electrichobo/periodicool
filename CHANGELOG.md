@@ -4,6 +4,25 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Changed
+
+- New look from the maintainer's mockups: a light deck with a dark header bar (and a dark mode that follows the device or Settings, UI), Chelsea Market for headings and labels, lamp buttons drawn from the maintainer's artwork, green lamp switches, and a Sys nominal / warning / fault light in the header. Every text color pair meets WCAG AA in both modes.
+- Library is no longer in the menu. Its scan preview and manual import queue are the Manual import page, opened from the Magazines toolbar (with Scan for changes) or Settings, Media management.
+- Profiles is part of Settings, Media management; Health is part of System, Status, which also has a More info panel.
+- Issue rows on a magazine page and on Wanted have an automatic search (magnifying glass) and an interactive search (person) button; click a row for its details. A year jump sits above the issue list.
+- Remote path mappings are their own list on Settings, Download clients, with the client for each mapping.
+- Backup interval and count moved from Settings, General to System, Backups.
+
+### Added
+
+- Indexers: maximum size, minimum age and usenet retention for every release (0 for no limit), each with a reason when a release is rejected.
+- A folder browser for path fields (remote path mappings, backup and log folders).
+- Settings, General: port, URL base (for a reverse proxy) and allowed hosts, applied after a restart. `PERIODICOOL_PORT`, `PERIODICOOL_URL_BASE` and `PERIODICOOL_ALLOWED_HOSTS` win when set.
+- Settings, UI: week column header, short and long date formats, 12 or 24 hour time, relative dates, and Light / Dark / Auto.
+- System, Backups: delete a backup, and choose the backup folder. System, Log files: delete old log files, and choose the log folder.
+- Magazine cards show the cover of the newest issue, taken from page 1 of its PDF when the magazine has no cover image of its own (cached in /config/covers).
+- Wanted: filter by name, magazine and status.
+
 ## [0.1.4] - 2026-10-21
 
 ### Added
