@@ -14,7 +14,22 @@ CAPS = b"""<?xml version="1.0" encoding="UTF-8"?>
 </caps>"""
 
 
-def items_xml(titles, apilimits=True) -> bytes:
+def items_xml(titles, apilimits=True, torznab=False) -> bytes:
+    if torznab:
+        # Torznab: a magnet link only (no download link), with seeders and peers.
+        items = "".join(
+            f"""<item><title>{t}</title><guid>tz-{t}</guid>
+            <pubDate>Fri, 09 Oct 2026 10:00:00 +0000</pubDate>
+            <torznab:attr name="category" value="7010"/>
+            <torznab:attr name="size" value="52428800"/>
+            <torznab:attr name="seeders" value="{12 - i}"/>
+            <torznab:attr name="peers" value="{15 - i}"/>
+            <torznab:attr name="magneturl" value="magnet:?xt=urn:btih:{i:040x}&amp;dn=x"/></item>"""
+            for i, t in enumerate(titles)
+        ).replace("torznab:attr", "newznab:attr")
+        return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:newznab="http://torznab.com/schemas/2015/feed">
+<channel><title>Test Tracker</title>{items}</channel></rss>""".encode()
     items = "".join(
         f"""<item><title>{t}</title><guid>nz-{t}</guid>
         <link>{NZ_URL}/getnzb/{i}.nzb?apikey={NZ_KEY}&amp;i=1</link>
@@ -32,7 +47,8 @@ def items_xml(titles, apilimits=True) -> bytes:
 class FakeNewznab:
     """Callable transport. Records every request; answers t=caps, t=search and NZBs."""
 
-    def __init__(self):
+    def __init__(self, torznab=False):
+        self.torznab = torznab
         self.calls = []
         self.search_titles = []
         self.rss_titles = []
@@ -52,7 +68,8 @@ class FakeNewznab:
         if parts.path == "/api" and query.get("t") == "caps":
             return 200, CAPS
         if parts.path == "/api" and query.get("t") == "search":
-            return 200, items_xml(self.search_titles if "q" in query else self.rss_titles)
+            titles = self.search_titles if "q" in query else self.rss_titles
+            return 200, items_xml(titles, torznab=self.torznab)
         if parts.path.startswith("/getnzb/"):
             return 200, self.nzb
         return 404, b"not found"

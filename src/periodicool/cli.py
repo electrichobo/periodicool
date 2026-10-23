@@ -223,7 +223,10 @@ def cmd_config(session, settings, args, out) -> int:
 
 
 def _sources(session):
-    return Sources(session, {"prowlarr": TRANSPORT, "newznab": TRANSPORT, "sab": SAB_TRANSPORT})
+    return Sources(
+        session,
+        {"prowlarr": TRANSPORT, "newznab": TRANSPORT, "torznab": TRANSPORT, "sab": SAB_TRANSPORT},
+    )
 
 
 def _client(session, out):

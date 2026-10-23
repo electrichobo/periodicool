@@ -23,6 +23,7 @@ from email.utils import parsedate_to_datetime
 from periodicool import USER_AGENT
 
 NEWZNAB_NS = "{http://www.newznab.com/DTD/2010/feeds/attributes/}"
+TORZNAB_NS = "{http://torznab.com/schemas/2015/feed}"
 log = logging.getLogger(__name__)
 _APIKEY_PARAM = re.compile(r"(apikey=)[^&\s\"']+", re.IGNORECASE)
 
@@ -50,6 +51,8 @@ class FoundRelease:
     info_url: str | None = None
     categories: tuple[int, ...] = ()
     protocol: str | None = "usenet"
+    seeders: int | None = None  # torrents only
+    peers: int | None = None
 
 
 @dataclass(frozen=True)
@@ -73,8 +76,8 @@ class ApiLimits:
 
 
 def strip_apikey(url: str | None) -> str | None:
-    if not url:
-        return url
+    if not url or url.lower().startswith("magnet:"):
+        return url  # a magnet link carries no API key; kept exactly as given
     parts = urllib.parse.urlsplit(url)
     query = [
         (k, v)
@@ -219,16 +222,22 @@ class ProwlarrClient:
 
     def _follow(self, url: str, reply: dict, kind: str):
         """Follow one redirect from Prowlarr (an indexer set to "Redirect"), as Sonarr
-        does. Only our User-Agent goes along: never the Prowlarr key or headers."""
+        does. Only our User-Agent goes along: never the Prowlarr key or headers. A
+        redirect to a magnet link is the answer itself (torrent indexers do this)."""
         location = {k.lower(): v for k, v in reply.items()}.get("location")
         if not location:
             return 502, b"Prowlarr sent a redirect without a location", "Prowlarr"
+        if location.lower().startswith("magnet:"):
+            return 200, location.encode(), "Prowlarr"
         target = urllib.parse.urljoin(url, location)
         if urllib.parse.urlsplit(target).scheme not in ("http", "https"):
             return 502, b"Prowlarr redirected to an unsupported address", "Prowlarr"
         host = urllib.parse.urlsplit(target).hostname or "the indexer"
         log.info("Prowlarr redirected the %s to %s; following once", kind, host)
-        status, body, _ = self._send(target, {"Accept": "application/x-nzb, */*"})
+        status, body, again = self._send(target, {"Accept": "application/x-nzb, */*"})
+        moved = {k.lower(): v for k, v in again.items()}.get("location", "")
+        if status in (301, 302, 303, 307, 308) and moved.lower().startswith("magnet:"):
+            return 200, moved.encode(), f"the indexer ({host})"
         return status, body, f"the indexer ({host})"
 
     def _hook(self, kind, indexer_id, status, ok, note) -> None:
@@ -265,10 +274,12 @@ class ProwlarrClient:
             publish_date=_parse_date(r.get("publishDate")),
             indexer_id=_int(r.get("indexerId")),
             indexer=r.get("indexer"),
-            download_url=strip_apikey(r.get("downloadUrl")),
+            download_url=strip_apikey(r.get("downloadUrl") or r.get("magnetUrl")),
             info_url=strip_apikey(r.get("infoUrl")),
             categories=tuple(sorted({c["id"] for c in r.get("categories", []) if "id" in c})),
             protocol=r.get("protocol"),
+            seeders=_int(r.get("seeders")),
+            peers=_int(r.get("leechers")),
         )
 
     def rss(self, indexer_id: int, categories: list[int]) -> tuple[list[FoundRelease], ApiLimits]:
@@ -278,11 +289,23 @@ class ProwlarrClient:
         return parse_newznab(body, indexer_id)
 
     def fetch_nzb(self, download_url: str, indexer_id: int | None = None) -> bytes:
-        """Download an NZB through Prowlarr. Counts as a grab on the indexer.
+        """Download an NZB through Prowlarr (usenet only; see fetch_download)."""
+        kind, body = self.fetch_download(download_url, indexer_id)
+        if kind != "nzb":
+            raise ProwlarrError("download is not an NZB file")
+        return body
 
-        The API key is added only when the URL points at the configured Prowlarr,
-        so it is never sent anywhere else.
+    def fetch_download(self, download_url: str, indexer_id: int | None = None):
+        """Download what a release points at: ("nzb", bytes), ("torrent", bytes) or
+        ("magnet", link). Counts as a grab on the indexer.
+
+        The API key is added only when the URL points at the configured Prowlarr (or
+        indexer), so it is never sent anywhere else.
         """
+        if download_url.lower().startswith("magnet:"):
+            if "xt=" not in download_url:
+                raise ProwlarrError("magnet link without a torrent hash")
+            return "magnet", download_url
         target = urllib.parse.urlsplit(download_url)
         base = urllib.parse.urlsplit(self.url)
 
@@ -302,9 +325,16 @@ class ProwlarrClient:
             if k.lower() != "apikey"
         ]
         body = self._get(path, params, "grab", indexer_id, key_in_query=True, follow_once=True)
-        if b"<nzb" not in body[:2048]:
-            raise ProwlarrError("download is not an NZB file")
-        return body
+        if body[:7].lower() == b"magnet:":
+            link = body.decode("utf-8", "replace").strip()
+            if "xt=" not in link:
+                raise ProwlarrError("magnet link without a torrent hash")
+            return "magnet", link
+        if b"<nzb" in body[:2048]:
+            return "nzb", body
+        if body[:1] == b"d" and b"4:info" in body:
+            return "torrent", body
+        raise ProwlarrError("download is neither an NZB nor a torrent file")
 
     def indexers(self, category: int = 7010) -> list[IndexerInfo]:
         out = []
@@ -347,7 +377,7 @@ class ProwlarrClient:
 
 
 def parse_newznab(
-    body: bytes, indexer_id: int | None = None
+    body: bytes, indexer_id: int | None = None, protocol: str = "usenet"
 ) -> tuple[list[FoundRelease], ApiLimits]:
     try:
         root = ET.fromstring(body)
@@ -373,7 +403,7 @@ def parse_newznab(
             continue
         attrs = {}
         cats = set()
-        for a in item.findall(f"{NEWZNAB_NS}attr"):
+        for a in [*item.findall(f"{NEWZNAB_NS}attr"), *item.findall(f"{TORZNAB_NS}attr")]:
             if a.get("name") == "category":
                 if (c := _int(a.get("value"))) is not None:
                     cats.add(c)
@@ -383,7 +413,11 @@ def parse_newznab(
         size = _int(attrs.get("size")) or (
             _int(enclosure.get("length")) if enclosure is not None else None
         )
-        link = item.findtext("link") or (enclosure.get("url") if enclosure is not None else None)
+        link = (
+            item.findtext("link")
+            or (enclosure.get("url") if enclosure is not None else None)
+            or attrs.get("magneturl")
+        )
         found.append(
             FoundRelease(
                 guid=(item.findtext("guid") or link or title).strip(),
@@ -395,7 +429,9 @@ def parse_newznab(
                 download_url=strip_apikey(link),
                 info_url=strip_apikey(item.findtext("comments")),
                 categories=tuple(sorted(cats)),
-                protocol="usenet",
+                protocol=protocol,
+                seeders=_int(attrs.get("seeders")),
+                peers=_int(attrs.get("peers")),
             )
         )
     return found, limits

@@ -17,7 +17,7 @@ from periodicool.models import ApiCall, DownloadClient, Grab, Indexer, Release
 
 PROWLARR_KEY_ENV = "PROWLARR_API_KEY"
 SAB_KEY_ENV = "SABNZBD_API_KEY"
-INDEXER_KINDS = {"prowlarr": "Prowlarr", "newznab": "Newznab"}
+INDEXER_KINDS = {"prowlarr": "Prowlarr", "newznab": "Newznab", "torznab": "Torznab"}
 CLIENT_KINDS = {"sabnzbd": "SABnzbd", "qbittorrent": "qBittorrent"}
 # The protocol each kind downloads.
 CLIENT_PROTOCOLS = {"sabnzbd": "usenet", "qbittorrent": "torrent"}
@@ -51,7 +51,7 @@ def client_key(session: Session, row: DownloadClient, env: Mapping[str, str] | N
 
 def build_indexer(session: Session, row: Indexer, transports: Mapping | None = None, env=None):
     """A client for one indexer row, recording its calls; None without a key."""
-    from periodicool.newznab import NewznabClient
+    from periodicool.newznab import NewznabClient, TorznabClient
     from periodicool.prowlarr import ProwlarrClient
 
     transports = transports or {}
@@ -71,6 +71,9 @@ def build_indexer(session: Session, row: Indexer, transports: Mapping | None = N
         client = ProwlarrClient(row.url, key, **common)
     elif row.kind == "newznab":
         client = NewznabClient(row.url, key, name=row.name, **common)
+    elif row.kind == "torznab":
+        common["transport"] = transports.get("torznab")
+        client = TorznabClient(row.url, key, name=row.name, **common)
     else:
         return None
     client.source_id, client.source_name, client.row = row.id, row.name, row
@@ -156,6 +159,15 @@ class Sources:
                 return client
         return None
 
+    def protocols(self) -> set[str]:
+        """Protocols with at least one enabled download client."""
+        return {
+            row.protocol
+            for row in self.session.scalars(
+                select(DownloadClient).where(DownloadClient.enabled.is_(True))
+            )
+        }
+
     def first_prowlarr(self):
         return next((c for c in self.indexers if getattr(c, "kind", "") == "prowlarr"), None)
 
@@ -165,6 +177,7 @@ def transports_from(state) -> dict:
     return {
         "prowlarr": getattr(state, "prowlarr_transport", None),
         "newznab": getattr(state, "newznab_transport", None),
+        "torznab": getattr(state, "torznab_transport", None),
         "sab": getattr(state, "sab_transport", None),
         "qbit": getattr(state, "qbit_transport", None),
     }

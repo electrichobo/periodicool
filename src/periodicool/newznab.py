@@ -21,6 +21,7 @@ from periodicool.prowlarr import (
 
 class NewznabClient(ProwlarrClient):
     kind = "newznab"
+    protocol = "usenet"
 
     def __init__(self, url: str, api_key: str, name: str = "Newznab", **kwargs) -> None:
         # People paste either the site ("https://api.example") or the endpoint (".../api").
@@ -58,7 +59,7 @@ class NewznabClient(ProwlarrClient):
         }
 
     def _found(self, body: bytes) -> list[FoundRelease]:
-        found, limits = parse_newznab(body, None)
+        found, limits = parse_newznab(body, None, self.protocol)
         self.last_limits = limits
         return [replace(f, indexer=self.name) for f in found]
 
@@ -75,3 +76,14 @@ class NewznabClient(ProwlarrClient):
         params = [("t", "search"), ("cat", ",".join(map(str, categories))), ("extended", 1)]
         found = self._found(self._api(params, "rss"))
         return found, self.last_limits
+
+
+class TorznabClient(NewznabClient):
+    """A direct Torznab indexer (Jackett, or a tracker's own Torznab feed): the
+    Newznab API with torrent results (seeders, peers, magnet links)."""
+
+    kind = "torznab"
+    protocol = "torrent"
+
+    def __init__(self, url: str, api_key: str, name: str = "Torznab", **kwargs) -> None:
+        super().__init__(url, api_key, name=name, **kwargs)

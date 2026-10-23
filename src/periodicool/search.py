@@ -87,12 +87,27 @@ def make_client(session: Session, transport=None, api_key: str | None = None):
     return build_indexer(session, row, {"prowlarr": transport}, env)
 
 
+def enabled_protocols(session: Session) -> set[str]:
+    from periodicool.models import DownloadClient
+
+    return set(
+        session.scalars(select(DownloadClient.protocol).where(DownloadClient.enabled.is_(True)))
+    )
+
+
 def _clients(source) -> list:
-    """A Sources object gives every enabled indexer entry; a single client is itself."""
+    """A Sources object gives every enabled indexer entry; a single client is itself.
+    Torznab entries are left out while no torrent client is enabled."""
     from periodicool.sources import Sources
 
     if isinstance(source, Sources):
-        return source.indexers
+        protocols = source.protocols()
+        return [
+            c
+            for c in source.indexers
+            if getattr(c, "protocol", "usenet") in protocols | {"usenet"}
+            and (getattr(c, "kind", "") != "torznab" or "torrent" in protocols)
+        ]
     return [] if source is None else [source]
 
 
@@ -153,6 +168,7 @@ class IndexerLimit:
     queries_today: int = 0
     grabs_today: int = 0
     disabled_until: datetime | None = None
+    protocol: str = "usenet"
 
     @property
     def queries_left(self) -> int | None:
@@ -175,12 +191,15 @@ def indexer_limits(
 ) -> list[IndexerLimit]:
     """Usenet indexers that carry magazines, with today's use against their limits."""
     now = now or _now()
-    if getattr(client, "kind", "") == "newznab":
+    if getattr(client, "kind", "") in ("newznab", "torznab"):
         return [_newznab_limit(session, client, now)]
+    # Torrent indexers only count when a torrent client is enabled, so a usenet-only
+    # setup spends no API hits on them.
+    protocols = {"usenet"} | ({"torrent"} if "torrent" in enabled_protocols(session) else set())
     infos: list[IndexerInfo] = [
         i
         for i in client.indexers(category)
-        if i.enabled and i.protocol == "usenet" and i.supports_category
+        if i.enabled and i.protocol in protocols and i.supports_category
     ]
     status = client.indexer_status()
     start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -198,6 +217,7 @@ def indexer_limits(
                 queries_today=u.get("queries", 0) + u.get("rss", 0),
                 grabs_today=u.get("grabs", 0),
                 disabled_until=_aware(status.get(i.id)),
+                protocol=i.protocol,
             )
         )
     return out
@@ -234,6 +254,7 @@ def _newznab_limit(session: Session, client, now: datetime) -> IndexerLimit:
         grab_limit=cap("grab_cap"),
         queries_today=count(("search", "rss")),
         grabs_today=count(("grab",)),
+        protocol=getattr(client, "protocol", "usenet"),
     )
 
 
@@ -265,6 +286,7 @@ def _upsert(
         session.add(rel)
     rel.indexer_id, rel.indexer, rel.title = f.indexer_id, f.indexer, f.title
     rel.size, rel.publish_date, rel.protocol = f.size, f.publish_date, f.protocol
+    rel.seeders, rel.peers = f.seeders, f.peers
     rel.categories = list(f.categories)
     rel.download_url, rel.info_url = f.download_url, f.info_url
     rel.source_id = source_id
@@ -330,7 +352,7 @@ def rss_sync(session: Session, source, today: date, now: datetime | None = None)
         for lim in usable:
             try:
                 found, _limits = client.rss(lim.id, cats)
-                found = [replace(f, indexer=lim.name) for f in found]
+                found = [replace(f, indexer=lim.name, protocol=lim.protocol) for f in found]
             except RateLimited:
                 _rate_limited(session, now, client)
                 result.errors.append(f"{lim.name}: rate limited")
