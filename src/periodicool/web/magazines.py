@@ -104,9 +104,12 @@ def _magazine(session, mag_id: int) -> Magazine:
 @router.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
     with request.app.state.sessions() as session:
+        from periodicool.covers import with_pdf_covers
+
         summaries = overview.all_summaries(session, _today(request))
         context = {
             "summaries": summaries,
+            "pdf_covers": with_pdf_covers(request.app.state.settings.config_dir),
             "totals": overview.totals(summaries),
             "tags": overview.all_tags(session),
             "saved": SAVED_MESSAGES.get(request.query_params.get("saved", "")),
@@ -121,6 +124,10 @@ def cover(request: Request, mag_id: int) -> Response:
     with request.app.state.sessions() as session:
         mag = session.get(Magazine, mag_id)
         path = overview.cover_file(request.app.state.settings.library_dir, mag) if mag else None
+    if path is None and mag is not None:
+        from periodicool.covers import cached_cover
+
+        path = cached_cover(request.app.state.settings.config_dir, mag_id)
     if path is None:
         raise HTTPException(status_code=404)
     return FileResponse(path, headers={"Cache-Control": "private, max-age=3600"})
@@ -136,6 +143,10 @@ def refresh_all(request: Request) -> Response:
             created += len(sync_expected_issues(session, mag, today))
         root = request.app.state.settings.library_dir
         found = library.refresh_file_info(session, root) if root.is_dir() else {"covers": 0}
+        if root.is_dir():
+            from periodicool.covers import refresh_covers
+
+            found["covers"] += refresh_covers(session, root, request.app.state.settings.config_dir)
         session.commit()
     return _toast(f"Expected issues updated ({created} new). Covers found: {found['covers']}.")
 

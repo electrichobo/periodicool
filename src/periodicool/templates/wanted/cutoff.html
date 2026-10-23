@@ -4,6 +4,7 @@
 {% block content %}
 <h1 class="page-title">Wanted</h1>
 {% include "wanted/_tabs.html" %}
+{% include "wanted/_filter.html" %}
 <div class="toolbar">
   <p class="on-chassis-muted toolbar__note">Issues in the library whose format is below the format profile's first choice. PeriodiCool only replaces them when the profile allows upgrades (off by default).</p>
 </div>
@@ -29,7 +30,7 @@
       </tbody>
     </table>
   </div>
-  {{ ui.pager(result.page, result.pages, "?") }}
+  {{ ui.pager(result.page, result.pages, pager_url) }}
   {% endif %}
 </section>
 {% endblock %}

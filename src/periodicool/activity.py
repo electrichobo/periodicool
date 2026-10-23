@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import calendar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import func, select
@@ -37,6 +37,7 @@ class Page:
     page: int
     pages: int
     total: int
+    states: list = field(default_factory=list)  # (value, label) for a filter menu
 
 
 def _page(total: int, page: int, size: int = PAGE_SIZE) -> tuple[int, int, int]:
@@ -134,25 +135,51 @@ def _wanted_query():
     )
 
 
-def missing(session: Session, today: date, page: int = 1) -> Page:
-    """Monitored issues without a file that are out (or due), like Sonarr's Missing."""
+def _wanted_filter(mag: Magazine, text: str, magazine_id: int | None) -> bool:
+    if magazine_id is not None and mag.id != magazine_id:
+        return False
+    if text:
+        names = [mag.title, *(mag.aliases or [])]
+        return any(text in name.lower() for name in names)
+    return True
+
+
+def missing(
+    session: Session,
+    today: date,
+    page: int = 1,
+    *,
+    text: str = "",
+    magazine_id: int | None = None,
+    state: str = "",
+) -> Page:
+    """Monitored issues without a file that are out (or due), like Sonarr's Missing.
+    Filters: words in the magazine's title or other names, one magazine, one state.
+    The page's `states` lists the states present before filtering, for the filter menu."""
     searched = {s.magazine_id: s.last_search_at for s in session.scalars(select(SearchState))}
-    rows = []
+    text = text.strip().lower()
+    rows, states = [], {}
     for issue in session.scalars(_wanted_query()):
-        state = issue_state(issue, issue.magazine, today)
-        if state in ("upcoming", "unmonitored", "grabbed"):
+        found = issue_state(issue, issue.magazine, today)
+        if found in ("upcoming", "unmonitored", "grabbed"):
             continue
-        rows.append(
-            WantedRow(
-                issue,
-                issue.magazine,
-                state,
-                issue_label(issue, issue.magazine),
-                searched.get(issue.magazine_id),
-            )
+        row = WantedRow(
+            issue,
+            issue.magazine,
+            found,
+            issue_label(issue, issue.magazine),
+            searched.get(issue.magazine_id),
         )
+        states.setdefault(found, row.state_label)
+        if state and found != state:
+            continue
+        if not _wanted_filter(issue.magazine, text, magazine_id):
+            continue
+        rows.append(row)
     page, pages, offset = _page(len(rows), page)
-    return Page(rows[offset : offset + PAGE_SIZE], page, pages, len(rows))
+    result = Page(rows[offset : offset + PAGE_SIZE], page, pages, len(rows))
+    result.states = sorted(states.items(), key=lambda kv: kv[1])
+    return result
 
 
 @dataclass
@@ -163,8 +190,11 @@ class CutoffRow:
     wanted_format: str
 
 
-def cutoff_unmet(session: Session, page: int = 1) -> Page:
+def cutoff_unmet(
+    session: Session, page: int = 1, *, text: str = "", magazine_id: int | None = None
+) -> Page:
     """Imported issues whose format is below the profile's first choice."""
+    text = text.strip().lower()
     rows = []
     query = (
         select(Issue)
@@ -177,6 +207,8 @@ def cutoff_unmet(session: Session, page: int = 1) -> Page:
         profile = issue.magazine.format_profile
         best = profile.formats[0] if profile and profile.formats else None
         fmt = (issue.file_format or "").lower()
+        if not _wanted_filter(issue.magazine, text, magazine_id):
+            continue
         if best and fmt and fmt != best:
             rows.append(CutoffRow(issue, issue.magazine, issue_label(issue, issue.magazine), best))
     page, pages, offset = _page(len(rows), page)

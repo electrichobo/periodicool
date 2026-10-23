@@ -180,7 +180,8 @@ def test_missing_skips_upcoming_and_unmonitored_magazines(client, mags):
         assert s.scalars(select(Issue).where(Issue.cover_date > today)).first()
         s.commit()
     page = client.get("/wanted/missing").text
-    assert "Fortean Times" not in page and "Upcoming" not in page
+    table = page[page.index('id="wanted-table"') :]  # the filter menu lists every magazine
+    assert "Fortean Times" not in table and "Upcoming" not in table
 
 
 def test_cutoff_unmet(client, mags):

@@ -103,6 +103,9 @@ def run_library(session: Session, settings: Settings, now: datetime) -> str:
     if not settings.library_dir.is_dir():
         return f"skipped: library folder {settings.library_dir} not found"
     refresh_file_info(session, settings.library_dir)
+    from periodicool.covers import refresh_covers
+
+    refresh_covers(session, settings.library_dir, settings.config_dir)
     scan = plan_scan(session, settings.library_dir, ScanKind.LIBRARY)
     if not get_setting(session, FIRST_SCAN_KEY, False):
         return f"scan {scan.id} planned; waiting for the first scan to be applied by hand"

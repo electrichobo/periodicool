@@ -72,3 +72,27 @@ def test_year_jump_links_to_each_year(client, mags):  # noqa: F811
     for year in years:
         assert f'id="year-{year}"' in page
     assert page.index('class="year-jump"') < page.index('id="years-title"')
+
+
+def test_wanted_filter(client, mags):  # noqa: F811
+    page = client.get("/wanted/missing").text
+    assert 'role="search"' in page and "All magazines" in page
+    people = mags["People"]
+    only = client.get("/wanted/missing", params={"magazine": people}).text
+    titles = set(re.findall(r'<td><a href="/magazines/(\d+)">', only))
+    assert titles == {str(people)}
+    named = client.get("/wanted/missing", params={"q": "fortean"}).text
+    assert set(re.findall(r'<td><a href="/magazines/(\d+)">', named)) == {
+        str(mags["Fortean Times"])
+    }
+    none = client.get("/wanted/missing", params={"q": "no such magazine"}).text
+    assert re.findall(r'<td><a href="/magazines/(\d+)">', none) == []
+    assert 'href="?">Clear</a>' in none
+    cutoff = client.get("/wanted/cutoff", params={"q": "x", "magazine": "abc"}).text
+    assert 'value="x"' in cutoff
+
+
+def test_wanted_pages_keep_the_filter(client, mags):  # noqa: F811
+    page = client.get("/wanted/missing", params={"magazine": mags["People"]}).text
+    if 'class="pager"' in page:
+        assert f"?magazine={mags['People']}&amp;page=2" in page

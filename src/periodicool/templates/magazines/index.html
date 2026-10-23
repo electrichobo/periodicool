@@ -75,7 +75,7 @@
          data-filter-row="mag-list"
          data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}"
          data-tags="|{{ m.tags | map('lower') | join('|') }}|">
-        {% if m.cover_path %}<img class="cassette__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
+        {% if m.cover_path or m.id in pdf_covers %}<img class="cassette__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
         <div class="cassette__label">
           <h2 class="cassette__title">{{ m.title }}</h2>
           <div class="cassette__meta">
@@ -153,7 +153,7 @@
     {% for s in summaries %}
     {% set m = s.mag %}
     <section class="panel overview-row" data-filter-row="mag-list" data-state="{{ 'monitored' if m.monitored else 'unmonitored' }}{{ ' missing' if s.missing }}" data-tags="|{{ m.tags | map('lower') | join('|') }}|" aria-labelledby="ov-{{ m.id }}">
-      {% if m.cover_path %}<img class="overview-row__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
+      {% if m.cover_path or m.id in pdf_covers %}<img class="overview-row__cover" src="/covers/{{ m.id }}" alt="" loading="lazy">{% endif %}
       <div class="stack" style="--gap: 0.5rem">
         <h2 class="overview-row__title" id="ov-{{ m.id }}"><a href="/magazines/{{ m.id }}">{{ m.title }}</a>
           {% for t in m.tags %}<span class="tag tag--blue">{{ t }}</span>{% endfor %}</h2>

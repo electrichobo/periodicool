@@ -512,6 +512,9 @@ def _import(session, g, settings, prowlarr, client, today, result) -> None:
     outcome = import_download(session, g, settings)
     if outcome == "imported":
         result.imported.append(g)
+        from periodicool.covers import refresh_covers
+
+        refresh_covers(session, settings.library_dir, settings.config_dir, g.magazine_id)
     elif outcome == "failed":
         reason = g.error or "import failed"
         if new := fail(

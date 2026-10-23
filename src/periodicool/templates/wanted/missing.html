@@ -4,6 +4,7 @@
 {% block content %}
 <h1 class="page-title">Wanted</h1>
 {% include "wanted/_tabs.html" %}
+{% with states = result.states %}{% include "wanted/_filter.html" %}{% endwith %}
 <form id="wanted-form" hx-post="/wanted/search" hx-swap="none">
   <div class="toolbar">
     <div class="toolbar__group">
@@ -48,7 +49,7 @@
         </tbody>
       </table>
     </div>
-    {{ ui.pager(result.page, result.pages, "?") }}
+    {{ ui.pager(result.page, result.pages, pager_url) }}
     {% endif %}
   </section>
 </form>

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -242,20 +243,67 @@ def wanted_home() -> RedirectResponse:
     return RedirectResponse("/wanted/missing", status_code=307)
 
 
+def _wanted_filters(q: str, magazine: str, state: str = "") -> tuple[dict, str]:
+    """The filter values, and the start of a pager link that keeps them."""
+    filters = {
+        "q": q.strip()[:200],
+        "magazine": magazine if magazine.isdigit() else "",
+        "state": state,
+    }
+    kept = {k: v for k, v in filters.items() if v}
+    return filters, ("?" + urlencode(kept) + "&") if kept else "?"
+
+
+def _magazine_choices(session) -> list[tuple[int, str]]:
+    return [(m.id, m.title) for m in session.scalars(select(Magazine).order_by(Magazine.title))]
+
+
 @router.get("/wanted/missing", response_class=HTMLResponse)
-def wanted_missing(request: Request, page: int = 1) -> HTMLResponse:
+def wanted_missing(
+    request: Request, page: int = 1, q: str = "", magazine: str = "", state: str = ""
+) -> HTMLResponse:
+    filters, pager_url = _wanted_filters(q, magazine, state)
     with request.app.state.sessions() as session:
-        result = activity.missing(session, _today(request), page)
+        result = activity.missing(
+            session,
+            _today(request),
+            page,
+            text=filters["q"],
+            magazine_id=int(filters["magazine"]) if filters["magazine"] else None,
+            state=filters["state"],
+        )
         return _render(
-            request, "wanted/missing.html", active="/wanted", tab="missing", result=result
+            request,
+            "wanted/missing.html",
+            active="/wanted",
+            tab="missing",
+            result=result,
+            filters=filters,
+            pager_url=pager_url,
+            magazines=_magazine_choices(session),
         )
 
 
 @router.get("/wanted/cutoff", response_class=HTMLResponse)
-def wanted_cutoff(request: Request, page: int = 1) -> HTMLResponse:
+def wanted_cutoff(request: Request, page: int = 1, q: str = "", magazine: str = "") -> HTMLResponse:
+    filters, pager_url = _wanted_filters(q, magazine)
     with request.app.state.sessions() as session:
-        result = activity.cutoff_unmet(session, page)
-        return _render(request, "wanted/cutoff.html", active="/wanted", tab="cutoff", result=result)
+        result = activity.cutoff_unmet(
+            session,
+            page,
+            text=filters["q"],
+            magazine_id=int(filters["magazine"]) if filters["magazine"] else None,
+        )
+        return _render(
+            request,
+            "wanted/cutoff.html",
+            active="/wanted",
+            tab="cutoff",
+            result=result,
+            filters=filters,
+            pager_url=pager_url,
+            magazines=_magazine_choices(session),
+        )
 
 
 @router.post("/wanted/search")

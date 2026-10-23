@@ -1,0 +1,21 @@
+{# Filter for the Wanted lists: kept in the address, so paging and reloading keep it. #}
+<form class="toolbar toolbar--light wanted-filter" method="get" role="search" aria-label="Filter">
+  <div class="toolbar__group">
+    <label class="visually-hidden" for="wf-q">Magazine name contains</label>
+    <input class="input input--compact" id="wf-q" name="q" type="search" value="{{ filters.q }}" placeholder="Filter by name">
+    <label class="visually-hidden" for="wf-mag">Magazine</label>
+    <select class="select input--compact" id="wf-mag" name="magazine">
+      <option value="">All magazines</option>
+      {% for id, title in magazines %}<option value="{{ id }}"{% if filters.magazine == id | string %} selected{% endif %}>{{ title }}</option>{% endfor %}
+    </select>
+    {% if states is defined %}
+    <label class="visually-hidden" for="wf-state">Status</label>
+    <select class="select input--compact" id="wf-state" name="state">
+      <option value="">Any status</option>
+      {% for value, label in states %}<option value="{{ value }}"{% if filters.state == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <button class="btn btn--small" type="submit">Filter</button>
+    {% if filters.q or filters.magazine or filters.state %}<a class="btn btn--small" href="?">Clear</a>{% endif %}
+  </div>
+</form>
