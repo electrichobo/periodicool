@@ -39,7 +39,9 @@ class ClientKind:
     defaults: dict = field(default_factory=dict)
 
 
-def _connection(port: int, url_base: str = "", base_label: str = "URL base") -> tuple[Field, ...]:
+def _connection(
+    port: int, url_base: str = "", base_label: str = "URL base", base_help: str = ""
+) -> tuple[Field, ...]:
     return (
         Field(
             "host",
@@ -54,7 +56,8 @@ def _connection(port: int, url_base: str = "", base_label: str = "URL base") -> 
             "url_base",
             base_label,
             default=url_base,
-            help="Only when the client runs under a path, for example behind a reverse proxy.",
+            help=base_help
+            or "Only when the client runs under a path, for example behind a reverse proxy.",
         ),
     )
 
@@ -294,7 +297,13 @@ KINDS: dict[str, ClientKind] = {
             "Torrents over rTorrent's XML-RPC (also through ruTorrent). The category is "
             "rTorrent's label (custom1), as ruTorrent shows it.",
             (
-                *_connection(8080, "RPC2", "URL path"),
+                *_connection(
+                    8080,
+                    "RPC2",
+                    "URL path",
+                    "rTorrent's XML-RPC path, usually RPC2. Through ruTorrent: "
+                    "plugins/httprpc/action.php.",
+                ),
                 USERNAME,
                 PASSWORD,
                 _category("label"),

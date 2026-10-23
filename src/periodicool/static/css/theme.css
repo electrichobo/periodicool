@@ -2114,3 +2114,13 @@ html[data-effects="off"] .brand__mark {
   grid-template-columns: minmax(10rem, 3fr) minmax(5rem, 1fr) auto minmax(8rem, 2fr);
   align-items: end;
 }
+@media (max-width: 40rem) {
+  /* Phone width: host and URL base take a row each, port and SSL share one. */
+  .client-address {
+    grid-template-columns: 1fr auto;
+  }
+  .client-address > .field:first-child,
+  .client-address > .field:last-child {
+    grid-column: 1 / -1;
+  }
+}

@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Download clients the Sonarr way. Add lists every supported client, grouped under Usenet and Torrents, each with a More info note. New: NZBGet, Transmission, Deluge (Label plugin) and rTorrent (also through ruTorrent).
+- Each client's form has that client's fields with its usual defaults: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused or initial state, and where it applies a directory, a post-import category and remove completed.
+- Recent or older priority is picked by the issue's cover date (14 days, a month-only date counting from the month's end).
+- After an import, a torrent can move to a post-import category, and a finished usenet job can leave the client's history. Only PeriodiCool's own job, never its files.
+
+### Changed
+
+- Existing download client entries keep working: their address is split into host, port, SSL and URL base. `client add` on the command line does the same and stores a password client's secret as its password.
+
 ## [0.1.6] - 2026-10-22
 
 ### Changed

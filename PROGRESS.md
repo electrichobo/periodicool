@@ -29,11 +29,14 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.1.6 tagged 2026-10-22** (torrents, add search, Monitor button); maintainer confirmed it on the server 2026-10-23.
 
+- **Download clients the Sonarr way, 2026-10-23:** rule from the maintainer: "when in doubt, ask what would Sonarr do". Migration `0012_client_settings` (`download_clients.settings` JSON; each old `url` split into host, port, use_ssl, url_base; `url` stays, recomputed on save). `clients/registry.py` (`Field`, `ClientKind`, `KINDS`) drives the grouped picker, one generic form and `sources.build_client`. New clients, stdlib only, each with a fake and tests: `nzbget.py` (JSON-RPC), `transmission.py` (RPC, 409 session id, label), `deluge.py` (Web JSON-RPC, login, connect to daemon, Label plugin), `rtorrent.py` (XML-RPC, `d.custom1` label, values cleaned so a label cannot add commands). `downloads.add_options` passes recent or older priority, paused or initial state and directory; `downloads.after_import` does post-import category and remove completed, our job only. Browser-checked the picker and forms at desktop and phone width (address row now wraps on phones). 1496 tests pass. Only SABnzbd is checked against a real client; the rest follow the documented APIs.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up (agreed order):** step 10 (API, docs, Unraid template), then NZBGet, Discord last.
+- **Next up (agreed order):** indexer forms the Sonarr way (separate plan), Usenet and Torrent Blackhole, step 10 (API, docs, Unraid template), Discord last. NZBGet is done.
+- **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
 - **Lists follow-ups:** browser check of the new Settings lists on VADER (desktop and phone width); then a release (maintainer OK to tag) and on the server confirm the existing Prowlarr and SABnzbd show up as entries and a grab still works. Interactive search shows the release's indexer name only (not "entry / Prowlarr indexer" yet).
 - **Agreed order after the lists:** torrents (Torznab, qBittorrent first; hard-link or copy, never move), then step 10 (API, docs, Unraid template), then NZBGet, Discord last.

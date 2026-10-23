@@ -1,6 +1,6 @@
 # PeriodiCool
 
-Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through Prowlarr or Newznab indexers, sends them to SABnzbd, and keeps your library organized.
+Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through Prowlarr, Newznab or Torznab indexers, sends them to your download client, and keeps your library organized.
 
 > **Status:** early development. The back end works from the command line; there is no web UI yet. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -13,7 +13,7 @@ PeriodiCool ships no content and no indexers. You bring your own Prowlarr instan
 - Track magazines with aliases, regional editions, frequency and numbering scheme.
 - Generate expected issues from frequency and numbering, so Wanted and Missing work without a metadata provider.
 - Find releases by RSS and search through any number of indexers (Prowlarr, or Newznab indexers added directly), with rate limiting and an accept/reject reason for every candidate.
-- Send to SABnzbd in PeriodiCool's own category, and only ever touch jobs PeriodiCool created.
+- Send to SABnzbd, NZBGet, qBittorrent, Transmission, Deluge or rTorrent in PeriodiCool's own category (or label), and only ever touch jobs PeriodiCool created.
 - Import and organize into `{Title}/{Year}/{Title} - {YYYY-MM}.{ext}`, with a dry-run preview. Files are moved and renamed, never deleted or overwritten.
 - Manual import queue for anything uncertain.
 
@@ -69,11 +69,22 @@ python -m periodicool downloads       # grabs and their status
 
 Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every usenet indexer you set up in it, or a single Newznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
 
+### Download clients
+
+Settings, Download clients, Add lists the supported clients under Usenet (SABnzbd, NZBGet) and Torrents (qBittorrent, Transmission, Deluge, rTorrent). Each form has that client's own fields, as in Sonarr: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused, and where the client has them, a directory, a post-import category (our torrent moves there after import) and remove completed (our finished usenet job leaves the client's history; files are never touched). Recent means the issue's cover date is within the last 14 days.
+
+Only SABnzbd has been checked against a real install so far. The others follow each client's documented API and are tested against fakes; reports from real setups are welcome. Notes per client:
+
+- Transmission and rTorrent have no categories: PeriodiCool marks its torrents with a label instead (rTorrent's label is `d.custom1`, which ruTorrent shows).
+- Deluge needs its Label plugin turned on, and the label created in Deluge.
+- rTorrent's URL path is the XML-RPC path, usually `RPC2`.
+- Seed time goes to qBittorrent only; Transmission and Deluge take the seed ratio; rTorrent keeps its own ratio groups.
+
 ### Torrents
 
-Add qBittorrent under Settings, Download clients, and either Prowlarr (its torrent indexers are used once a torrent client exists) or a Torznab indexer under Settings, Indexers. Each indexer entry can set a seed ratio, a seed time and a minimum number of seeders. The seed goals go to qBittorrent with each torrent, and qBittorrent applies its own action when they are met; PeriodiCool never changes qBittorrent's settings.
+Add a torrent client under Settings, Download clients, and either Prowlarr (its torrent indexers are used once a torrent client exists) or a Torznab indexer under Settings, Indexers. Each indexer entry can set a seed ratio, a seed time and a minimum number of seeders. The seed goals go to the client with each torrent, and the client applies its own action when they are met; PeriodiCool never changes the client's settings.
 
-A torrent keeps seeding from qBittorrent's folder, so PeriodiCool hard-links the finished file into the library and never moves or deletes the original. Hard links only work within one filesystem: when the library is on another disk or share, the file is copied instead, which uses the space twice. Torrents and usenet releases compete on format and quality alone, then on indexer priority.
+A torrent keeps seeding from the client's folder, so PeriodiCool hard-links the finished file into the library and never moves or deletes the original. Hard links only work within one filesystem: when the library is on another disk or share, the file is copied instead, which uses the space twice. Torrents and usenet releases compete on format and quality alone, then on indexer priority.
 
 PeriodiCool only adds jobs in each client's own category (create it in the client first) and only ever reads the jobs it created. If the client sees its completed folder at a different path than PeriodiCool does, add a remote path mapping under Settings, Download clients. Automatic grabbing is off until `config set grab.auto true`.
 
