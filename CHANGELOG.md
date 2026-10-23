@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-10-22
+
 ### Changed
 
 - New look from the maintainer's mockups: a light deck with a dark header bar (and a dark mode that follows the device or Settings, UI), Chelsea Market for headings and labels, lamp buttons drawn from the maintainer's artwork, green lamp switches, and a Sys nominal / warning / fault light in the header. Every text color pair meets WCAG AA in both modes.
@@ -108,7 +110,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/electrichobo/periodicool/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/electrichobo/periodicool/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/electrichobo/periodicool/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/electrichobo/periodicool/compare/v0.1.1...v0.1.2
