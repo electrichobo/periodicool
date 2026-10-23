@@ -162,31 +162,6 @@ async def add_back_issues(request: Request, mag_id: int) -> Response:
     return response
 
 
-@router.post("/magazines/lookup", response_class=HTMLResponse)
-async def add_form_lookup(request: Request) -> HTMLResponse:
-    """Suggestions for the add form. Nothing is saved; "Use" copies a value."""
-    form = await form_data(request)
-    title, issn = form.get("title", "").strip(), normalize(form.get("issn", ""))
-    with request.app.state.sessions() as session:
-        states = _states(session)
-        answers = {}
-        for source in ("loc", "wikidata"):
-            if states[source] and (title or issn):
-                answers[source] = lookups.lookup(
-                    session, source, issn=issn, title=title, transport=_transport(request)
-                )
-        session.commit()
-    return _render(
-        request,
-        "magazines/_lookup.html",
-        states=states,
-        sources=SOURCES,
-        records={s: a.record for s, a in answers.items()},
-        errors={s: a.error for s, a in answers.items() if a.error},
-        asked=bool(title or issn),
-    )
-
-
 @router.post("/lookups/dismiss")
 def dismiss_notice(request: Request) -> Response:
     with request.app.state.sessions() as session:

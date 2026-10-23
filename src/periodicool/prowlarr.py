@@ -198,13 +198,14 @@ class ProwlarrClient:
             url += "?" + urllib.parse.urlencode(params)
         try:
             status, body, reply = self._send(url, headers)
-            where = "Prowlarr"
+            where = self.source_name or "Prowlarr"
             if follow_once and status in (301, 302, 303, 307, 308):
                 status, body, where = self._follow(url, reply, kind)
         except OSError as exc:
             self._last = self._clock()
             self._hook(kind, indexer_id, None, False, self.redact(exc))
-            raise ProwlarrError(f"cannot reach Prowlarr: {self.redact(exc)}") from None
+            name = self.source_name or "Prowlarr"
+            raise ProwlarrError(f"cannot reach {name}: {self.redact(exc)}") from None
         self._last = self._clock()
         ok = 200 <= status < 300
         note = None if ok else self.redact(describe_error(body))

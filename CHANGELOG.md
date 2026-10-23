@@ -4,7 +4,13 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Changed
+
+- Add magazine is a search now: type a title or ISSN, pick one of the likely matches, and confirm a short form (title, frequency, numbering, what to monitor, format profile); everything else waits under More options. Matches come from your indexers (release names grouped into magazines, with frequency, numbering and the latest issue guessed from them; one cached search) and, when you turned them on, the Library of Congress and Wikidata (magazines and journals only). What the catalogs said about the match you pick becomes the magazine's metadata, so its Metadata pop-up does not ask again.
+
 ### Added
+
+- A Monitor button on each magazine: New issues only, From a year, or All issues. Saving adds the back issues that brings in, and with the Internet Archive lookup on it offers the archive's past issues as well.
 
 - Torrents, alongside usenet:
   - qBittorrent as a download client (username and write-only password; both may be empty when qBittorrent skips login for PeriodiCool).

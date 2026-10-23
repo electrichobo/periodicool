@@ -51,7 +51,23 @@ def parse(rows: list[dict]) -> Record | None:
     if not rows:
         return None
     first_item = rows[0].get("item")
-    rows = [r for r in rows if r.get("item") == first_item]  # one item only
+    return _item([r for r in rows if r.get("item") == first_item])  # one item only
+
+
+def parse_all(rows: list[dict], order: list[str] | None = None) -> list[Record]:
+    """One record per item; in `order` (Q-numbers, best first) when given."""
+    items: dict[str, list[dict]] = {}
+    for r in rows:
+        items.setdefault(r.get("item", ""), []).append(r)
+    found = [_item(group) for group in items.values()]
+    if order:
+        rank = {q: i for i, q in enumerate(order)}
+        found.sort(key=lambda rec: rank.get(rec.ref or "", len(rank)))
+    return found
+
+
+def _item(rows: list[dict]) -> Record:
+    first_item = rows[0].get("item")
     out = Record(source="wikidata", ref=first_item.rsplit("/", 1)[-1] if first_item else None)
     for r in rows:
         out.title = out.title or r.get("itemLabel")
@@ -71,12 +87,20 @@ def parse(rows: list[dict]) -> Record | None:
 
 
 def lookup(issn: str | None = None, title: str | None = None, transport=None) -> Record | None:
+    found = candidates(issn, title, transport)
+    return found[0] if found else None
+
+
+def candidates(
+    issn: str | None = None, title: str | None = None, transport=None, limit: int = 5
+) -> list[Record]:
+    """Periodicals with this ISSN, or matching this title (Wikidata's own ranking)."""
     if issn:
         if normalize(issn) is None:
-            return None
-        return parse(_sparql(f'?item wdt:P236 "{normalize(issn)}".', transport))
+            return []
+        return parse_all(_sparql(f'?item wdt:P236 "{normalize(issn)}".', transport))[:limit]
     if not title:
-        return None
+        return []
     body = get(
         "wikidata",
         API_URL,
@@ -97,10 +121,10 @@ def lookup(issn: str | None = None, title: str | None = None, transport=None) ->
         raise LookupError("Wikidata sent an answer PeriodiCool cannot read") from exc
     ids = [i for i in ids if re.fullmatch(r"Q\d+", i)]
     if not ids:
-        return None
+        return []
     values = " ".join(f"wd:{i}" for i in ids)
     where = (
         f"VALUES ?item {{ {values} }} VALUES ?kind {{ {_PERIODICALS} }} "
         "?item wdt:P31/wdt:P279* ?kind."
     )
-    return parse(_sparql(where, transport))
+    return parse_all(_sparql(where, transport), order=ids)[:limit]

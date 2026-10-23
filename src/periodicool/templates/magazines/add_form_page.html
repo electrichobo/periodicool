@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Add magazine · PeriodiCool{% endblock %}
+{% block eyebrow %}{% endblock %}
+{% block content %}
+{# Without htmx (or after an error on a plain post), the short form as a page. #}
+<div class="page-head"><h1 class="page-title">Add magazine</h1></div>
+{% include "magazines/_add_form.html" %}
+{% endblock %}

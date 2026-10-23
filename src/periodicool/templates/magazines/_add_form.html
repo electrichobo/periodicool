@@ -1,0 +1,67 @@
+{# The short Add form (a pop-up). Everything else is under More options. #}
+{% from "magazines/_fields.html" import text, choice, toggle with context %}
+<form class="panel modal__panel stack" hx-post="/magazines/add" hx-target="#modal-body" id="add-form">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Add {{ values.get("title") or "magazine" }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <input type="hidden" name="pick_term" value="{{ term }}">
+  <input type="hidden" name="pick_key" value="{{ key }}">
+  {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+  {{ text("title", "Title", "As printed on the cover. The folder name comes from this.", attrs="required autocomplete=off") }}
+  <div class="form-row">
+    {{ choice("frequency", "Frequency", frequencies, ("Guessed from " ~ card.frequency_from ~ "; change it if it is wrong.") if card and card.frequency_from else none) }}
+    {{ choice("numbering", "Numbering", numberings, "Guessed from release names." if card and card.guess.numbering else none) }}
+  </div>
+  <div class="form-row">
+    {{ choice("monitor_mode", "Monitor", modes) }}
+    {{ text("monitor_from_year", "From year", "Only for \"From a year on\".", attrs="inputmode=numeric") }}
+    {{ choice("format_profile_id", "Format profile", profile_options, blank="Any format") }}
+  </div>
+  <input type="hidden" name="monitored" value="on">
+  <div class="field">
+    <label class="switch">Search for wanted issues after adding
+      <input type="checkbox" role="switch" name="search_now"><span class="switch__state" aria-hidden="true"></span>
+    </label>
+  </div>
+  <div id="add-preview" class="add-preview" aria-live="polite"
+       hx-post="/magazines/preview" hx-target="this" hx-trigger="load, change from:#add-form" hx-include="#add-form" hx-vals='{"short": "1"}'></div>
+  <details class="fold add-more"{% if errors and errors.keys() | reject("in", ["title", "frequency", "numbering", "monitor_mode", "monitor_from_year", "format_profile_id"]) | list %} open{% endif %}>
+    <summary>More options</summary>
+    <div class="fold__body stack">
+      <div class="form-row">
+        {{ text("aliases", "Other names", "Comma separated, for example Linux Pro Magazine.") }}
+        {{ text("issn", "ISSN", "Lets PeriodiCool recognize this magazine inside PDF files.", attrs="inputmode=numeric autocomplete=off") }}
+      </div>
+      <div class="form-row">
+        {{ text("search_term", "Search term", "Sent to the indexers. Empty means the title.") }}
+        {{ text("region", "Region or edition", "For example USA or UK.") }}
+        {{ text("languages", "Languages", "Comma separated.") }}
+      </div>
+      <div class="form-row">
+        {{ text("anchor_date", "Known issue date", "One known issue; expected issues are counted from it.", type="date") }}
+        {{ text("anchor_number", "Known issue number", "For numbered magazines.", attrs="inputmode=numeric") }}
+        {{ text("schedule_start", "Schedule starts", "Nothing is expected before it.", type="date") }}
+      </div>
+      <div class="form-row">
+        {{ text("publish_weekday", "Publish day", "Weeklies: 0 Monday to 6 Sunday.", attrs="inputmode=numeric") }}
+        {{ text("grace_days", "Grace days", "Before a late issue counts as missing.", attrs="inputmode=numeric") }}
+        {{ text("on_sale_days", "On sale before cover date", "Days; searches start then.", attrs="inputmode=numeric") }}
+      </div>
+      <div class="form-row">
+        {{ text("must_contain", "Must contain", "Comma separated.") }}
+        {{ text("must_not_contain", "Must not contain", "Comma separated.") }}
+        {{ text("tags", "Tags", "Comma separated.") }}
+      </div>
+      <div class="form-row">
+        {{ toggle("filler_optional", "Words like Magazine optional") }}
+        {{ toggle("special_prefix", "Accept specials") }}
+      </div>
+    </div>
+  </details>
+  <div class="modal__foot">
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--primary" type="submit">+ Add magazine</button>
+  </div>
+</form>

@@ -1,0 +1,41 @@
+{% import "_macros.html" as ui %}
+{% for p in problems %}<p role="alert">{{ ui.led("warn", "Note") }} {{ p }}</p>{% endfor %}
+{% if not cards %}
+{{ ui.empty("No matches", "Nothing found for \"" ~ term ~ "\". Check the spelling, or add it by hand.") }}
+{% else %}
+<div class="grid add-cards">
+  {% for c in cards %}
+  <article class="cassette add-card">
+    <div class="cassette__label">
+      <h2 class="cassette__title">{{ c.title }}</h2>
+      <div class="cassette__meta">
+        {% for s in c.sources %}<span class="tag">{{ {"loc": "Library of Congress", "wikidata": "Wikidata"}[s] }}</span>{% endfor %}
+        {% if c.releases %}<span class="tag">{{ c.releases }} releases</span>{% endif %}
+      </div>
+    </div>
+    <dl class="summary summary--one add-card__facts">
+      {% if c.first("publisher") %}<div><dt>Publisher</dt><dd>{{ c.first("publisher") }}</dd></div>{% endif %}
+      {% if c.issns %}<div><dt>ISSN</dt><dd>{{ c.issns | join(", ") }}</dd></div>{% endif %}
+      {% if c.frequency %}<div><dt>Frequency</dt><dd>{{ frequency_labels.get(c.frequency, c.frequency) }} <span class="muted small">(from the {{ c.frequency_from }})</span></dd></div>{% endif %}
+      {% if c.first("start_year") %}<div><dt>Since</dt><dd>{{ c.first("start_year") }}</dd></div>{% endif %}
+      {% if c.alt_titles %}<div><dt>Other names</dt><dd>{{ c.alt_titles[:4] | join(", ") }}</dd></div>{% endif %}
+    </dl>
+    {% if c.examples %}
+    <details class="add-card__examples">
+      <summary class="small">Example releases</summary>
+      <ul class="plain-list small">{% for e in c.examples %}<li class="wrap">{{ e }}</li>{% endfor %}</ul>
+    </details>
+    {% endif %}
+    <div class="cluster add-card__actions">
+      {% if c.tracked_id %}
+      <span>{{ ui.led("ok", "Already tracked") }}</span>
+      <a class="btn btn--small" href="/magazines/{{ c.tracked_id }}">Open</a>
+      {% else %}
+      <button class="btn btn--primary btn--small" type="button" hx-post="/magazines/add/pick" hx-vals='{{ {"term": term, "key": c.key} | tojson }}' hx-target="#modal-body">Add</button>
+      {% endif %}
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% endif %}
+<p class="add-manual">None of these? <button class="linklike" type="button" hx-get="/magazines/add/manual" hx-vals='{{ {"title": term} | tojson }}' hx-target="#modal-body">Add it by hand</button>.</p>

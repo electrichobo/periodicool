@@ -46,13 +46,26 @@ def _subfields(df, codes: str) -> str | None:
 
 
 def parse(body: bytes) -> Record | None:
+    found = parse_all(body)
+    return found[0] if found else None
+
+
+def parse_all(body: bytes) -> list[Record]:
+    """Every MARC record in an answer, in the order the catalog gave them."""
     try:
         root = ET.fromstring(body)
     except ET.ParseError as exc:
         raise LookupError("Library of Congress sent something that is not XML") from exc
-    record = next(root.iter(f"{_MARC}record"), None)
-    if record is None:
-        return None
+    return [_record(r) for r in root.iter(f"{_MARC}record")]
+
+
+def is_serial(record) -> bool:
+    """MARC leader position 7 is "s" for serials (magazines, journals)."""
+    leader = record.findtext(f"{_MARC}leader") or ""
+    return len(leader) > 7 and leader[7] == "s"
+
+
+def _record(record) -> Record:
     out = Record(source="loc")
     for cf in record.iter(f"{_MARC}controlfield"):
         if cf.get("tag") == "001":
@@ -84,12 +97,20 @@ def parse(body: bytes) -> Record | None:
 
 
 def lookup(issn: str | None = None, title: str | None = None, transport=None) -> Record | None:
+    found = candidates(issn, title, transport, limit=1)
+    return found[0] if found else None
+
+
+def candidates(
+    issn: str | None = None, title: str | None = None, transport=None, limit: int = 5
+) -> list[Record]:
+    """Up to `limit` catalog records for an ISSN or a title."""
     if issn:
         query = f"bath.issn={issn}"
     elif title:
         query = 'dc.title="' + title.replace('"', " ") + '"'
     else:
-        return None
+        return []
     body = get(
         "loc",
         URL,
@@ -97,10 +118,17 @@ def lookup(issn: str | None = None, title: str | None = None, transport=None) ->
             "version": "1.1",
             "operation": "searchRetrieve",
             "query": query,
-            "maximumRecords": "1",
+            "maximumRecords": str(limit if issn else limit * 4),  # books are left out
             "recordSchema": "marcxml",
         },
         accept="text/xml",
         transport=transport,
     )
-    return parse(body)
+    if issn:
+        return parse_all(body)[:limit]
+    # A title search also finds books with that title: keep magazines and journals.
+    try:
+        root = ET.fromstring(body)
+    except ET.ParseError as exc:
+        raise LookupError("Library of Congress sent something that is not XML") from exc
+    return [_record(r) for r in root.iter(f"{_MARC}record") if is_serial(r)][:limit]

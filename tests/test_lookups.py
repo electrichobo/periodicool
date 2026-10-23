@@ -86,9 +86,7 @@ def test_nothing_is_sent_while_off(client, mags, fake, settings):
     client.get(f"/magazines/{mag_id}")
     popup = client.get(f"/magazines/{mag_id}/metadata").text
     assert "Metadata lookups are off" in popup and "Settings, Metadata" in popup
-    assert (
-        "Metadata lookups are off" in client.post("/magazines/lookup", data={"title": T2600}).text
-    )
+    client.post("/magazines/add/search", data={"term": T2600})
     client.post("/library/scan")
     client.post("/system/tasks/metadata/run")
     client.get("/system/health")
@@ -192,12 +190,15 @@ def test_apply_only_what_is_ticked(client, mags, fake):
     assert toast(client.post(f"/magazines/{mag_id}/metadata/apply"))["kind"] == "warn"
 
 
-def test_add_form_suggestions(client, fake):
-    off = client.post("/magazines/lookup", data={"title": T2600}).text
-    assert "lookups are off" in off
-    turn_on(client, "wikidata")
-    page = client.post("/magazines/lookup", data={"title": T2600}).text
-    assert 'data-fill="f-issn"' in page and ISSN in page and "Nothing is saved" in page
+def test_add_search_cards_from_catalogs(client, fake):
+    page = client.get("/magazines/add").text
+    assert "nothing to search" in page and 'name="term"' in page
+    turn_on(client, "wikidata", "loc")
+    results = client.post("/magazines/add/search", data={"term": T2600}).text
+    assert "Wikidata" in results and ISSN in results and "/magazines/add/pick" in results
+    calls = len(fake.calls)
+    client.post("/magazines/add/search", data={"term": T2600})
+    assert len(fake.calls) == calls  # the second search comes from the cache
 
 
 def test_back_issues_list_and_add(client, mags, fake):

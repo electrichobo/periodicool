@@ -165,3 +165,59 @@ def frequency_mismatch(session: Session, mag: Magazine) -> str | None:
 def prune(session: Session) -> int:
     cutoff = _now() - UNUSED
     return session.execute(delete(LookupCache).where(LookupCache.used_at < cutoff)).rowcount
+
+
+def candidates(
+    session: Session,
+    source: str,
+    *,
+    issn: str | None = None,
+    title: str | None = None,
+    transport=None,
+) -> tuple[list[Record], str | None]:
+    """Several possible matches from one source (for the add search), cached like
+    lookups. Returns ([], None) when the source is off."""
+    from periodicool.lookups import loc, wikidata
+
+    if source not in ("loc", "wikidata") or not enabled(session, source):
+        return [], None
+    if not issn and not title:
+        return [], None
+    query = "list|" + _query(issn, title)
+    row = _row(session, source, query)
+    now = _now()
+    if row is not None:
+        age = now - _aware(row.fetched_at)
+        if age < (FAILED_FRESH if row.error else FRESH):
+            row.used_at = now
+            found = [Record.from_dict(d) for d in (row.data or {}).get("records", [])]
+            return found, row.error
+    module = loc if source == "loc" else wikidata
+    try:
+        found, error = module.candidates(issn=issn, title=title, transport=transport), None
+    except LookupError as exc:
+        found, error = [], str(exc)[:300]
+        log.info("%s search failed: %s", SOURCES[source], error)
+    if row is None:
+        row = LookupCache(source=source, query=query)
+        session.add(row)
+    row.data = {"records": [r.as_dict() for r in found]}
+    row.error, row.fetched_at, row.used_at = error, now, now
+    session.flush()
+    return found, error
+
+
+def remember(session: Session, mag: Magazine, records: list[Record]) -> None:
+    """Store records picked while adding as this magazine's lookup answers, so its
+    Metadata pop-up shows them at once instead of asking again."""
+    now = _now()
+    for rec in records:
+        if rec.source not in ("loc", "wikidata"):
+            continue
+        query = _query(mag.issn, mag.title)
+        row = _row(session, rec.source, query)
+        if row is None:
+            row = LookupCache(source=rec.source, query=query)
+            session.add(row)
+        row.data, row.error, row.fetched_at, row.used_at = rec.as_dict(), None, now, now
+    session.flush()

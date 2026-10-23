@@ -215,22 +215,166 @@ def _form_page(request, session, *, mag=None, parsed=None, status_code=200, moda
 
 
 @router.get("/magazines/add", response_class=HTMLResponse)
-def add_page(request: Request) -> HTMLResponse:
+def add_page(request: Request, term: str = "") -> HTMLResponse:
     with request.app.state.sessions() as session:
-        return _form_page(request, session)
+        return _render(
+            request,
+            "magazines/form.html",
+            active="/",
+            term=term,
+            lookups_on=lookups_any_enabled(session),
+            indexers_on=bool(sources_for(request, session).indexers),
+        )
+
+
+def _add_cards(request, session, term: str):
+    """Cards for the add search: release names from the indexers (cached) and, when
+    the user turned them on, catalog matches. Returns (cards, problems)."""
+    from periodicool import add_search
+    from periodicool.issn import normalize
+    from periodicool.lookups import service as lookups
+
+    issn = normalize(term)
+    transport = getattr(request.app.state, "lookup_transport", None)
+    records, problems = [], []
+    for src in ("loc", "wikidata"):
+        found, error = lookups.candidates(
+            session, src, issn=issn, title=None if issn else term, transport=transport
+        )
+        records += found
+        if error:
+            problems.append(error)
+    names: list[str] = []
+    indexers = sources_for(request, session)
+    if indexers.indexers and not issn:
+        names, error = search.search_term(session, indexers, term, _today(request))
+        if error:
+            problems.append(error)
+    tracked = {}
+    for mag in session.scalars(select(Magazine)):
+        for name in [mag.title, *(mag.aliases or [])]:
+            tracked.setdefault(add_search.title_key(name), mag.id)
+    cards = add_search.merge(term, records, add_search.from_releases(names), tracked)
+    return cards, problems
+
+
+def _card_values(card) -> dict:
+    values = magazines.form_values(None) | {"title": card.title}
+    if card.frequency:
+        values["frequency"] = card.frequency
+    g = card.guess
+    if g.numbering:
+        values["numbering"] = g.numbering.value
+    if g.anchor_date:
+        values["anchor_date"] = g.anchor_date.isoformat()
+    if g.anchor_number:
+        values["anchor_number"] = str(g.anchor_number)
+    if card.issns:
+        values["issn"] = card.issns[0]
+    if card.alt_titles:
+        values["aliases"] = ", ".join(card.alt_titles[:5])
+    if g.region:
+        values["region"] = g.region
+    language = g.language or card.first("language")
+    if language:
+        values["languages"] = language.lower()
+    return values
+
+
+@router.post("/magazines/add/search", response_class=HTMLResponse)
+async def add_search_results(request: Request) -> HTMLResponse:
+    form = await form_data(request)
+    term = (form.get("term") or "").strip()[:200]
+    with request.app.state.sessions() as session:
+        if not term:
+            return HTMLResponse('<p class="field__help">Type a title or an ISSN first.</p>')
+        cards, problems = _add_cards(request, session, term)
+        session.commit()
+        return _render(
+            request,
+            "magazines/_add_results.html",
+            term=term,
+            cards=cards[:12],
+            problems=problems,
+            lookups_on=lookups_any_enabled(session),
+            indexers_on=bool(sources_for(request, session).indexers),
+            frequency_labels=overview.FREQUENCY_LABELS,
+        )
+
+
+def _add_form(
+    request, session, values: dict, errors=None, *, term="", key="", card=None, page=False
+):
+    return _render(
+        request,
+        "magazines/add_form_page.html" if page else "magazines/_add_form.html",
+        active="/",
+        values=values,
+        errors=errors or {},
+        term=term,
+        key=key,
+        card=card,
+        **_choices(session),
+    )
+
+
+@router.post("/magazines/add/pick", response_class=HTMLResponse)
+async def add_pick(request: Request) -> HTMLResponse:
+    """The short Add form, filled in from the picked card."""
+    form = await form_data(request)
+    term, key = (form.get("term") or "").strip(), form.get("key") or ""
+    with request.app.state.sessions() as session:
+        cards, _ = _add_cards(request, session, term)  # all cached by now
+        session.commit()
+        card = next((c for c in cards if c.key == key), None)
+        if card is None:
+            return _add_form(request, session, magazines.form_values(None) | {"title": term})
+        return _add_form(request, session, _card_values(card), term=term, key=key, card=card)
+
+
+@router.get("/magazines/add/manual", response_class=HTMLResponse)
+def add_manual(request: Request, title: str = "", term: str = "") -> HTMLResponse:
+    with request.app.state.sessions() as session:
+        values = magazines.form_values(None) | {"title": (title or term).strip()[:200]}
+        return _add_form(request, session, values)
 
 
 @router.post("/magazines/add", response_class=HTMLResponse)
 async def add_submit(request: Request) -> Response:
     form = await form_data(request)
+    popup = bool(request.headers.get("hx-request"))
     with request.app.state.sessions() as session:
         parsed = magazines.parse_form(session, form)
         if not parsed.ok:
-            return _form_page(request, session, parsed=parsed, status_code=422)
+            values = dict(parsed.raw)
+            for name in magazines.BOOL_FIELDS:
+                values[name] = parsed.raw.get(name) in ("on", "true", "1")
+            response = _add_form(
+                request,
+                session,
+                values,
+                parsed.errors,
+                term=form.get("pick_term", ""),
+                key=form.get("pick_key", ""),
+                page=not popup,
+            )
+            if not popup:
+                response.status_code = 422
+            return response
         mag = magazines.apply_values(Magazine(issues=[]), parsed.values)
         session.add(mag)
         session.flush()
-        _lookup_new_issn(request, session, mag, None)
+        if form.get("pick_term") and form.get("pick_key"):
+            # What the catalog said about the picked card becomes this magazine's
+            # lookup answers, so its Metadata pop-up does not ask again.
+            from periodicool.lookups import service as lookups
+
+            cards, _ = _add_cards(request, session, form["pick_term"])
+            card = next((c for c in cards if c.key == form["pick_key"]), None)
+            if card is not None and card.records:
+                lookups.remember(session, mag, card.records)
+        else:
+            _lookup_new_issn(request, session, mag, None)
         from periodicool.schedule import sync_expected_issues
 
         sync_expected_issues(session, mag, _today(request))
@@ -245,6 +389,8 @@ async def add_submit(request: Request) -> Response:
                     session.commit()
                 except ProwlarrError, RateLimited:
                     session.rollback()
+        if popup:
+            return Response(status_code=204, headers={"HX-Redirect": f"/magazines/{mag.id}"})
         return RedirectResponse(f"/magazines/{mag.id}", status_code=303)
 
 
@@ -253,7 +399,8 @@ async def add_preview(request: Request) -> HTMLResponse:
     form = await form_data(request)
     with request.app.state.sessions() as session:
         parsed = magazines.parse_form(session, form)
-        result = magazines.preview(session, parsed.values, _today(request))
+        limit = 3 if form.get("short") else 8
+        result = magazines.preview(session, parsed.values, _today(request), limit=limit)
         return _render(request, "magazines/_preview.html", preview=result)
 
 

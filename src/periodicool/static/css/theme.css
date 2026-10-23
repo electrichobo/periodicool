@@ -2056,3 +2056,32 @@ html[data-effects="off"] .brand__mark {
 .monitor-choice input {
   margin-top: 0.3rem;
 }
+
+/* Add magazine: one search box, then result cards */
+.add-search {
+  justify-content: flex-start;
+}
+.add-search__input {
+  flex: 1;
+  min-width: 14rem;
+  font-size: 1.15rem;
+}
+.add-cards {
+  margin-top: 1rem;
+}
+.add-card__facts {
+  margin: 0 1.4rem;
+}
+.add-card__examples,
+.add-card__actions {
+  margin: 0 1.4rem;
+}
+.add-manual {
+  margin-top: 1.25rem;
+}
+.add-preview {
+  font-size: 0.9rem;
+}
+.add-more > summary {
+  font-size: 1.1rem;
+}

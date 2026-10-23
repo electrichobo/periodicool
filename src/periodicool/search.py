@@ -620,3 +620,18 @@ def wanted_search(
         except ProwlarrError as exc:
             log.warning("Search for %s failed: %s", mag.title, exc)
     return results
+
+
+def search_term(
+    session: Session, source, term: str, today: date, now: datetime | None = None
+) -> tuple[list[str], str | None]:
+    """Release names an indexer search for `term` finds (for the Add magazine search).
+    Goes through search_magazine, so the per-entry cache, limits and backoff apply."""
+    probe = Magazine(title=term, aliases=[], search_term=term)
+    try:
+        result = search_magazine(session, source, probe, today, now=now)
+    except Unavailable as exc:
+        return [], str(exc)
+    except ProwlarrError as exc:
+        return [], str(exc)
+    return [rel.title for rel, _ in result.candidates], None

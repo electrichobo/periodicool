@@ -1,39 +1,24 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 {% block title %}Add magazine · PeriodiCool{% endblock %}
 {% block eyebrow %}{% endblock %}
 {% block content %}
 <div class="page-head">
   <h1 class="page-title">Add magazine</h1>
-  <a class="btn btn--chassis" href="/">Cancel</a>
+  <a class="btn" href="/">Cancel</a>
 </div>
-<div class="form-layout">
-  <form class="panel stack" method="post" action="/magazines/add"
-        hx-post="/magazines/preview" hx-trigger="input changed delay:400ms, change" hx-target="#preview" hx-swap="innerHTML">
-    <h2 class="panel__label">Magazine</h2>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-    {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
-    {% include "magazines/_fields.html" %}
-    <div class="field">
-      <label class="switch">Search for wanted issues after adding
-        <input type="checkbox" role="switch" name="search_now"><span class="switch__state" aria-hidden="true"></span>
-      </label>
-    </div>
-    <div class="cluster">
-      {# A normal submit: the form's hx-post only fires on input and change, for the preview. #}
-      <button class="btn btn--primary" type="submit">+ Add magazine</button>
-    </div>
-  </form>
-  <aside class="panel" aria-labelledby="preview-title">
-    <h2 class="panel__label" id="preview-title">Preview</h2>
-    <div id="preview" aria-live="polite" hx-post="/magazines/preview" hx-trigger="load" hx-include="closest .form-layout form">
-      <p class="muted">Fill in the form to see the folder name and expected issues.</p>
-    </div>
-    <h2 class="subhead" id="lookup-title">Look up</h2>
-    <div class="cluster">
-      <button class="btn btn--small" type="button" hx-post="/magazines/lookup" hx-include="closest .form-layout form" hx-target="#lookup">Look up title or ISSN</button>
-      <span class="spinner" aria-hidden="true"></span>
-    </div>
-    <div id="lookup" aria-live="polite"></div>
-  </aside>
-</div>
+<form class="toolbar add-search" role="search" hx-post="/magazines/add/search" hx-target="#add-results" hx-indicator="#add-spinner">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <label class="visually-hidden" for="add-term">Title or ISSN</label>
+  <input class="input add-search__input" id="add-term" name="term" value="{{ term }}" placeholder="Title or ISSN, for example Fortean Times" autofocus autocomplete="off">
+  <button class="btn btn--primary" type="submit">Search</button>
+  <span class="spinner" id="add-spinner" aria-hidden="true"></span>
+</form>
+<p class="muted small">
+  {% if indexers_on and lookups_on %}Searches your indexers and the catalogs you turned on.
+  {% elif indexers_on %}Searches your indexers. Turning on the catalogs in <a href="/settings/metadata">Settings, Metadata</a> adds ISSNs and other names.
+  {% elif lookups_on %}Searches the catalogs you turned on. Add an indexer to see release names too.
+  {% else %}No indexer or catalog is set up, so there is nothing to search. <button class="linklike" type="button" hx-get="/magazines/add/manual" hx-include="#add-term" hx-target="#modal-body">Add it by hand</button>.{% endif %}
+</p>
+<div id="add-results" aria-live="polite"></div>
 {% endblock %}
