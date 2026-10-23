@@ -7,6 +7,7 @@ empty key field keeps it.
 from __future__ import annotations
 
 import os
+import re
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
@@ -14,6 +15,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from periodicool import sources
+from periodicool.clients import registry
 from periodicool.clients.base import ClientError
 from periodicool.models import ACTIVE_GRAB, DownloadClient, Grab, Indexer, Release
 from periodicool.preferences import parse_url
@@ -396,85 +398,150 @@ def client_context(session: Session) -> dict:
 
 
 def _client_values(row: DownloadClient | None, kind: str) -> dict:
+    """Form values: the kind's defaults, overlaid with what the entry has saved."""
+    values = registry.defaults(kind)
     if row is None:
-        return {
+        return values | {
             "kind": kind,
             "name": sources.CLIENT_KINDS.get(kind, ""),
             "priority": 1,
             "enabled": True,
-            "category": "",
-            "username": "",
         }
-    return {
-        "id": row.id,
-        "kind": row.kind,
-        "name": row.name,
-        "url": row.url,
-        "priority": row.priority,
-        "enabled": row.enabled,
-        "category": row.category,
-        "username": row.username or "",
-    }
+    return (
+        values
+        | dict(row.settings or {})
+        | {
+            "id": row.id,
+            "kind": row.kind,
+            "name": row.name,
+            "priority": row.priority,
+            "enabled": row.enabled,
+            "category": row.category,
+            "username": row.username or "",
+        }
+    )
 
 
 def _client_form(request, session, values: dict, errors=None, row=None):
+    kind = registry.KINDS.get(values.get("kind", ""))
+    saved = {
+        "api_key": bool(row is not None and sources.client_key(session, row))
+        if kind is not None and kind.required_secret == "api_key"
+        else bool(row is not None and row.api_key),
+        "password": bool(row is not None and row.password),
+    }
     return _render(
         request,
         "settings/_client_form.html",
         values=values,
         errors=errors or {},
-        has_key=bool(row is not None and sources.client_key(session, row)),
+        kind=kind,
+        saved=saved,
         env_fallback=_uses_env(session, row, sources.client_key),
         kinds=sources.CLIENT_KINDS,
         key_help=KEY_HELP,
     )
 
 
-def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dict, dict]:
+def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dict, dict, dict]:
+    """(errors, row values, secrets typed in). Fields come from the kind's registry entry;
+    a single "url" (the command line, older forms) is split into host, port, SSL and base."""
     form = {k: v[-1] for k, v in lists.items()}
-    errors, kind, name, url, priority = _common(
-        session, DownloadClient, form, row.id if row else None, sources.CLIENT_KINDS
-    )
-    category = (form.get("category") or "").strip()
-    if not category:
-        errors["category"] = "PeriodiCool needs its own category. Create it in the client first."
-    elif len(category) > 100:
-        errors["category"] = "Keep the category under 100 characters."
-    key = (form.get("api_key") or "").strip()
-    # qBittorrent: the secret field is its password, and both may be empty when
-    # qBittorrent skips login for PeriodiCool's address.
-    if kind != "qbittorrent" and _key_missing(session, DownloadClient, kind, row, key):
+    errors: dict[str, str] = {}
+    kind = registry.KINDS.get(form.get("kind", ""))
+    if kind is None:
+        return {"kind": "Pick a kind."}, {}, {}
+    if form.get("url") and not form.get("host"):
+        split = registry.split_url(form["url"])
+        form = {
+            **form,
+            "host": split["host"],
+            "port": str(split["port"]),
+            "use_ssl": "on" if split["use_ssl"] else "",
+            "url_base": split["url_base"],
+        }
+    name = (form.get("name") or "").strip()
+    if not name:
+        errors["name"] = "Give it a name."
+    elif len(name) > 100:
+        errors["name"] = "Keep the name under 100 characters."
+    elif _name_taken(session, DownloadClient, name, row.id if row else None):
+        errors["name"] = "Another entry already has this name."
+    priority = _int(form.get("priority", ""), 1, 50, "Priority", errors, "priority")
+    settings = dict(row.settings or {}) if row is not None else {}
+    columns: dict = {}
+    secrets: dict = {}
+    for f in kind.fields:
+        raw = form.get(f.name)
+        if f.type == "secret":
+            if (raw or "").strip():
+                secrets[f.store] = raw.strip()
+            continue
+        if f.type == "bool":
+            value = raw in ("on", "true", "1")
+        elif f.type == "int":
+            value = _int(raw or "", 1, 65535, f.label, errors, f.name)
+            if value is None and f.name not in errors:
+                value = f.default
+        elif f.type == "select":
+            allowed = [c for c, _ in f.choices]
+            value = raw if raw in allowed else f.default
+        else:
+            value = (raw or "").strip()[:500]
+        if f.required and value in ("", None):
+            errors[f.name] = f"Enter the {f.label.lower()}."
+        if f.store == "settings":
+            settings[f.name] = value
+        else:
+            columns[f.store] = value
+    host = str(settings.get("host") or "")
+    if host and (re.search(r"[/\\\s@?#]", host) or "://" in host):
+        errors["host"] = (
+            "Only the host name or address; port, SSL and URL base have their own fields."
+        )
+    if len(columns.get("category") or "") > 100:
+        errors["category"] = "Keep it under 100 characters."
+    url = registry.compose_url(settings)
+    if url and not errors.get("host"):
+        _, problem = parse_url(url)
+        if problem:
+            errors["host"] = problem
+    if kind.required_secret == "api_key" and _key_missing(
+        session, DownloadClient, kind.kind, row, secrets.get("api_key", "")
+    ):
         errors["api_key"] = "Enter the API key."
-    return errors, {
-        "kind": kind,
-        "protocol": sources.CLIENT_PROTOCOLS.get(kind, "usenet"),
+    data = {
+        "kind": kind.kind,
+        "protocol": kind.protocol,
         "name": name,
         "url": url,
         "priority": priority or 1,
         "enabled": form.get("enabled") == "on",
-        "category": category,
-        "username": (form.get("username") or "").strip()[:200] or None,
-        "api_key": key,
+        "settings": settings,
+        "category": columns.get("category") or "",
+        "username": columns.get("username") or None,
     }
+    return errors, data, secrets
 
 
 @router.get("/settings/downloads/new", response_class=HTMLResponse)
 def client_new(request: Request, kind: str = "") -> HTMLResponse:
     if kind not in sources.CLIENT_KINDS:
+        groups = [
+            (
+                title,
+                [(k.kind, k.label, k.info) for k in registry.KINDS.values() if k.protocol == proto],
+            )
+            for title, proto in (("Usenet", "usenet"), ("Torrents", "torrent"))
+        ]
         return _render(
             request,
             "settings/_kind_picker.html",
             what="download client",
             base="/settings/downloads/new",
-            kinds=[
-                ("sabnzbd", "SABnzbd", "Usenet downloads. NZBGet comes later."),
-                (
-                    "qbittorrent",
-                    "qBittorrent",
-                    "Torrents. Files are hard-linked or copied into the library, never moved, "
-                    "so they keep seeding.",
-                ),
-            ],
+            groups=groups,
+            intro="PeriodiCool supports these usenet and torrent download clients. Pick one, "
+            "then fill in its address and settings, as in Sonarr.",
         )
     with request.app.state.sessions() as session:
         return _client_form(request, session, _client_values(None, kind))
@@ -499,23 +566,27 @@ async def client_save(request: Request) -> Response:
             row = session.get(DownloadClient, int(form["id"])) if form["id"].isdigit() else None
             if row is None:
                 raise HTTPException(status_code=404)
-        errors, data = _parse_client(session, lists, row)
+        errors, data, secrets = _parse_client(session, lists, row)
         if errors:
             values = {**form, "enabled": form.get("enabled") == "on"}
+            for f in (
+                registry.KINDS[form["kind"]].fields if form.get("kind") in registry.KINDS else ()
+            ):
+                if f.type == "bool":
+                    values[f.name] = form.get(f.name) == "on"
             return _client_form(request, session, values, errors, row)
-        key = data.pop("api_key")
-        secret = "password" if data["kind"] == "qbittorrent" else "api_key"
         if row is None:
-            session.add(DownloadClient(**data, path_map=[], **{secret: key or None}))
+            row = DownloadClient(**data, path_map=[])
+            session.add(row)
         else:
             if row.kind != data["kind"]:
                 raise HTTPException(status_code=400)
             for field, value in data.items():
                 setattr(row, field, value)
-            if key:
-                setattr(row, secret, key)
+        for column, value in secrets.items():  # an empty field keeps the saved secret
+            setattr(row, column, value)
         session.commit()
-        _learn(request, key)
+        _learn(request, *secrets.values())
     return Response(status_code=204, headers={"HX-Redirect": "/settings/downloads?saved=1"})
 
 
@@ -553,31 +624,27 @@ def _check_client(request, session, row: DownloadClient) -> str:
 @router.post("/settings/downloads/test")
 async def client_test_form(request: Request) -> Response:
     """Test the values in the pop-up before saving. Nothing is stored."""
-    form = await form_data(request)
+    lists = await form_lists(request)
+    form = {k: v[-1] for k, v in lists.items()}
     with request.app.state.sessions() as session:
         stored = None
         if (form.get("id") or "").isdigit():
             stored = session.get(DownloadClient, int(form["id"]))
-        url, problem = parse_url(form.get("url", ""))
-        if problem or not url:
-            return _toast(problem or "Enter the address first.", "warn")
         if form.get("kind") not in sources.CLIENT_KINDS:
             return _toast("Pick a kind first.", "warn")
+        errors, data, secrets = _parse_client(session, lists, stored)
+        errors.pop("name", None)  # a test needs no unique name
+        if errors:
+            return _toast(next(iter(errors.values())), "warn")
+        if not data["url"]:
+            return _toast("Enter the host first.", "warn")
         probe = DownloadClient(
             id=stored.id if stored else None,
-            name=(form.get("name") or "SABnzbd").strip(),
-            kind=form["kind"],
-            url=url,
-            api_key=(form.get("api_key") or "").strip() or (stored.api_key if stored else None),
-            category=(form.get("category") or "").strip(),
             path_map=[],
+            api_key=secrets.get("api_key") or (stored.api_key if stored else None),
+            password=secrets.get("password") or (stored.password if stored else None),
+            **data,
         )
-        if probe.kind == "qbittorrent":
-            probe.username = (form.get("username") or "").strip()
-            probe.password = (form.get("api_key") or "").strip() or (
-                stored.password if stored else None
-            )
-            probe.api_key = None
         _learn(request, probe.api_key, probe.password)
         try:
             text = _check_client(request, session, probe)

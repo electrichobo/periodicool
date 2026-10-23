@@ -12,15 +12,18 @@ from collections.abc import Mapping
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from periodicool.clients import registry
+from periodicool.clients.registry import KINDS
 from periodicool.library import get_setting
 from periodicool.models import ApiCall, DownloadClient, Grab, Indexer, Release
 
 PROWLARR_KEY_ENV = "PROWLARR_API_KEY"
 SAB_KEY_ENV = "SABNZBD_API_KEY"
 INDEXER_KINDS = {"prowlarr": "Prowlarr", "newznab": "Newznab", "torznab": "Torznab"}
-CLIENT_KINDS = {"sabnzbd": "SABnzbd", "qbittorrent": "qBittorrent"}
-# The protocol each kind downloads.
-CLIENT_PROTOCOLS = {"sabnzbd": "usenet", "qbittorrent": "torrent"}
+# Download client kinds and their protocols come from the registry.
+CLIENT_KINDS = registry.CLIENT_KINDS
+CLIENT_PROTOCOLS = registry.CLIENT_PROTOCOLS
+
 MIN_INTERVAL_KEY = "search.min_interval_s"
 
 
@@ -39,8 +42,11 @@ def indexer_key(session: Session, row: Indexer, env: Mapping[str, str] | None = 
 
 
 def client_key(session: Session, row: DownloadClient, env: Mapping[str, str] | None = None) -> str:
+    """The client's secret: SABnzbd's API key (or SABNZBD_API_KEY for the first SABnzbd
+    entry), else its password. Only SABnzbd cannot work without one."""
     env = os.environ if env is None else env
-    if row.kind == "qbittorrent":
+    kind = KINDS.get(row.kind)
+    if kind is not None and kind.required_secret != "api_key":
         return row.password or ""
     if row.api_key:
         return row.api_key
@@ -83,21 +89,20 @@ def build_indexer(session: Session, row: Indexer, transports: Mapping | None = N
 def build_client(
     session: Session, row: DownloadClient, transports: Mapping | None = None, env=None
 ):
-    from periodicool.clients.qbittorrent import QbittorrentClient
-    from periodicool.clients.sabnzbd import SabnzbdClient
-
     transports = transports or {}
-    if not row.url:
+    kind = KINDS.get(row.kind)
+    if kind is None or not row.url:
         return None
-    if row.kind == "qbittorrent":
-        # Username and password may be empty when qBittorrent skips login for this address.
-        client = QbittorrentClient(
-            row.url, row.username or "", row.password or "", transport=transports.get("qbit")
-        )
-    elif row.kind == "sabnzbd" and (key := client_key(session, row, env)):
-        client = SabnzbdClient(row.url, key, transport=transports.get("sab"))
-    else:
-        return None
+    secret = ""
+    if kind.required_secret:
+        secret = client_key(session, row, env)
+        if not secret:
+            return None
+    # Usernames and passwords may be empty when a client skips login for this address.
+    client = kind.build(
+        row.url, row, row.settings or {}, secret, transports.get(kind.transport_key)
+    )
+    client.options = dict(row.settings or {})
     client.row_id, client.display_name = row.id, row.name
     client.category, client.path_map = row.category, list(row.path_map or [])
     return client
@@ -180,4 +185,8 @@ def transports_from(state) -> dict:
         "torznab": getattr(state, "torznab_transport", None),
         "sab": getattr(state, "sab_transport", None),
         "qbit": getattr(state, "qbit_transport", None),
+        "nzbget": getattr(state, "nzbget_transport", None),
+        "transmission": getattr(state, "transmission_transport", None),
+        "deluge": getattr(state, "deluge_transport", None),
+        "rtorrent": getattr(state, "rtorrent_transport", None),
     }

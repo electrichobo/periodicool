@@ -3,16 +3,25 @@
     <h2 class="modal__title" id="modal-title">Add {{ what }}</h2>
     <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
   </div>
-  <p>Pick the kind of {{ what }}.</p>
+  {% if intro is defined %}<p class="note-box">{{ intro }}</p>{% else %}<p>Pick the kind of {{ what }}.</p>{% endif %}
+  {% set sections = groups if groups is defined else [("", kinds)] %}
+  {% for title, items in sections %}
+  {% if title %}<h3 class="subhead kind-group">{{ title }}</h3>{% endif %}
   <div class="kind-picker">
-    {% for kind, label, text in kinds %}
-    <button class="kind-card" type="button" hx-get="{{ base }}?kind={{ kind }}" hx-target="#modal-body">
-      <span class="kind-card__name">{{ label }}</span>
-      <span class="kind-card__text">{{ text }}</span>
-    </button>
+    {% for kind, label, text in items %}
+    <div class="kind-card">
+      <button class="kind-card__pick" type="button" hx-get="{{ base }}?kind={{ kind }}" hx-target="#modal-body">
+        <span class="kind-card__name">{{ label }}</span>
+      </button>
+      <details class="kind-card__more">
+        <summary class="small">More info</summary>
+        <span class="kind-card__text">{{ text }}</span>
+      </details>
+    </div>
     {% endfor %}
   </div>
+  {% endfor %}
   <div class="modal__foot">
-    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn" type="button" data-close-modal>Close</button>
   </div>
 </div>

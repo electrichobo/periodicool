@@ -553,6 +553,9 @@ class DownloadClient(Base):
     password: Mapped[str | None] = mapped_column(String(500))
     category: Mapped[str] = mapped_column(String(100), default="")
     path_map: Mapped[list] = mapped_column(JSON, default=list)
+    # Per-kind fields (clients/registry.py): host, port, use_ssl, url_base, priorities...
+    # The url column is composed from them on every save.
+    settings: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
     enabled: Mapped[bool] = mapped_column(default=True)
     priority: Mapped[int] = mapped_column(default=1)
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

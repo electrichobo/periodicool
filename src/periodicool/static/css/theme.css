@@ -2085,3 +2085,32 @@ html[data-effects="off"] .brand__mark {
 .add-more > summary {
   font-size: 1.1rem;
 }
+
+/* Add picker tiles: pick by the name, More info folds open */
+.kind-group {
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--divider);
+}
+.kind-card__pick {
+  all: unset;
+  display: block;
+  padding: 0.6rem 0 0.4rem;
+  text-align: center;
+  cursor: pointer;
+}
+.kind-card__pick:focus-visible {
+  outline: 3px solid var(--focus);
+}
+.kind-card__pick .kind-card__name {
+  font-size: 1.3rem;
+}
+.kind-card__more > summary {
+  text-align: right;
+  cursor: pointer;
+  color: var(--ink-label);
+}
+.client-address {
+  grid-template-columns: minmax(10rem, 3fr) minmax(5rem, 1fr) auto minmax(8rem, 2fr);
+  align-items: end;
+}

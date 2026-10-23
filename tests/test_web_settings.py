@@ -457,7 +457,7 @@ def test_qbittorrent_client_form_and_write_only_password(client):
         "name": "qBit",
         "url": "http://qbit:8080",
         "username": "admin",
-        "api_key": "qbit-secret-pass",
+        "password": "qbit-secret-pass",
         "priority": "1",
         "enabled": "on",
         "category": "mags",
@@ -475,10 +475,10 @@ def test_qbittorrent_client_form_and_write_only_password(client):
     edit = client.get(f"/settings/downloads/{row_id}/edit").text
     assert "qbit-secret-pass" not in edit and "Password set" in edit
     # An empty password field keeps the saved one; no password at all is allowed.
-    client.post("/settings/downloads/save", data=base | {"id": str(row_id), "api_key": ""})
+    client.post("/settings/downloads/save", data=base | {"id": str(row_id), "password": ""})
     with session(client) as s:
         assert s.get(DownloadClient, row_id).password == "qbit-secret-pass"
-    open_qbit = base | {"name": "Open", "username": "", "api_key": "", "category": "m2"}
+    open_qbit = base | {"name": "Open", "username": "", "password": "", "category": "m2"}
     assert client.post("/settings/downloads/save", data=open_qbit).status_code == 204
     page = client.get("/settings/downloads").text
     assert "qbit-secret-pass" not in page and page.count("No API key") == 0

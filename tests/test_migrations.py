@@ -209,3 +209,38 @@ def test_torrent_columns_and_existing_grabs(tmp_path):
         assert "protocol" not in cols
         assert conn.execute(text("SELECT job_id FROM grabs")).scalar() == "J1"
     engine.dispose()
+
+
+def test_client_address_split_into_fields(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    cfg = db.alembic_config(url)
+    command.upgrade(cfg, "0011")
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO download_clients (name, kind, protocol, url, category, path_map,"
+                " enabled, priority, added_at) VALUES ('SABnzbd', 'sabnzbd', 'usenet',"
+                " 'http://sab:8080/sabnzbd', 'mags', '[]', 1, 1, '2026-10-01')"
+            )
+        )
+    engine.dispose()
+    db.upgrade(url)
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        row = conn.execute(text("SELECT url, settings FROM download_clients")).one()
+    engine.dispose()
+    import json
+
+    assert json.loads(row.settings) == {
+        "host": "sab",
+        "port": 8080,
+        "use_ssl": False,
+        "url_base": "/sabnzbd",
+    }
+    from periodicool.clients.registry import compose_url
+
+    assert compose_url(json.loads(row.settings)) == row.url
+    command.downgrade(cfg, "0011")

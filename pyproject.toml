@@ -79,3 +79,4 @@ known-local-folder = [
 "tests/test_covers.py" = ["F811"]
 "tests/test_torrents.py" = ["F811"]
 "tests/test_add_search.py" = ["F811"]
+"tests/test_client_registry.py" = ["F811"]
