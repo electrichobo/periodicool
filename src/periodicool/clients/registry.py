@@ -23,6 +23,7 @@ class Field:
     # Where the value lives: settings (JSON), or one of the row's own columns.
     store: str = "settings"  # settings, api_key, password, username, category
     advanced: bool = False
+    placeholder: str = ""
 
 
 @dataclass(frozen=True)

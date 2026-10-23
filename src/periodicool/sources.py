@@ -12,6 +12,7 @@ from collections.abc import Mapping
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from periodicool import indexer_kinds
 from periodicool.clients import registry
 from periodicool.clients.registry import KINDS
 from periodicool.library import get_setting
@@ -19,7 +20,7 @@ from periodicool.models import ApiCall, DownloadClient, Grab, Indexer, Release
 
 PROWLARR_KEY_ENV = "PROWLARR_API_KEY"
 SAB_KEY_ENV = "SABNZBD_API_KEY"
-INDEXER_KINDS = {"prowlarr": "Prowlarr", "newznab": "Newznab", "torznab": "Torznab"}
+INDEXER_KINDS = indexer_kinds.INDEXER_KINDS
 # Download client kinds and their protocols come from the registry.
 CLIENT_KINDS = registry.CLIENT_KINDS
 CLIENT_PROTOCOLS = registry.CLIENT_PROTOCOLS
@@ -57,9 +58,6 @@ def client_key(session: Session, row: DownloadClient, env: Mapping[str, str] | N
 
 def build_indexer(session: Session, row: Indexer, transports: Mapping | None = None, env=None):
     """A client for one indexer row, recording its calls; None without a key."""
-    from periodicool.newznab import NewznabClient, TorznabClient
-    from periodicool.prowlarr import ProwlarrClient
-
     transports = transports or {}
     key = indexer_key(session, row, env)
     if not row.url or not key:
@@ -68,20 +66,15 @@ def build_indexer(session: Session, row: Indexer, transports: Mapping | None = N
     def record(**call) -> None:
         session.add(ApiCall(source_id=row.id, **call))
 
+    kind = indexer_kinds.KINDS.get(row.kind)
+    if kind is None:
+        return None
     common = {
-        "transport": transports.get(row.kind),
+        "transport": transports.get(kind.transport_key),
         "min_interval": float(get_setting(session, MIN_INTERVAL_KEY, 2.0)),
         "on_call": record,
     }
-    if row.kind == "prowlarr":
-        client = ProwlarrClient(row.url, key, **common)
-    elif row.kind == "newznab":
-        client = NewznabClient(row.url, key, name=row.name, **common)
-    elif row.kind == "torznab":
-        common["transport"] = transports.get("torznab")
-        client = TorznabClient(row.url, key, name=row.name, **common)
-    else:
-        return None
+    client = kind.build(row, key, row.settings or {}, common)
     client.source_id, client.source_name, client.row = row.id, row.name, row
     return client
 

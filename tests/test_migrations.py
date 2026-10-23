@@ -244,3 +244,54 @@ def test_client_address_split_into_fields(tmp_path):
 
     assert compose_url(json.loads(row.settings)) == row.url
     command.downgrade(cfg, "0011")
+
+
+def test_indexer_enabled_becomes_three_toggles(tmp_path):
+    from alembic import command
+
+    url = f"sqlite:///{(tmp_path / 'test.db').as_posix()}"
+    cfg = db.alembic_config(url)
+    command.upgrade(cfg, "0012")
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        for name, enabled in (("On", 1), ("Off", 0)):
+            conn.execute(
+                text(
+                    "INSERT INTO indexers (name, kind, protocol, url, enabled, priority,"
+                    " categories, settings, backoff_s, added_at) VALUES (:n, 'newznab',"
+                    " 'usenet', 'https://nz.example', :e, 25, '[]', '{}', 0, '2026-10-01')"
+                ),
+                {"n": name, "e": enabled},
+            )
+    engine.dispose()
+    db.upgrade(url)
+    engine = db.make_engine(url)
+    with engine.begin() as conn:
+        rows = conn.execute(
+            text(
+                "SELECT name, enable_rss, enable_automatic_search, enable_interactive_search,"
+                " download_client_id FROM indexers ORDER BY name"
+            )
+        ).all()
+        assert [tuple(r) for r in rows] == [("Off", 0, 0, 0, None), ("On", 1, 1, 1, None)]
+        conn.execute(
+            text(
+                "INSERT INTO download_clients (id, name, kind, protocol, url, category,"
+                " path_map, settings, enabled, priority, added_at) VALUES (7, 'SAB', 'sabnzbd',"
+                " 'usenet', 'http://sab:8080', 'mags', '[]', '{}', 1, 1, '2026-10-01')"
+            )
+        )
+        conn.execute(text("UPDATE indexers SET download_client_id = 7"))
+        conn.execute(text("DELETE FROM download_clients WHERE id = 7"))
+        assert conn.execute(text("SELECT download_client_id FROM indexers")).scalars().all() == [
+            None,
+            None,
+        ]
+        conn.execute(text("SELECT info_hash FROM blocklist"))
+    engine.dispose()
+    command.downgrade(cfg, "0012")
+    engine = create_engine(url)
+    with engine.connect() as conn:
+        rows = conn.execute(text("SELECT name, enabled FROM indexers ORDER BY name")).all()
+    engine.dispose()
+    assert [tuple(r) for r in rows] == [("Off", 0), ("On", 1)]

@@ -16,8 +16,10 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    or_,
 )
 from sqlalchemy import false as sa_false
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from periodicool.db import Base
@@ -418,6 +420,7 @@ class BlockedRelease(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     guid: Mapped[str | None] = mapped_column(String(1000), index=True)
+    info_hash: Mapped[str | None] = mapped_column(String(64), index=True)  # torrents
     title: Mapped[str] = mapped_column(String(1000))
     indexer_id: Mapped[int | None]
     magazine_id: Mapped[int | None] = mapped_column(ForeignKey("magazines.id", ondelete="SET NULL"))
@@ -518,23 +521,46 @@ class Protocol(StrEnum):
 
 class Indexer(Base):
     """An indexer list entry: a Prowlarr (which fans out to its own indexers) or a
-    direct Newznab indexer. The key is write-only in the UI."""
+    direct Newznab or Torznab indexer. The key is write-only in the UI. As in Sonarr,
+    RSS, automatic search and interactive search are switched on separately; an
+    entry with all three off is off."""
 
     __tablename__ = "indexers"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100), unique=True)
-    kind: Mapped[str] = mapped_column(String(20))  # prowlarr, newznab
+    kind: Mapped[str] = mapped_column(String(20))  # prowlarr, newznab, torznab
     protocol: Mapped[str] = mapped_column(String(10), default=Protocol.USENET.value)
     url: Mapped[str] = mapped_column(String(500))
     api_key: Mapped[str | None] = mapped_column(String(500))
-    enabled: Mapped[bool] = mapped_column(default=True)
+    enable_rss: Mapped[bool] = mapped_column(default=True)
+    enable_automatic_search: Mapped[bool] = mapped_column(default=True)
+    enable_interactive_search: Mapped[bool] = mapped_column(default=True)
+    # Releases from this entry go only to this client, when set.
+    download_client_id: Mapped[int | None] = mapped_column(
+        ForeignKey("download_clients.id", ondelete="SET NULL")
+    )
     priority: Mapped[int] = mapped_column(default=25)  # 1 to 50, lower first
     categories: Mapped[list[int]] = mapped_column(JSON, default=list)
     settings: Mapped[dict] = mapped_column(JSON, default=dict)
     backoff_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     backoff_s: Mapped[int] = mapped_column(default=0)
     added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    @hybrid_property
+    def enabled(self) -> bool:
+        """On when any of RSS, automatic or interactive search is on."""
+        return self.enable_rss or self.enable_automatic_search or self.enable_interactive_search
+
+    @enabled.inplace.expression
+    @classmethod
+    def _enabled_expression(cls):
+        return or_(cls.enable_rss, cls.enable_automatic_search, cls.enable_interactive_search)
+
+    @enabled.inplace.setter
+    def _enabled_setter(self, value: bool) -> None:
+        on = bool(value)
+        self.enable_rss = self.enable_automatic_search = self.enable_interactive_search = on
 
 
 class DownloadClient(Base):

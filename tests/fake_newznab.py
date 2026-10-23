@@ -47,8 +47,9 @@ def items_xml(titles, apilimits=True, torznab=False) -> bytes:
 class FakeNewznab:
     """Callable transport. Records every request; answers t=caps, t=search and NZBs."""
 
-    def __init__(self, torznab=False):
+    def __init__(self, torznab=False, api_path="/api"):
         self.torznab = torznab
+        self.api_path = api_path
         self.calls = []
         self.search_titles = []
         self.rss_titles = []
@@ -65,9 +66,9 @@ class FakeNewznab:
             return status, body
         if query.get("apikey") != NZ_KEY:
             return 200, b'<error code="100" description="Incorrect user credentials"/>'
-        if parts.path == "/api" and query.get("t") == "caps":
+        if parts.path == self.api_path and query.get("t") == "caps":
             return 200, CAPS
-        if parts.path == "/api" and query.get("t") == "search":
+        if parts.path == self.api_path and query.get("t") == "search":
             titles = self.search_titles if "q" in query else self.rss_titles
             return 200, items_xml(titles, torznab=self.torznab)
         if parts.path.startswith("/getnzb/"):

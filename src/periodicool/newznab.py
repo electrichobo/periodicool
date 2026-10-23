@@ -23,17 +23,31 @@ class NewznabClient(ProwlarrClient):
     kind = "newznab"
     protocol = "usenet"
 
-    def __init__(self, url: str, api_key: str, name: str = "Newznab", **kwargs) -> None:
-        # People paste either the site ("https://api.example") or the endpoint (".../api").
+    def __init__(
+        self,
+        url: str,
+        api_key: str,
+        name: str = "Newznab",
+        api_path: str = "/api",
+        extra_params: list[tuple[str, str]] | None = None,
+        **kwargs,
+    ) -> None:
+        api_path = "/" + (api_path or "/api").strip().strip("/")
         url = url.rstrip("/")
-        if url.lower().endswith("/api"):
-            url = url[: -len("/api")]
+        # People paste either the site ("https://api.example") or the endpoint (".../api").
+        if url.lower().endswith(api_path.lower()):
+            url = url[: -len(api_path)]
         super().__init__(url, api_key, **kwargs)
         self.name = name
+        self.api_path = api_path
+        # Additional parameters from the entry (checked at save: none of our own keys).
+        self.extra_params = list(extra_params or [])
         self.last_limits = ApiLimits()
 
     def _api(self, params: list, kind: str) -> bytes:
-        return self._get("/api", params, kind, None, key_in_query=True)
+        if kind != "caps":
+            params = [*params, *self.extra_params]
+        return self._get(self.api_path, params, kind, None, key_in_query=True)
 
     def caps(self) -> dict:
         """What the indexer offers: its name, whether search works, and categories."""
