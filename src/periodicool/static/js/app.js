@@ -83,6 +83,21 @@
       if (dlg) dlg.close();
     }
   });
+  // A click on an issue row (but not on its switch, buttons or links) opens its details.
+  document.addEventListener("click", function (event) {
+    var row = event.target.closest && event.target.closest("tr[data-open]");
+    if (!row || event.target.closest("a, button, input, label, select, textarea")) return;
+    if (window.htmx) window.htmx.ajax("GET", row.getAttribute("data-open"), "#modal-body");
+  });
+
+  // Year jump: open the year's section before scrolling to it.
+  document.addEventListener("click", function (event) {
+    var link = event.target.closest && event.target.closest("[data-open-fold]");
+    if (!link) return;
+    var fold = document.getElementById(link.getAttribute("data-open-fold"));
+    if (fold && fold.tagName === "DETAILS") fold.open = true;
+  });
+
   document.addEventListener("closeModal", function () {
     var dlg = modal();
     if (dlg && dlg.open) dlg.close();

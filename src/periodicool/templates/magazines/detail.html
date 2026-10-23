@@ -5,6 +5,7 @@
 {% block content %}
 <div class="toolbar">
   <div class="toolbar__group">
+    <a class="btn btn--small" href="/">&larr; Back</a>
     <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/scan" hx-target="#modal-body">Scan &amp; rename</button>
     <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/{{ mag.id }}/search" hx-swap="none"
             hx-confirm="Search for {{ mag.title }} and grab the best release for each wanted issue?">Search monitored</button>
@@ -62,13 +63,20 @@
 </section>
 {% endif %}
 
+{% set years = groups | selectattr("year") | map(attribute="year") | list %}
+{% if years | length > 1 %}
+<nav class="year-jump" aria-label="Jump to a year">
+  {% for y in years %}<a class="btn btn--small" href="#year-{{ y }}" data-open-fold="year-{{ y }}">{{ y }}</a>{% endfor %}
+</nav>
+{% endif %}
+
 <section aria-labelledby="years-title">
   <h2 class="page-title section-title" id="years-title">Issues</h2>
   {% if not groups %}
   <div class="panel">{{ ui.empty("No issues yet", "Expected issues appear from the schedule. Irregular magazines get issues from releases and library files.") }}</div>
   {% endif %}
   {% for g in groups %}
-  <details class="fold"{% if loop.index <= 2 %} open{% endif %}>
+  <details class="fold"{% if g.year %} id="year-{{ g.year }}"{% endif %}{% if loop.index <= 2 %} open{% endif %}>
     <summary>
       <span>{{ g.year or "No date" }}</span>
       <span class="fold__spacer"></span>
@@ -98,30 +106,20 @@
           <tbody>
             {% for r in g.rows %}
             {% set i = r.issue %}
-            <tr>
+            <tr class="is-clickable" data-open="/issues/{{ i.id }}">
               <td>
                 <label class="switch switch--compact"><span class="visually-hidden">Monitor {{ r.label }}</span>
                   <input type="checkbox" role="switch" hx-post="/issues/{{ i.id }}/monitor" hx-trigger="change" hx-swap="none"{% if i.monitored %} checked{% endif %}>
                   <span class="switch__state" aria-hidden="true"></span>
                 </label>
               </td>
-              <td>{{ r.label }}{% if i.special %} <span class="tag tag--yellow">Special</span>{% endif %}</td>
+              <td><button class="linklike" type="button" hx-get="/issues/{{ i.id }}" hx-target="#modal-body" title="Details">{{ r.label }}</button>{% if i.special %} <span class="tag tag--yellow">Special</span>{% endif %}</td>
               <td>{{ ("No " ~ i.issue_number) if i.issue_number is not none else (("Vol " ~ i.volume_number) if i.volume_number is not none else "") }}</td>
               <td>{{ i.cover_date or "" }}</td>
               <td>{{ ui.led(r.led, r.state_label) }}</td>
               <td>{{ (i.file_format or "") | upper }}</td>
               <td class="num">{{ (i.file_size | filesize) if i.file_size else "" }}</td>
-              <td>
-                <div class="cluster row-actions">
-                  {% if not i.file_path %}
-                  <button class="btn btn--small" type="button" hx-post="/magazines/{{ mag.id }}/search" hx-vals='{"issue": "{{ i.key }}"}' hx-swap="none"
-                          title="Automatic search" aria-label="Automatic search for {{ r.label }}">&#9906; Search</button>
-                  <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive?issue={{ i.key | urlencode }}" hx-target="#modal-body"
-                          aria-label="Interactive search for {{ r.label }}">&#9776; Pick</button>
-                  {% endif %}
-                  <button class="btn btn--small" type="button" hx-get="/issues/{{ i.id }}" hx-target="#modal-body" aria-label="Details for {{ r.label }}">Details</button>
-                </div>
-              </td>
+              <td>{% if not i.file_path %}{{ ui.search_buttons(mag.id, i.key, r.label) }}{% endif %}</td>
             </tr>
             {% endfor %}
           </tbody>

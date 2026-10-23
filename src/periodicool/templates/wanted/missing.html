@@ -35,19 +35,14 @@
         </tr></thead>
         <tbody>
           {% for r in result.rows %}
-          <tr>
+          <tr class="is-clickable" data-open="/issues/{{ r.issue.id }}">
             <td><input type="checkbox" class="row-select" name="ids" value="{{ r.issue.id }}" aria-label="Select {{ r.mag.title }} {{ r.label }}"></td>
             <td><a href="/magazines/{{ r.mag.id }}">{{ r.mag.title }}</a></td>
-            <td>{{ r.label }}</td>
+            <td><button class="linklike" type="button" hx-get="/issues/{{ r.issue.id }}" hx-target="#modal-body" title="Details">{{ r.label }}</button></td>
             <td>{{ r.issue.cover_date or "" }}</td>
             <td data-sort="{{ r.state }}">{{ ui.led(r.led, r.state_label) }}</td>
             <td data-sort="{{ r.last_search.isoformat() if r.last_search else '' }}">{{ (r.last_search | when("%Y-%m-%d %H:%M")) if r.last_search else "Never" }}</td>
-            <td>
-              <div class="cluster row-actions">
-                <button class="btn btn--small" type="button" hx-post="/magazines/{{ r.mag.id }}/search" hx-vals='{"issue": "{{ r.issue.key }}"}' hx-swap="none" aria-label="Automatic search for {{ r.mag.title }} {{ r.label }}">&#9906; Search</button>
-                <button class="btn btn--small" type="button" hx-get="/magazines/{{ r.mag.id }}/interactive?issue={{ r.issue.key | urlencode }}" hx-target="#modal-body" aria-label="Interactive search for {{ r.mag.title }} {{ r.label }}">&#9776; Pick</button>
-              </div>
-            </td>
+            <td>{{ ui.search_buttons(r.mag.id, r.issue.key, r.mag.title ~ " " ~ r.label) }}</td>
           </tr>
           {% endfor %}
         </tbody>

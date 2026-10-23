@@ -100,7 +100,7 @@ def local_checks(session: Session, settings: Settings, now: datetime | None = No
                 "Manual import",
                 "warn",
                 f"{waiting} files wait for review.",
-                "Library, Manual import.",
+                "Magazines, Manual import.",
             )
         )
     if not get_setting(session, FIRST_SCAN_KEY, False):
@@ -109,7 +109,7 @@ def local_checks(session: Session, settings: Settings, now: datetime | None = No
                 "Library scan",
                 "info",
                 "The first library scan has not been applied yet.",
-                "Library: run a scan, read the preview, then apply.",
+                "Magazines, Scan for changes: read the preview, then apply.",
             )
         )
     from periodicool.lookups import any_enabled

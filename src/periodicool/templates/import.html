@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% import "_macros.html" as ui %}
-{% block title %}Library · PeriodiCool{% endblock %}
+{% block title %}Manual import · PeriodiCool{% endblock %}
 {% block content %}
-<h1 class="page-title">Library</h1>
+<h1 class="page-title">Manual import</h1>
 <div class="toolbar">
   <div class="toolbar__group">
-    <button class="btn btn--chassis btn--small" type="button" hx-post="/library/scan" hx-swap="none">Scan the library (preview)</button>
+    <a class="btn btn--small" href="/">&larr; Magazines</a>
+    <button class="btn btn--small" type="button" hx-post="/library/scan" hx-swap="none">Scan for changes</button>
     <span class="spinner" aria-hidden="true"></span>
   </div>
   <p class="on-chassis-muted toolbar__note">A scan only plans. Nothing moves until you apply it; files are moved and renamed, never deleted or overwritten.</p>

@@ -1572,14 +1572,11 @@ html[data-effects="off"] .brand__mark {
   margin-bottom: 0.5rem;
 }
 .switch--compact input {
-  width: 2.6rem;
-  height: 1.3rem;
+  width: 3.3rem;
+  height: 2.2rem;
 }
 .switch--compact input::before {
-  width: 1.05rem;
-}
-.switch--compact input:checked::before {
-  left: calc(100% - 1.05rem - 2px);
+  font-size: 0.85rem;
 }
 .row-actions {
   gap: 0.35rem;
@@ -1980,4 +1977,44 @@ html[data-effects="off"] .brand__mark {
 .kind-card__text {
   color: var(--ink-muted);
   font-size: 0.92rem;
+}
+
+/* Plain list of links (System, More info) */
+.link-list {
+  margin: 0 0 0.75rem;
+  padding-left: 1.1rem;
+}
+.link-list li + li {
+  margin-top: 0.35rem;
+}
+
+/* Issue rows open their details when clicked anywhere but a control. */
+.table tr.is-clickable {
+  cursor: pointer;
+}
+.table tr.is-clickable:hover td {
+  background: var(--row-selected);
+}
+.linklike {
+  all: unset;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--divider);
+  text-underline-offset: 0.2em;
+}
+.linklike:hover {
+  color: var(--orange-ink);
+  text-decoration-color: currentColor;
+}
+.linklike:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Quick jump between years on a magazine page */
+.year-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
 }

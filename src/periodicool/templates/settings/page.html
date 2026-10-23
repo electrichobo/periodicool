@@ -53,6 +53,11 @@
 
   <aside class="stack">
     {% if section == "media" %}
+    <section class="panel stack" aria-labelledby="imp-title">
+      <h2 class="panel__label" id="imp-title">Import</h2>
+      <p>Files PeriodiCool could not match with confidence wait in Manual import, with the latest scan's preview.</p>
+      <div><a class="btn" href="/import">Manual import</a></div>
+    </section>
     <section class="panel" aria-labelledby="ex-title">
       <h2 class="panel__label" id="ex-title">Examples</h2>
       <div id="naming-examples">{% include "settings/_examples.html" %}</div>
@@ -117,9 +122,11 @@
     {% endif %}
   </aside>
 </form>
-
-{% elif section == "profiles" %}
+{% if section == "media" %}
+<h2 class="page-title section-title" id="profiles">Profiles</h2>
 {% include "settings/_profiles.html" %}
+{% endif %}
+
 {% elif section == "tags" %}
 {% include "settings/_tags.html" %}
 {% elif section == "connect" %}

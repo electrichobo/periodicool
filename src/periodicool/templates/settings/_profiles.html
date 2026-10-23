@@ -17,7 +17,7 @@
             <td>{{ used.get(p.id, 0) }} magazines</td>
             <td>
               <div class="cluster row-actions">
-                <a class="btn btn--small" href="/settings/profiles?edit={{ p.id }}#profile-form">Edit</a>
+                <a class="btn btn--small" href="/settings/media?edit={{ p.id }}#profile-form">Edit</a>
                 <button class="btn btn--small btn--danger" type="button" hx-post="/settings/profiles/{{ p.id }}/delete" hx-swap="none"
                         hx-confirm="Delete the profile {{ p.name }}?"{% if used.get(p.id) %} disabled title="In use"{% endif %}>Delete</button>
               </div>
@@ -62,7 +62,7 @@
     </div>
     <div class="cluster">
       <button class="btn btn--primary" type="submit">{{ "Save" if current else "Add profile" }}</button>
-      {% if current %}<a class="btn" href="/settings/profiles">Cancel</a>{% endif %}
+      {% if current %}<a class="btn" href="/settings/media#profiles">Cancel</a>{% endif %}
     </div>
   </form>
 </div>

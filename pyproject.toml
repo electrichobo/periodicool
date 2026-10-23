@@ -75,3 +75,4 @@ known-local-folder = [
 "tests/test_pdf.py" = ["F811"]
 "tests/test_lookups.py" = ["F811"]
 "tests/test_sources.py" = ["F811"]
+"tests/test_web_layout.py" = ["F811"]

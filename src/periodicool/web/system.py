@@ -26,7 +26,6 @@ router = APIRouter(include_in_schema=False)
 
 SYSTEM_TABS = (
     ("status", "Status"),
-    ("health", "Health"),
     ("console", "Console"),
     ("tasks", "Tasks"),
     ("backups", "Backups"),
@@ -34,6 +33,15 @@ SYSTEM_TABS = (
     ("logs", "Log files"),
 )
 LEVELS = ("INFO", "WARNING", "ERROR")
+REPO = "https://github.com/electrichobo/periodicool"
+# Plain links on the Status page; nothing is fetched from them.
+MORE_INFO = (
+    ("Source code", REPO),
+    ("Report a problem or ask for a feature", f"{REPO}/issues"),
+    ("Documentation", f"{REPO}#readme"),
+    ("Changes in each version", f"{REPO}/blob/main/CHANGELOG.md"),
+    ("License (GPL-3.0)", f"{REPO}/blob/main/LICENSE"),
+)
 
 
 def _system(request, page, tab, /, **context):
@@ -60,6 +68,7 @@ def status(request: Request) -> HTMLResponse:
         counts = {
             "magazines": session.scalar(select(func.count()).select_from(Magazine)) or 0,
         }
+        checks = health.local_checks(session, settings)
     return _system(
         request,
         "status",
@@ -76,17 +85,18 @@ def status(request: Request) -> HTMLResponse:
         tz=settings.tz,
         counts=counts,
         argv=" ".join(sys.argv[:1]),
+        checks=checks,
+        links=MORE_INFO,
     )
 
 
 # Health
 
 
-@router.get("/system/health", response_class=HTMLResponse)
-def health_page(request: Request) -> HTMLResponse:
-    with request.app.state.sessions() as session:
-        checks = health.local_checks(session, request.app.state.settings)
-    return _system(request, "health", "health", checks=checks)
+@router.get("/system/health")
+def health_page() -> RedirectResponse:
+    # Health is part of Status now.
+    return RedirectResponse("/system/status#health", status_code=307)
 
 
 @router.post("/system/health/connections", response_class=HTMLResponse)
@@ -301,8 +311,13 @@ def log_download(request: Request, name: str) -> Response:
 # Library: scan preview and manual import
 
 
-@router.get("/library", response_class=HTMLResponse)
-def library_page(request: Request, scan: int = 0) -> HTMLResponse:
+@router.get("/library")
+def library_moved(scan: int = 0) -> RedirectResponse:
+    return RedirectResponse(f"/import?scan={scan}" if scan else "/import", status_code=307)
+
+
+@router.get("/import", response_class=HTMLResponse)
+def import_page(request: Request, scan: int = 0) -> HTMLResponse:
     from periodicool.models import Scan
 
     settings = request.app.state.settings
@@ -323,8 +338,8 @@ def library_page(request: Request, scan: int = 0) -> HTMLResponse:
         titles = {m.id: m.title for m in magazines}
         return _render(
             request,
-            "library.html",
-            active="/library",
+            "import.html",
+            active="/",
             scan=current,
             items=items,
             waiting=waiting,
@@ -345,7 +360,7 @@ def library_scan(request: Request) -> Response:
         scan = library.plan_scan(session, settings.library_dir, ScanKind.LIBRARY)
         session.commit()
         scan_id = scan.id
-    return Response(status_code=204, headers={"HX-Redirect": f"/library?scan={scan_id}"})
+    return Response(status_code=204, headers={"HX-Redirect": f"/import?scan={scan_id}"})
 
 
 @router.post("/library/queue/{item_id:int}/resolve")

@@ -21,6 +21,9 @@
     <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/search-missing" hx-swap="none"
             hx-confirm="Search for missing issues now? This uses indexer API hits (five magazines at most, oldest first).">Search missing</button>
     <a class="btn btn--chassis btn--small" href="/magazines/editor">Mass editor</a>
+    <a class="btn btn--small" href="/import">Manual import</a>
+    <button class="btn btn--small" type="button" hx-post="/library/scan" hx-swap="none"
+            title="Look through the library for new, moved or renamed files. Only a preview; nothing moves until you apply it.">Scan for changes</button>
     <span class="spinner" aria-hidden="true"></span>
   </div>
   <div class="toolbar__group">

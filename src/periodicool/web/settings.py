@@ -18,7 +18,6 @@ router = APIRouter(include_in_schema=False)
 
 TABS = (
     ("media", "Media management"),
-    ("profiles", "Profiles"),
     ("indexers", "Indexers"),
     ("downloads", "Download clients"),
     ("metadata", "Metadata"),
@@ -69,7 +68,7 @@ def _page(request, session, section: str, *, errors=None, form=None, status_code
         context |= sources_ui.client_context(session)
     if section == "general":
         context["api_key"] = auth.api_key(request.app.state.settings.config_dir)
-    if section == "profiles":
+    if section == "media":
         context |= _profiles_context(session)
     if section == "tags":
         context["tags"] = _tag_counts(session)
@@ -144,6 +143,12 @@ def _profiles_context(session) -> dict:
     return {"profiles": profiles, "used": used, "all_formats": FORMATS}
 
 
+@router.get("/settings/profiles")
+def profiles_moved(request: Request) -> RedirectResponse:
+    query = f"?{request.url.query}" if request.url.query else ""
+    return RedirectResponse(f"/settings/media{query}#profiles", status_code=307)
+
+
 @router.post("/settings/profiles", response_class=HTMLResponse)
 async def profile_save(request: Request) -> Response:
     lists = await form_lists(request)
@@ -171,7 +176,7 @@ async def profile_save(request: Request) -> Response:
         if clash is not None and clash is not profile:
             errors["name"] = "Another profile has this name."
         if errors:
-            return _page(request, session, "profiles", errors=errors, status_code=422, editing=form)
+            return _page(request, session, "media", errors=errors, status_code=422, editing=form)
         if profile is None:
             profile = FormatProfile(name=name, formats=formats)
             session.add(profile)
@@ -179,7 +184,7 @@ async def profile_save(request: Request) -> Response:
         profile.prefer_true_pdf = form.get("prefer_true_pdf") == "on"
         profile.upgrades = form.get("upgrades") == "on"
         session.commit()
-    return RedirectResponse("/settings/profiles?saved=1", status_code=303)
+    return RedirectResponse("/settings/media?saved=1#profiles", status_code=303)
 
 
 @router.post("/settings/profiles/{profile_id:int}/delete")
@@ -197,7 +202,7 @@ def profile_delete(request: Request, profile_id: int) -> Response:
             return _toast(f"{profile.name} is used by {users} magazines. Move them first.", "warn")
         session.delete(profile)
         session.commit()
-    return Response(status_code=204, headers={"HX-Redirect": "/settings/profiles?saved=1"})
+    return Response(status_code=204, headers={"HX-Redirect": "/settings/media?saved=1#profiles"})
 
 
 # Tags

@@ -1,5 +1,24 @@
 {# Shared building blocks. Import with: {% import "_macros.html" as ui %} #}
 
+{# Small inline icons. Decorative: the button around them carries the label. #}
+{% macro icon(name) -%}
+{% if name == "search" -%}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg>
+{%- elif name == "person" -%}
+<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 11c4.4 0 8 2.2 8 5v2H4v-2c0-2.8 3.6-5 8-5Z"/></svg>
+{%- endif %}
+{%- endmacro %}
+
+{# Automatic (magnifying glass) and interactive (person) search for one issue, as in Sonarr. #}
+{% macro search_buttons(mag_id, key, label) -%}
+<div class="cluster row-actions">
+  <button class="btn btn--small btn--icon" type="button" hx-post="/magazines/{{ mag_id }}/search" hx-vals='{"issue": "{{ key }}"}' hx-swap="none"
+          title="Automatic search" aria-label="Automatic search for {{ label }}">{{ icon("search") }}</button>
+  <button class="btn btn--small btn--icon" type="button" hx-get="/magazines/{{ mag_id }}/interactive?issue={{ key | urlencode }}" hx-target="#modal-body"
+          title="Interactive search" aria-label="Interactive search for {{ label }}">{{ icon("person") }}</button>
+</div>
+{%- endmacro %}
+
 {% macro led(kind, label) -%}
 <span class="led led--{{ kind }}">{{ label }}</span>
 {%- endmacro %}

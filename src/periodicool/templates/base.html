@@ -25,7 +25,7 @@
       <ul class="nav">
         {% for href, label in [
           ("/", "Magazines"), ("/calendar", "Calendar"), ("/activity", "Activity"),
-          ("/wanted", "Wanted"), ("/library", "Library"), ("/settings", "Settings"),
+          ("/wanted", "Wanted"), ("/settings", "Settings"),
           ("/system", "System")] %}
         <li><a href="{{ href }}"{% if active == href %} aria-current="page"{% endif %}>{{ label }}</a></li>
         {% endfor %}
@@ -46,7 +46,7 @@
     {% for kind, text in flashes | default([]) %}
     <div class="crt flash" role="status"><span class="led led--{{ kind }}">{{ kind }}</span> {{ text }}</div>
     {% endfor %}
-    {% set sectors = {"/": "01", "/calendar": "02", "/activity": "03", "/wanted": "04", "/library": "05", "/settings": "06", "/system": "07"} %}
+    {% set sectors = {"/": "01", "/calendar": "02", "/activity": "03", "/wanted": "04", "/settings": "05", "/system": "06"} %}
     {% block eyebrow %}{% if active is defined and active in sectors %}<p class="page-eyebrow">Sector {{ sectors[active] }}</p>{% endif %}{% endblock %}
     {% block content %}{% endblock %}
   </main>
