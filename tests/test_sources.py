@@ -225,3 +225,25 @@ def test_stored_keys_are_redacted(env):
     redactor.learn(stored_secrets(e.session))
     text = redactor.redact(f"failed with {NZ_KEY} and client-password-1")
     assert NZ_KEY not in text and "client-password-1" not in text
+
+
+def test_qbittorrent_entry_is_the_torrent_client(env, fake_n):
+    from fake_qbit import QB_PASS, QB_URL, QB_USER, FakeQbit
+    from periodicool.clients.qbittorrent import QbittorrentClient
+
+    e = env
+    add_client(
+        e.session,
+        QB_URL,
+        name="qBit",
+        kind="qbittorrent",
+        protocol="torrent",
+        username=QB_USER,
+        password=QB_PASS,
+        category="mags",
+    )
+    src = Sources(e.session, {"qbit": FakeQbit(), "sab": e.fake_s}, ENV)
+    torrent = src.client_for("torrent")
+    assert isinstance(torrent, QbittorrentClient) and torrent.display_name == "qBit"
+    assert torrent.check(torrent.category).startswith("v5")
+    assert src.client_for("usenet").display_name == "SABnzbd"

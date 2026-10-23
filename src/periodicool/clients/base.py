@@ -57,6 +57,11 @@ class DownloadClient(Protocol):
     def remove(self, job_id: str, category: str) -> bool:
         """Remove one of our jobs, after checking it is in our category.
 
-        Returns False when the job is not there (already gone).
+        Returns False when the job is not there (already gone). Torrent clients only
+        ever remove the torrent, never its files (it may still be seeding).
         """
         ...
+
+    # Torrent clients also have add_torrent(name, category, torrent=bytes | None,
+    # magnet=str | None, seed_ratio=..., seed_time_min=...) -> info hash; usenet
+    # clients have add_nzb. Downloads picks by the release's protocol.

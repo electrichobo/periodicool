@@ -18,7 +18,9 @@ from periodicool.models import ApiCall, DownloadClient, Grab, Indexer, Release
 PROWLARR_KEY_ENV = "PROWLARR_API_KEY"
 SAB_KEY_ENV = "SABNZBD_API_KEY"
 INDEXER_KINDS = {"prowlarr": "Prowlarr", "newznab": "Newznab"}
-CLIENT_KINDS = {"sabnzbd": "SABnzbd"}
+CLIENT_KINDS = {"sabnzbd": "SABnzbd", "qbittorrent": "qBittorrent"}
+# The protocol each kind downloads.
+CLIENT_PROTOCOLS = {"sabnzbd": "usenet", "qbittorrent": "torrent"}
 MIN_INTERVAL_KEY = "search.min_interval_s"
 
 
@@ -38,6 +40,8 @@ def indexer_key(session: Session, row: Indexer, env: Mapping[str, str] | None = 
 
 def client_key(session: Session, row: DownloadClient, env: Mapping[str, str] | None = None) -> str:
     env = os.environ if env is None else env
+    if row.kind == "qbittorrent":
+        return row.password or ""
     if row.api_key:
         return row.api_key
     if row.kind == "sabnzbd" and row.id == _first_id(session, DownloadClient, "sabnzbd"):
@@ -76,13 +80,21 @@ def build_indexer(session: Session, row: Indexer, transports: Mapping | None = N
 def build_client(
     session: Session, row: DownloadClient, transports: Mapping | None = None, env=None
 ):
+    from periodicool.clients.qbittorrent import QbittorrentClient
     from periodicool.clients.sabnzbd import SabnzbdClient
 
     transports = transports or {}
-    key = client_key(session, row, env)
-    if not row.url or not key or row.kind != "sabnzbd":
+    if not row.url:
         return None
-    client = SabnzbdClient(row.url, key, transport=transports.get("sab"))
+    if row.kind == "qbittorrent":
+        # Username and password may be empty when qBittorrent skips login for this address.
+        client = QbittorrentClient(
+            row.url, row.username or "", row.password or "", transport=transports.get("qbit")
+        )
+    elif row.kind == "sabnzbd" and (key := client_key(session, row, env)):
+        client = SabnzbdClient(row.url, key, transport=transports.get("sab"))
+    else:
+        return None
     client.row_id, client.display_name = row.id, row.name
     client.category, client.path_map = row.category, list(row.path_map or [])
     return client
@@ -154,4 +166,5 @@ def transports_from(state) -> dict:
         "prowlarr": getattr(state, "prowlarr_transport", None),
         "newznab": getattr(state, "newznab_transport", None),
         "sab": getattr(state, "sab_transport", None),
+        "qbit": getattr(state, "qbit_transport", None),
     }

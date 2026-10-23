@@ -15,9 +15,9 @@ def add_indexer(session, url, key=None, name="Prowlarr", kind="prowlarr", **kw) 
 def add_client(
     session, url, key=None, name="SABnzbd", category="mags", path_map=None, **kw
 ) -> DownloadClient:
+    kw.setdefault("kind", "sabnzbd")
     row = DownloadClient(
         name=name,
-        kind="sabnzbd",
         url=url,
         api_key=key,
         category=category,
