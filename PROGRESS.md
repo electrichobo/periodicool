@@ -74,7 +74,7 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **Also fixed:** "No API key" showed for clients that need none.
   - **Checked:** browser-checked the picker, the form with Browse, Test, save and the list at desktop and phone width. The dev entry was deleted afterwards. A real grab through a blackhole was only tested end to end in the suite (no downloader on VADER). 1537 tests pass.
 
-- **v0.1.10 tagged 2026-10-23** (Usenet and Torrent Blackhole). To confirm on the server: the image runs, and the download client list no longer flags clients that need no key.
+- **v0.1.10 tagged 2026-10-23** (Usenet and Torrent Blackhole); maintainer confirmed it on the server 2026-10-23.
 
 ## Next
 
