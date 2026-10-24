@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>PeriodiCool</Name>
+  <Repository>ghcr.io/electrichobo/periodicool:latest</Repository>
+  <Registry>https://github.com/electrichobo/periodicool/pkgs/container/periodicool</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/electrichobo/periodicool/issues</Support>
+  <Project>https://github.com/electrichobo/periodicool</Project>
+  <Overview>Self-hosted manager for magazines, in the style of Sonarr: track titles, find new and back issues through your indexers (Prowlarr, Newznab, Torznab), send them to your download client (SABnzbd, NZBGet, qBittorrent, Transmission, Deluge, rTorrent or a blackhole folder), and keep the library organized. PeriodiCool ships no content and no indexers; you bring your own.</Overview>
+  <Category>Downloaders: MediaApp:Books</Category>
+  <WebUI>http://[IP]:[PORT:8383]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/electrichobo/periodicool/main/unraid/periodicool.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/electrichobo/periodicool/main/unraid/periodicool.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>An indexer (Prowlarr, or a Newznab or Torznab indexer) and a download client that you set up yourself.</Requires>
+  <Config Name="WebUI port" Target="8383" Default="8383" Mode="tcp" Description="Port of the web interface." Type="Port" Display="always" Required="true" Mask="false">8383</Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/periodicool" Mode="rw" Description="Database, settings, backups, logs and the API key." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/periodicool</Config>
+  <Config Name="Library" Target="/library" Default="/mnt/user/media/magazines/" Mode="rw" Description="Your magazine library. PeriodiCool moves and renames files here and never deletes them. Run the first library scan as a preview." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/media/magazines/</Config>
+  <Config Name="Downloads" Target="/data" Default="/mnt/user/downloads/" Mode="rw" Description="Your download client's downloads. Mount the same host folder at the same container path as the download client does, so no path mapping is needed." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/downloads/</Config>
+  <Config Name="Downloads folder inside the container" Target="PERIODICOOL_DOWNLOADS_DIR" Default="/data" Mode="" Description="Where the downloads are mounted inside the container. Keep it the same as the Downloads container path above." Type="Variable" Display="advanced" Required="true" Mask="false">/data</Config>
+  <Config Name="Import folder" Target="/import" Default="" Mode="rw" Description="Optional drop-in folder: files put here are matched and filed into the library." Type="Path" Display="always" Required="false" Mask="false"/>
+  <Config Name="Import folder inside the container" Target="PERIODICOOL_IMPORT_DIR" Default="" Mode="" Description="Set to /import when you use the import folder above." Type="Variable" Display="advanced" Required="false" Mask="false"/>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User the container runs as (Unraid's nobody). PeriodiCool never runs as root." Type="Variable" Display="advanced" Required="true" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group the container runs as (Unraid's users)." Type="Variable" Display="advanced" Required="true" Mask="false">100</Config>
+  <Config Name="UMASK" Target="UMASK" Default="002" Mode="" Description="File creation mask." Type="Variable" Display="advanced" Required="true" Mask="false">002</Config>
+  <Config Name="TZ" Target="TZ" Default="Etc/UTC" Mode="" Description="Your time zone, for example America/New_York." Type="Variable" Display="always" Required="false" Mask="false">Etc/UTC</Config>
+  <Config Name="Prowlarr API key" Target="PROWLARR_API_KEY" Default="" Mode="" Description="Optional. Only a fallback for the first Prowlarr entry; keys can be entered in Settings instead." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="SABnzbd API key" Target="SABNZBD_API_KEY" Default="" Mode="" Description="Optional. Only a fallback for the first SABnzbd entry; keys can be entered in Settings instead." Type="Variable" Display="advanced" Required="false" Mask="true"/>
+</Container>

@@ -14,6 +14,7 @@ All notable changes to this project are recorded here. The format follows [Keep 
   - commands: RSS sync, wanted search, magazine search, library rescan, import folder, check downloads, backup, health check.
   - The schema is at `/api/v1/openapi.json`.
 - Docs: `docs/api.md` (API and webhooks), `docs/configuration.md` and `docs/unraid.md`.
+- An Unraid Community Apps template, `unraid/periodicool.xml`, with a placeholder icon.
 
 ### Changed
 

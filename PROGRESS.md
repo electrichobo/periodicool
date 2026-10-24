@@ -84,14 +84,14 @@ Handoff notes between sessions. Read at the start, update at the end.
     - `docs_url`, `redoc_url` and `openapi_url` are None (CDN). The schema is at `/api/v1/openapi.json`.
     - Fixed on the way: right after an add or edit, the answer showed stale issue counts (now `session.refresh`).
   - **Docs:** `docs/api.md` (the webhook payload moved here from the README), `docs/configuration.md`, `docs/unraid.md`; the README links them.
-  - **Unraid template:** proposed as its own session (`unraid/periodicool.xml`, a placeholder `unraid/periodicool.png` from `scripts/make_icon.py`, `tests/test_unraid_template.py`). `docs/unraid.md` already points at those paths.
+  - **Unraid template:** `unraid/periodicool.xml` (CA v2), with a placeholder icon `unraid/periodicool.png` (cassette in the theme colors, drawn by the stdlib script `scripts/make_icon.py`). `tests/test_unraid_template.py` checks the required fields, that it matches the Dockerfile's port and PUID, PGID and UMASK, that nothing personal is in it, and that the icon is a 256 px PNG.
   - **Tests:** 1547 pass.
 
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up:** the Unraid template (if its session has not landed), then the maintainer's CA submission and his real icon (same file name, `unraid/periodicool.png`). The build order is otherwise complete.
+- **Next up:** the build order is complete. Left for the maintainer: the CA submission (form plus a forum support thread, then point `Support` at it) and the real icon, under the same file name `unraid/periodicool.png`.
 - **Notifications, decided 2026-10-23:** no Discord. One generic webhook the Sonarr way (URL, method POST or PUT, optional username/password and headers; events such as grab, import, download failure, health issue, test), posting JSON. Users point it at whatever they like.
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
