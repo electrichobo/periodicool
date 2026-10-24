@@ -64,6 +64,7 @@ def test_no_cdn_docs_and_a_keyed_schema(api):
 def test_status_and_health(api):
     status = api.get("/api/v1/system/status").json()
     assert status["appName"] == "PeriodiCool" and status["version"]
+    assert status["startTime"].endswith("+00:00")
     checks = api.get("/api/v1/health").json()
     assert checks and {"name", "level", "message", "fix"} <= set(checks[0])
 

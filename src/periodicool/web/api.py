@@ -9,7 +9,7 @@ links or absolute paths; issue files are given relative to the library.
 from __future__ import annotations
 
 import re
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, Response
@@ -61,6 +61,8 @@ def _iso(value) -> str | None:
     if value is None:
         return None
     if isinstance(value, datetime):
+        if value.tzinfo is None:  # SQLite hands back stored UTC times without a zone
+            value = value.replace(tzinfo=UTC)
         return value.isoformat(timespec="seconds")
     return value.isoformat()
 
