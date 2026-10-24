@@ -17,4 +17,4 @@ Served from the image itself; no CDN is used at runtime. Each file was downloade
 | Files | Source | License |
 | - | - | - |
 | `../img/lamps/lamp-{orange,blue,amber,green}-{off,on}.png` | Lamp button artwork drawn by the maintainer for PeriodiCool, cut into one tile per color and state and scaled to 160 px wide | GPL-3.0, with the project |
-| `../img/icon.svg` | Placeholder app icon (the logo lamp), made for PeriodiCool | GPL-3.0, with the project |
+| `../img/icon-{32,128,180}.png`, `../../../../unraid/periodicool.png` (512 px) | App icon drawn by the maintainer for PeriodiCool, scaled from the original | GPL-3.0, with the project |

@@ -59,10 +59,11 @@ def test_nothing_personal():
     text = TEMPLATE.read_text(encoding="utf-8")
     for word in FORBIDDEN:
         assert word not in text, word
-    assert "—" not in text  # no em dashes
+    assert chr(0x2014) not in text  # no em dashes
 
 
-def test_icon_is_a_256_png():
+def test_icon_is_a_square_png():
     data = ICON.read_bytes()
     assert data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR"
-    assert struct.unpack(">II", data[16:24]) == (256, 256)
+    width, height = struct.unpack(">II", data[16:24])
+    assert width == height >= 256

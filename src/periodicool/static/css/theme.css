@@ -273,10 +273,13 @@ a:hover {
 .brand__mark,
 .brand__icon {
   flex: none;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 2.6rem;
+  height: 2.6rem;
 }
-/* The logo lamp. Replaced by .brand__icon once the app icon exists. */
+.brand__icon img {
+  border-radius: 0.45rem;
+}
+/* The old logo lamp, kept for pages that still show it. */
 .brand__mark {
   border-radius: 50%;
   background: radial-gradient(circle at 38% 35%, #ffc38f, var(--orange-bright) 45%, #b9541c);
