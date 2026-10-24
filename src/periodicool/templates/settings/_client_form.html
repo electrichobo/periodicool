@@ -2,7 +2,7 @@
    On errors the server returns this again into #modal-body. #}
 {% import "_macros.html" as ui %}
 {% from "settings/_source_fields.html" import text, key_field, enabled with context %}
-<form class="panel modal__panel stack" hx-post="/settings/downloads/save" hx-target="#modal-body">
+<form class="panel modal__panel stack" hx-post="/settings/downloads/save" hx-target="#modal-body"{% if kind and kind.fields | selectattr("advanced") | list %} data-advanced-form{% endif %}>
   <div class="modal__head">
     <h2 class="modal__title" id="modal-title">{{ "Edit " ~ values.get("name") if values.get("id") else "Add " ~ (kind.label if kind else "download client") }}</h2>
     <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
@@ -16,7 +16,20 @@
   {{ text("name", "Name") }}
   {% for f in kind.fields if kind %}
   {% if f.name == "host" %}<div class="form-row client-address">{% endif %}
-  {% if f.type == "secret" %}
+  {% if f.advanced %}<div class="advanced">{% endif %}
+  {% if f.type == "folder" %}
+  <div class="field">
+    <label class="field__label" for="src-{{ f.name }}">{{ f.label }}</label>
+    <div class="path-field">
+      <input class="input input--mono" id="src-{{ f.name }}" name="{{ f.name }}" value="{{ values.get(f.name, '') }}" placeholder="/downloads/..." autocomplete="off"
+        {%- if f.required %} required{% endif %}
+        {%- if errors.get(f.name) %} aria-invalid="true"{% endif %} aria-describedby="src-{{ f.name }}-help{% if errors.get(f.name) %} src-{{ f.name }}-err{% endif %}">
+      <button class="btn btn--small" type="button" data-browse="src-{{ f.name }}">Browse</button>
+    </div>
+    {% if f.help %}<span class="field__help" id="src-{{ f.name }}-help">{{ f.help }}</span>{% endif %}
+    {% if errors.get(f.name) %}<span class="field__error" id="src-{{ f.name }}-err">{{ errors[f.name] }}</span>{% endif %}
+  </div>
+  {% elif f.type == "secret" %}
   {{ key_field(saved.get(f.store), env_fallback if f.store == "api_key" else false,
        (f.help ~ " " if f.help else "") ~ "Stored in PeriodiCool's database and never shown again. Leave empty to keep the saved one.",
        f.label, f.label ~ " set", name=f.name) }}
@@ -39,10 +52,15 @@
   {% else %}
   {{ text(f.name, f.label, f.help or none, attrs=('inputmode="numeric"' if f.type == "int" else "") ~ (" required" if f.required else "") ~ ' autocomplete="off"') }}
   {% endif %}
+  {% if f.advanced %}</div>{% endif %}
   {% if f.name == "url_base" %}</div>{% endif %}
   {% endfor %}
+  {% if kind and kind.local %}<p class="field__help">Both folders are as PeriodiCool sees them, so no remote path mapping is needed.</p>{% endif %}
   {{ text("priority", "Client priority", "1 to 50. New downloads go to the enabled client with the lowest number.", attrs='inputmode="numeric"') }}
   <div class="modal__foot">
+    {% if kind and kind.fields | selectattr("advanced") | list %}<label class="switch switch--small advanced-switch">Show advanced
+      <input type="checkbox" role="switch" data-advanced-switch><span class="switch__state" aria-hidden="true"></span>
+    </label>{% endif %}
     <button class="btn" type="button" hx-post="/settings/downloads/test" hx-include="closest form" hx-swap="none">Test</button>
     <span class="spinner" aria-hidden="true"></span>
     <button class="btn" type="button" data-close-modal>Cancel</button>

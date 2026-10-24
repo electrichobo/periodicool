@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 class Field:
     name: str
     label: str
-    type: str = "text"  # text, int, bool, select, secret
+    type: str = "text"  # text, int, bool, select, secret, folder
     default: object = ""
     help: str = ""
     required: bool = False
@@ -38,6 +38,12 @@ class ClientKind:
     # A secret the client cannot work without (SABnzbd's API key); others may be empty.
     required_secret: str | None = None
     defaults: dict = field(default_factory=dict)
+    # A folder client (Blackhole): no address, no login, no category.
+    local: bool = False
+
+    @property
+    def has_category(self) -> bool:
+        return any(f.store == "category" for f in self.fields)
 
 
 def _connection(
@@ -170,6 +176,42 @@ def _build_rtorrent(url, row, settings, secret, transport):
     from periodicool.clients.rtorrent import RtorrentClient
 
     return RtorrentClient(url, row.username or "", row.password or "", transport=transport)
+
+
+def _build_blackhole(url, row, settings, secret, transport):
+    from periodicool.clients.blackhole import DEFAULT_WAIT_S, BlackholeClient
+
+    return BlackholeClient(
+        "usenet" if row.kind == "usenet_blackhole" else "torrent",
+        str(settings.get("drop_folder") or ""),
+        str(settings.get("watch_folder") or ""),
+        save_magnets=bool(settings.get("save_magnets")),
+        magnet_extension=str(settings.get("magnet_extension") or ".magnet"),
+        wait_s=float(settings.get("wait_seconds") or DEFAULT_WAIT_S),
+    )
+
+
+def _blackhole_fields(drop_label: str, drop_help: str) -> tuple[Field, ...]:
+    return (
+        Field("drop_folder", drop_label, "folder", default="", help=drop_help, required=True),
+        Field(
+            "watch_folder",
+            "Watch folder",
+            "folder",
+            default="",
+            help="Where the finished downloads appear, as PeriodiCool sees it. Must be inside "
+            "the downloads folder (/downloads in Docker), since imports only read from there.",
+            required=True,
+        ),
+        Field(
+            "wait_seconds",
+            "Wait before import (seconds)",
+            "int",
+            default=30,
+            help="An item counts as finished once it has not changed for this long.",
+            advanced=True,
+        ),
+    )
 
 
 USERNAME = Field("username", "Username", default="", store="username")
@@ -321,6 +363,58 @@ KINDS: dict[str, ClientKind] = {
             ),
             _build_rtorrent,
             "rtorrent",
+        ),
+        ClientKind(
+            "usenet_blackhole",
+            "Usenet Blackhole",
+            "usenet",
+            "For a usenet downloader PeriodiCool cannot talk to. PeriodiCool writes each "
+            ".nzb into the NZB folder; your downloader picks it up and leaves the finished "
+            "download in the watch folder, where PeriodiCool imports it once it stops "
+            "changing. Only items PeriodiCool dropped are ever looked at. No category, and "
+            "no progress or failure reports: a blackhole cannot know them.",
+            _blackhole_fields(
+                "NZB folder",
+                "Where PeriodiCool writes the .nzb files, as PeriodiCool sees it. Your "
+                "downloader watches this folder.",
+            ),
+            _build_blackhole,
+            "blackhole",
+            local=True,
+        ),
+        ClientKind(
+            "torrent_blackhole",
+            "Torrent Blackhole",
+            "torrent",
+            "For a torrent client PeriodiCool cannot talk to. PeriodiCool writes each "
+            ".torrent into the torrent folder; your client picks it up and the finished "
+            "download appears in the watch folder. Imports always hard-link or copy, never "
+            "move (Sonarr's Read only), so the torrent keeps seeding. Seed goals are left to "
+            "your client.",
+            (
+                *_blackhole_fields(
+                    "Torrent folder",
+                    "Where PeriodiCool writes the .torrent files, as PeriodiCool sees it. "
+                    "Your torrent client watches this folder.",
+                ),
+                Field(
+                    "save_magnets",
+                    "Save magnet files",
+                    "bool",
+                    False,
+                    help="Write magnet links as files too (with the extension below). Off: "
+                    "releases that only have a magnet link are refused.",
+                ),
+                Field(
+                    "magnet_extension",
+                    "Magnet file extension",
+                    default=".magnet",
+                    help="The extension your torrent client looks for.",
+                ),
+            ),
+            _build_blackhole,
+            "blackhole",
+            local=True,
         ),
     )
 }

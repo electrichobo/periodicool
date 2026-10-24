@@ -38,9 +38,14 @@ def test_every_kind_has_the_basics():
         "transmission",
         "deluge",
         "rtorrent",
+        "usenet_blackhole",
+        "torrent_blackhole",
     }
     for kind in registry.KINDS.values():
         names = [f.name for f in kind.fields]
+        if kind.local:
+            assert names[:2] == ["drop_folder", "watch_folder"] and not kind.has_category
+            continue
         assert names[:4] == ["host", "port", "use_ssl", "url_base"], kind.kind
         assert "category" in names and "recent_priority" in names and "older_priority" in names
         assert kind.protocol in ("usenet", "torrent") and kind.info
@@ -51,10 +56,11 @@ def test_picker_groups_usenet_and_torrents(client):
     page = client.get("/settings/downloads/new").text
     usenet = page[page.index(">Usenet<") : page.index(">Torrents<")]
     assert "?kind=sabnzbd" in usenet and "?kind=nzbget" in usenet and "qbittorrent" not in usenet
+    assert "?kind=usenet_blackhole" in usenet
     torrents = page[page.index(">Torrents<") :]
-    for kind in ("qbittorrent", "transmission", "deluge", "rtorrent"):
+    for kind in ("qbittorrent", "transmission", "deluge", "rtorrent", "torrent_blackhole"):
         assert f"?kind={kind}" in torrents
-    assert page.count("More info") == 6
+    assert page.count("More info") == 8
 
 
 @pytest.mark.parametrize("kind", list(registry.KINDS))
@@ -63,6 +69,10 @@ def test_each_pop_up_shows_its_fields_with_defaults(client, kind):
     spec = registry.KINDS[kind]
     for f in spec.fields:
         assert f'name="{f.name}"' in page, f.name
+    if spec.local:
+        assert 'name="host"' not in page and 'name="category"' not in page
+        assert "data-browse" in page
+        return
     port = registry.defaults(kind)["port"]
     assert f'value="{port}"' in page
 
