@@ -4,6 +4,16 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Webhook notifications under Settings, Connect, the way Sonarr's Webhook works:
+  - Settings: URL, POST or PUT, optional basic authentication and headers.
+  - One switch per event: grab, import, download failure, import failure, manual interaction required, magazine add and delete, health issue and health restored.
+  - Events are JSON with Sonarr-style names and never carry keys, passwords or download links. The README documents the payload.
+- A 5-minute health check job that sends Health and HealthRestored when a check starts or stops reporting.
+- Application URL under Settings, General, sent with webhook events.
+- `notify test ID` on the command line.
+
 ## [0.1.8] - 2026-10-23
 
 ### Added

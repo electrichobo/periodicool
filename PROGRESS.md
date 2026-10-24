@@ -44,11 +44,23 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.1.8 tagged 2026-10-23** (indexer forms the Sonarr way); maintainer confirmed it on the server 2026-10-23.
 
+- **Webhook notifications, 2026-10-23 (instead of Discord, maintainer's call):**
+  - **Migration `0014_notifications`:** the `notifications` table.
+  - **`notify.py`:**
+    - `queue_event` keeps events on `session.info`;
+    - the `after_commit` and `after_rollback` listeners on `Session` hand them to the module-level `Sender` (a thread, started in `main.py`'s lifespan) or drop them;
+    - payload builders, and `deliver` (no redirects, basic auth, headers, 10 s).
+  - **Events:** `history.record` queues Grab, Download, DownloadFailure, ImportFailure and ManualInteractionRequired. Magazine add (web) and `delete_magazines` queue MagazineAdd and MagazineDelete. The new `health` job (5 min, `jobs.run_health`, setting `notify.health_seen`) queues Health and HealthRestored; its first run only records.
+  - **UI:** `web/connect.py` and `settings/_connections.html` / `_connection_form.html`. Application URL is the `general.application_url` field.
+  - **Secrets:** `logs.stored_secrets` includes the webhook password and header values.
+  - **CLI:** `notify test ID` (CLI runs have no sender, so CLI-made changes send nothing).
+  - **Checked live on VADER:** a local 127.0.0.1 listener received Test, MagazineAdd and MagazineDelete; the list showed Sent; phone width fine; listener and server stopped. 1525 tests pass.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up (agreed order):** Usenet and Torrent Blackhole, step 10 (API, docs, Unraid template), then a generic webhook last. Indexer forms are done.
+- **Next up (agreed order):** Usenet and Torrent Blackhole, then step 10 (API, docs, Unraid template). Indexer forms and the webhook are done.
 - **Notifications, decided 2026-10-23:** no Discord. One generic webhook the Sonarr way (URL, method POST or PUT, optional username/password and headers; events such as grab, import, download failure, health issue, test), posting JSON. Users point it at whatever they like.
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
