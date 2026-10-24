@@ -4,6 +4,21 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- A REST API under `/api/v1`, in Sonarr's style, with the API key in `X-Api-Key` or `?apikey=`:
+  - system status and health;
+  - magazines: list, add, edit, delete (files stay);
+  - issues: list and monitor;
+  - wanted, queue, history and calendar;
+  - commands: RSS sync, wanted search, magazine search, library rescan, import folder, check downloads, backup, health check.
+  - The schema is at `/api/v1/openapi.json`.
+- Docs: `docs/api.md` (API and webhooks), `docs/configuration.md` and `docs/unraid.md`.
+
+### Changed
+
+- FastAPI's built-in `/docs` and `/redoc` pages are off, since they load scripts from a CDN.
+
 ## [0.1.10] - 2026-10-23
 
 ### Added

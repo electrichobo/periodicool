@@ -4,6 +4,12 @@ Self-hosted manager for magazines, in the style of Sonarr. A magazine is the ser
 
 > **Status:** early development. The back end works from the command line; there is no web UI yet. See [CHANGELOG.md](CHANGELOG.md).
 
+## Documentation
+
+- [Configuration](docs/configuration.md): environment variables, every Settings tab, backups.
+- [API and webhooks](docs/api.md): the REST API under `/api/v1`, commands, the webhook payload.
+- [Unraid](docs/unraid.md): installing from the template, paths, first start, common problems.
+
 ## No content, no indexers
 
 PeriodiCool ships no content and no indexers. You bring your own Prowlarr instance, your own indexers and your own download client. PeriodiCool only talks to services you configure, and makes no other outbound calls (no telemetry, no CDNs).
@@ -147,51 +153,11 @@ Locked out? Run this inside the container and enter a new password; it also logs
 python -m periodicool user reset-password
 ```
 
-An API key is generated into `/config/api.key` on first start. For now only the calendar feed uses it.
+An API key is generated into `/config/api.key` on first start (Settings, General shows it). The REST API and the calendar feed use it; see [docs/api.md](docs/api.md).
 
 ## Webhooks
 
-Settings, Connect, Add connection, Webhook: PeriodiCool posts events as JSON to an address you choose, like Sonarr's Webhook connection. Point it at Apprise, ntfy, Home Assistant, n8n, a chat bridge or your own script. There are no app-specific integrations; the webhook is the one way out.
-
-**Settings**
-
-- URL, and method POST or PUT.
-- Optional username and password, sent as basic authentication.
-- Optional extra headers, under Show advanced.
-
-**Events**
-
-- One switch per event. The `eventType` values are `Test`, `Grab`, `Download` (an import, as Sonarr names it), `DownloadFailure`, `ImportFailure`, `ManualInteractionRequired`, `MagazineAdd`, `MagazineDelete`, `Health` and `HealthRestored`.
-- Health events come from a check every 5 minutes. Problems are always sent; warnings only when "Include health warnings" is on.
-
-**Sending**
-
-- An event is sent only after the change it reports is saved.
-- Redirects are not followed.
-- A failed send is logged and shown in the list. It never stops a grab or an import.
-
-**Payload**
-
-- Every event carries `eventType`, `instanceName`, `applicationUrl` (Settings, General, Application URL) and `date` (UTC).
-- Depending on the event, it also carries `magazine`, `issue`, `release`, `file` (path relative to the library), `reason` or `health`.
-- Keys, passwords, download links and absolute paths are never included.
-
-An example `Grab`:
-
-```json
-{
-  "eventType": "Grab",
-  "instanceName": "PeriodiCool",
-  "applicationUrl": "https://mags.example",
-  "date": "2026-10-23T18:04:22+00:00",
-  "magazine": {"id": 3, "title": "Linux Magazine", "issn": "1471-5678", "frequency": "monthly"},
-  "issue": {"key": "n311", "coverDate": "2026-10-01", "issueNumber": 311, "volumeNumber": null, "special": false},
-  "release": {"title": "Linux Magazine USA - Issue 311, October 2026", "indexer": "NZBgeek", "size": 52428800,
-              "protocol": "usenet", "downloadClient": "SABnzbd", "downloadId": "SABnzbd_nzo_abc123"}
-}
-```
-
-`python -m periodicool notify test ID` sends a `Test` event from the command line.
+Settings, Connect posts events (grab, import, failures, health and more) as JSON to an address you choose, like Sonarr's Webhook connection. Point it at Apprise, ntfy, Home Assistant or your own script. The payload and every event are in [docs/api.md](docs/api.md#webhooks).
 
 ## Metadata lookups (off by default)
 
