@@ -15,9 +15,9 @@
 {% macro search_buttons(mag_id, key, label) -%}
 <div class="cluster row-actions">
   <button class="btn btn--small btn--icon" type="button" hx-post="/magazines/{{ mag_id }}/search" hx-vals='{"issue": "{{ key }}"}' hx-swap="none"
-          title="Automatic search" aria-label="Automatic search for {{ label }}">{{ icon("search") }}</button>
+          data-activity="Searching for {{ label }}" title="Automatic search" aria-label="Automatic search for {{ label }}">{{ icon("search") }}</button>
   <button class="btn btn--small btn--icon" type="button" hx-get="/magazines/{{ mag_id }}/interactive?issue={{ key | urlencode }}" hx-target="#modal-body"
-          title="Interactive search" aria-label="Interactive search for {{ label }}">{{ icon("person") }}</button>
+          data-activity="Interactive search for {{ label }}" title="Interactive search" aria-label="Interactive search for {{ label }}">{{ icon("person") }}</button>
 </div>
 {%- endmacro %}
 

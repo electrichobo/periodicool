@@ -113,5 +113,5 @@ def test_interactive_search_shows_torrents(client, mags, fakes):  # noqa: F811
         release_json("Linux Magazine USA - Issue 311, October 2026", indexer_id=3)
         | {"protocol": "torrent", "seeders": 8, "leechers": 2}
     ]
-    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive").text
+    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive/results").text
     assert '<span class="tag">Torrent</span> 8 seeders, 2 peers' in page

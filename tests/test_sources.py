@@ -114,8 +114,8 @@ def test_search_merges_entries_with_a_cache_each(env, fake_n):
     assert titles[L311].source_id == ids["Prowlarr"]
     assert titles[L311_ALT].source_id == ids["Direct"]
     before = len(fake_n.calls), len(e.fake_p.calls)
-    again = search.search_magazine(e.session, src, linux(e), TODAY, now=NOW)
-    assert again.from_cache and (len(fake_n.calls), len(e.fake_p.calls)) == before
+    search.search_magazine(e.session, src, linux(e), TODAY, now=NOW)
+    assert len(fake_n.calls) > before[0] and len(e.fake_p.calls) > before[1]  # live again
 
 
 def test_one_entry_rate_limited_others_still_search(env, fake_n):
@@ -275,12 +275,12 @@ def test_automatic_and_interactive_search_switches(env, fake_n):
         e.session, sources(e, fake_n), linux(e), TODAY, now=NOW, mode="interactive"
     )
     assert L311_ALT in {r.title for r, _ in found.candidates}
-    # The cache is per entry: the automatic search now uses what interactive found.
+    # With automatic search back on, the entry is asked again, live.
     nz.enable_automatic_search, nz.enable_interactive_search = True, False
     e.session.flush()
     calls = len(fake_n.calls)
     again = search.search_magazine(e.session, sources(e, fake_n), linux(e), TODAY, now=NOW)
-    assert len(fake_n.calls) == calls and L311_ALT in {r.title for r, _ in again.candidates}
+    assert len(fake_n.calls) > calls and L311_ALT in {r.title for r, _ in again.candidates}
 
 
 def test_an_entry_with_every_switch_off_is_never_built(env, fake_n):

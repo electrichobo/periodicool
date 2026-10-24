@@ -4,6 +4,21 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- An activity readout under the menu, at the top middle:
+  - it shows what PeriodiCool is doing as it happens: which indexer is being asked and for what, releases being processed, RSS sync, scheduled tasks;
+  - a button shows its line the moment it is pressed;
+  - finished tasks stay a few seconds, green or red.
+
+### Changed
+
+- Searches always ask the indexers live; the "keep search results for" setting and "From cache" are gone.
+- A search now also asks once per wanted year ("Linux Magazine 2023"), and for one issue by its year and number, so back issues are found instead of only the newest releases.
+- Interactive search opens its window at once and fills it when the results arrive. Every pop-up opens at once with a loading panel.
+- Search missing and Search monitored no longer ask for confirmation.
+- The README no longer describes PeriodiCool by comparison with other apps.
+
 ## [0.2.0] - 2026-10-23
 
 ### Added

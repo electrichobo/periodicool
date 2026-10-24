@@ -292,7 +292,7 @@ def test_rate_limit_backs_off_per_indexer_entry(session, client, fake):
 # Magazine search
 
 
-def test_search_covers_many_issues_and_uses_cache(session, client, fake):
+def test_search_is_live_and_asks_per_wanted_year(session, client, fake):
     linux = mag(session, "Linux Magazine")
     fake.search_results = [
         release_json("Linux Magazine USA - Issue 311, October 2026", indexer_id=1),
@@ -300,14 +300,34 @@ def test_search_covers_many_issues_and_uses_cache(session, client, fake):
         release_json("Linux Magazine #03 (2026)", indexer_id=2),
     ]
     r = search.search_magazine(session, client, linux, TODAY, now=NOW)
-    assert not r.from_cache and len(r.candidates) == 3 and r.new_accepted == 1
-    sent = fake.paths("/api/v1/search")[0]["query"]
-    assert sent["query"] == ["Linux Magazine"] and sent["indexerIds"] == ["1", "2"]
+    assert len(r.candidates) == 3 and r.new_accepted == 1
+    sent = fake.paths("/api/v1/search")
+    assert sent[0]["query"]["query"] == ["Linux Magazine"]
+    assert sent[0]["query"]["indexerIds"] == ["1", "2"]
+    # A title alone only brings back the newest releases: each wanted year is asked too.
+    years = sorted({i.year for i in search.wanted_issues(session, linux, TODAY)}, reverse=True)
+    expected = ["Linux Magazine"] + [
+        f"Linux Magazine {y}" for y in years[: search.MAX_YEAR_QUERIES]
+    ]
+    assert [c["query"]["query"][0] for c in sent] == expected
+    # Never served from an earlier search: asking again asks the indexers again.
+    search.search_magazine(session, client, linux, TODAY, now=NOW + timedelta(minutes=1))
+    assert len(fake.paths("/api/v1/search")) == 2 * len(expected)
 
-    again = search.search_magazine(session, client, linux, TODAY, now=NOW + timedelta(hours=1))
-    assert again.from_cache and len(fake.paths("/api/v1/search")) == 1
-    search.search_magazine(session, client, linux, TODAY, force=True, now=NOW)
-    assert len(fake.paths("/api/v1/search")) == 2
+
+def test_one_issue_is_asked_by_year_and_number(session, client, fake):
+    from periodicool.models import Issue
+
+    linux = mag(session, "Linux Magazine")
+    issue = Issue(magazine_id=linux.id, key="n299", year=2025, month=10, issue_number=299)
+    session.add(issue)
+    session.flush()
+    queries = search.search_queries(session, linux, TODAY, [issue.key])
+    assert queries == [
+        "Linux Magazine",
+        f"Linux Magazine {issue.year}",
+        f"Linux Magazine {issue.issue_number}",
+    ]
 
 
 def test_search_term_and_aliases(session, client, fake):
@@ -359,7 +379,8 @@ def test_wanted_search_is_bounded_and_never_repeats(session, client, fake):
     results = search.wanted_search(session, client, TODAY, max_magazines=3, now=NOW)
     assert len(results) == 3
     searched = [c["query"]["query"][0] for c in fake.paths("/api/v1/search")]
-    assert len(searched) == len(set(searched)) == 3
+    assert len(searched) == len(set(searched))  # no query asked twice
+    assert len({r.magazine.id for r in results}) == 3
     # The same magazines are not due again until their backoff passes.
     more = search.wanted_search(session, client, TODAY, max_magazines=20, now=NOW)
     titles = {r.magazine.title for r in results} & {r.magazine.title for r in more}

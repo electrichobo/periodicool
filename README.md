@@ -2,7 +2,7 @@
 
 # PeriodiCool
 
-Self-hosted manager for magazines, in the style of Sonarr. A magazine is the series and an issue is the episode: PeriodiCool tracks titles, works out which issues should exist, finds releases through your indexers, sends them to your download client, and keeps your library organized.
+Self-hosted manager for magazines. PeriodiCool tracks titles, works out which issues should exist, finds releases through your indexers, sends them to your download client, and keeps your library organized.
 
 > **Status:** young but working (v0.2.0): the web UI, the background jobs, the REST API and the Docker image are all in place. It runs on the maintainer's Unraid server with Prowlarr and SABnzbd; the other download clients follow their documented APIs and are waiting for real-world reports. See [CHANGELOG.md](CHANGELOG.md).
 
@@ -39,8 +39,8 @@ Already have magazines on disk? Run the library scan first: it shows a preview o
 - Calendar view and an iCal feed of upcoming issues.
 
 **Finding releases**
-- Prowlarr, Newznab and Torznab indexers, as a list like Sonarr's, with Sonarr's per-indexer fields and presets.
-- RSS first; searches are rate-limited, cached and back off on their own. Daily API and grab limits are respected.
+- Prowlarr, Newznab and Torznab indexers, as a list, each with its own fields, plus presets for well-known usenet indexers.
+- RSS first; searches always ask the indexers live, once per wanted year, are rate-limited and back off on their own. Daily API and grab limits are respected.
 - Interactive search lists every candidate with the reason it was accepted or rejected.
 - A release-name parser built for magazines: month names, seasons, issue and volume numbers, specials, regional editions, True PDF versus scans, multi-issue packs.
 - Format profiles (PDF, EPUB, CBZ, CBR), size and age limits, must-contain and must-not-contain words, a blocklist.
@@ -62,7 +62,7 @@ Already have magazines on disk? Run the library scan first: it shows a preview o
 - Web UI in a cassette-futurism look, with light and dark themes and keyboard navigation.
 - Login (or local-network only), CSRF protection, write-only secrets that never reach the logs.
 - Health and status page, task list, live log, backups and restore.
-- REST API in Sonarr's style, and webhook notifications for grabs, imports, failures and health.
+- A REST API, and webhook notifications for grabs, imports, failures and health.
 - Opt-in metadata lookups (Library of Congress, Wikidata, Internet Archive), all off by default.
 - Docker image for amd64 and arm64 that never runs as root, and an Unraid template.
 
@@ -95,17 +95,17 @@ The image is `ghcr.io/electrichobo/periodicool` (amd64 and arm64). See [examples
 
 ### Indexers
 
-Indexers are a list, as in Sonarr and Radarr: add, test, order and switch them on or off under Settings, Indexers. An entry is either a Prowlarr, which searches every indexer you set up in it, or a single Newznab or Torznab indexer added directly with its own daily limits. A rate-limited indexer backs off on its own while the others carry on.
+Indexers are a list: add, test, order and switch them on or off under Settings, Indexers. An entry is either a Prowlarr, which searches every indexer you set up in it, or a single Newznab or Torznab indexer added directly with its own daily limits. A rate-limited indexer backs off on its own while the others carry on.
 
 - Enable RSS, Enable Automatic Search and Enable Interactive Search are separate switches. Automatic means scheduled, Wanted and Search-button searches. Interactive means the interactive search and the Add magazine search.
 - Load categories reads the categories the indexer reports and ticks Magazines (7010).
 - Show advanced reveals the API path, additional parameters, daily limits and the torrent options.
 - An indexer can name its own download client; its releases then go only there.
-- Add lists Sonarr's usenet indexer presets. A preset only fills in the address; you add your own key, and nothing is contacted until you test or save.
+- Add lists presets for well-known usenet indexers. A preset only fills in the address; you add your own key, and nothing is contacted until you test or save.
 
 ### Download clients
 
-Settings, Download clients, Add lists the supported clients under Usenet (SABnzbd, NZBGet, Usenet Blackhole) and Torrents (qBittorrent, Transmission, Deluge, rTorrent, Torrent Blackhole). Each form has that client's own fields, as in Sonarr: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused, and where the client has them, a directory, a post-import category and remove completed (our finished usenet job leaves the client's history; files are never touched).
+Settings, Download clients, Add lists the supported clients under Usenet (SABnzbd, NZBGet, Usenet Blackhole) and Torrents (qBittorrent, Transmission, Deluge, rTorrent, Torrent Blackhole). Each form has that client's own fields: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused, and where the client has them, a directory, a post-import category and remove completed (our finished usenet job leaves the client's history; files are never touched).
 
 - Transmission and rTorrent have no categories: PeriodiCool marks its torrents with a label instead (rTorrent's label is `d.custom1`, which ruTorrent shows).
 - Deluge needs its Label plugin turned on, and the label created in Deluge.
@@ -138,7 +138,7 @@ python -m periodicool user reset-password
 
 ### API and webhooks
 
-An API key is generated on first start; Settings, General shows it. The REST API under `/api/v1` (Sonarr's style: `X-Api-Key`, camelCase JSON, commands) and the calendar feed use it. Settings, Connect posts events (grab, import, failures, health and more) as JSON to an address you choose. Both are described in [docs/api.md](docs/api.md).
+An API key is generated on first start; Settings, General shows it. The REST API under `/api/v1` (`X-Api-Key`, JSON, commands) and the calendar feed use it. Settings, Connect posts events (grab, import, failures, health and more) as JSON to an address you choose. Both are described in [docs/api.md](docs/api.md).
 
 ### Metadata lookups (off by default)
 

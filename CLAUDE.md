@@ -42,7 +42,7 @@ The download client and library usually serve other apps and already hold conten
 
 - **Download client:** only add jobs in PeriodiCool's own category. Only read, change or remove jobs PeriodiCool created (tracked by job ID). Never touch other categories, other jobs, or global client settings.
 - **Files:** never delete library files. Organizing means moving and renaming only. Never overwrite: on a name collision, keep both and send the newcomer to the review queue. Log every move. Provide a dry-run preview.
-- **Indexer limits:** usenet indexers cap daily API hits and grabs. Discover via RSS first; rate-limit searches with backoff; cache results; never loop. Show remaining limits if Prowlarr exposes them.
+- **Indexer limits:** usenet indexers cap daily API hits and grabs. Discover via RSS first; rate-limit searches with backoff; never loop. Searches are always live (no result cache; maintainer's call 2026-10-23), so keep the number of queries per search small. Show remaining limits if Prowlarr exposes them.
 - **Permissions:** never run as root in the container. Honor `PUID`/`PGID` (default 99/100 for Unraid) and `UMASK` (default 002).
 
 ## Library organization

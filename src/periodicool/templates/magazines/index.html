@@ -17,9 +17,9 @@
 <div class="toolbar">
   <div class="toolbar__group">
     <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/refresh-all" hx-swap="none">&#8635; Update all</button>
-    <button class="btn btn--chassis btn--small" type="button" hx-post="/tasks/rss" hx-swap="none">RSS sync</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-post="/tasks/rss" hx-swap="none" data-activity="RSS sync">RSS sync</button>
     <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/search-missing" hx-swap="none"
-            hx-confirm="Search for missing issues now? This uses indexer API hits (five magazines at most, oldest first).">Search missing</button>
+            data-activity="Searching for missing issues">Search missing</button>
     <a class="btn btn--chassis btn--small" href="/magazines/editor">Mass editor</a>
     <a class="btn btn--small" href="/import">Manual import</a>
     <button class="btn btn--small" type="button" hx-post="/library/scan" hx-swap="none"

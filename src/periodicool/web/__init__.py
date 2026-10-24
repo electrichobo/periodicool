@@ -158,3 +158,21 @@ def ui_kit_modal(request: Request) -> HTMLResponse:
 def ui_kit_toast() -> HTMLResponse:
     trigger = {"toast": {"kind": "ok", "text": "Settings saved."}}
     return HTMLResponse("", headers={"HX-Trigger": json.dumps(trigger)})
+
+
+@router.get("/readout", include_in_schema=False)
+def readout() -> dict:
+    """What is running now and what just finished, for the readout under the nav."""
+    import time
+
+    from periodicool import activity_feed
+
+    now = time.monotonic()
+    running, recent = activity_feed.snapshot()
+    return {
+        "running": [
+            {"id": t.id, "title": t.title, "line": t.line, "seconds": int(now - t.started)}
+            for t in running
+        ],
+        "recent": [{"id": t.id, "title": t.title, "line": t.line, "ok": t.ok} for t in recent],
+    }

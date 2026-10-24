@@ -271,7 +271,9 @@ def automatic_search(
     from periodicool.search import search_magazine
 
     out = AutoSearch()
-    result = search_magazine(session, prowlarr, mag, today)
+    result = search_magazine(
+        session, prowlarr, mag, today, issue_keys=[issue_key] if issue_key else None
+    )
     out.found = sum(1 for _, ev in result.candidates if ev.accepted)
     if client is None:
         out.problems.append("no download client is set up, so nothing was sent")

@@ -61,7 +61,16 @@
   function modal() { return document.getElementById("modal"); }
   document.addEventListener("htmx:beforeRequest", function (event) {
     var target = event.detail.target;
-    if (target && target.id === "modal-body") lastTrigger = event.detail.elt;
+    if (!target || target.id !== "modal-body") return;
+    lastTrigger = event.detail.elt;
+    // Open the pop-up at once with a placeholder, so there is feedback before the
+    // server answers. A pop-up that is already open (a form saving) is left alone.
+    var dlg = modal();
+    if (dlg && !dlg.open) {
+      target.innerHTML = '<div class="panel modal__panel modal-loading" role="status">' +
+        '<span class="led led--info">Loading</span></div>';
+      dlg.showModal();
+    }
   });
   document.addEventListener("htmx:afterSwap", function (event) {
     if (event.detail.target && event.detail.target.id === "modal-body") {
@@ -415,5 +424,89 @@
       toast(el.getAttribute("data-toast-kind"), el.getAttribute("data-toast"));
     });
     init(document);
+  });
+
+  // ---- Activity readout (under the nav) ----
+  // Polls /readout: fast while something runs, slowly when idle. A button with
+  // data-activity shows its own line at once, before the server has started.
+  var readoutBox = null, pending = {}, pendingIds = 0, pollTimer = null, lastJson = "";
+  function urlBase() {
+    var meta = document.querySelector('meta[name="url-base"]');
+    return meta ? meta.content : "";
+  }
+  function placeReadout() {
+    var header = document.querySelector(".deck-bar");
+    if (!readoutBox || !header) return;
+    var bottom = header.getBoundingClientRect().bottom;
+    readoutBox.style.top = Math.max(bottom + 6, 8) + "px";
+  }
+  function item(kind, title, line) {
+    var el = document.createElement("div");
+    el.className = "readout__item readout__item--" + kind;
+    var mark = document.createElement("span");
+    mark.className = "readout__mark";
+    mark.setAttribute("aria-hidden", "true");
+    var t = document.createElement("span");
+    t.className = "readout__title";
+    t.textContent = (kind === "failed" ? "Failed: " : kind === "done" ? "Done: " : "") + title;
+    var l = document.createElement("span");
+    l.className = "readout__line";
+    l.textContent = line || "";
+    el.appendChild(mark);
+    el.appendChild(t);
+    el.appendChild(l);
+    return el;
+  }
+  function renderReadout(data) {
+    if (!readoutBox) return;
+    var items = [];
+    Object.keys(pending).forEach(function (k) {
+      items.push(item("running", pending[k], "Starting\u2026"));
+    });
+    (data.running || []).forEach(function (t) {
+      items.push(item("running", t.title, t.line || "Working\u2026"));
+    });
+    (data.recent || []).forEach(function (t) {
+      items.push(item(t.ok ? "done" : "failed", t.title, t.line));
+    });
+    readoutBox.replaceChildren.apply(readoutBox, items);
+    readoutBox.hidden = items.length === 0;
+    placeReadout();
+  }
+  function poll() {
+    clearTimeout(pollTimer);
+    fetch(urlBase() + "/readout", { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) { schedule(30000); return; }
+        if ((data.running || []).length) pending = {}; // the server has taken over
+        var json = JSON.stringify(data) + Object.keys(pending).join();
+        if (json !== lastJson) { lastJson = json; renderReadout(data); }
+        var busy = (data.running || []).length || Object.keys(pending).length;
+        schedule(busy ? 700 : document.hidden ? 15000 : 4000);
+      })
+      .catch(function () { schedule(15000); });
+  }
+  function schedule(ms) { pollTimer = setTimeout(poll, ms); }
+  document.addEventListener("htmx:beforeRequest", function (event) {
+    var elt = event.detail.elt;
+    var label = elt && elt.getAttribute && elt.getAttribute("data-activity");
+    if (!label || !readoutBox) return;
+    var id = "p" + (++pendingIds);
+    pending[id] = label;
+    elt.setAttribute("data-activity-id", id);
+    renderReadout({});
+    setTimeout(poll, 250);
+  });
+  document.addEventListener("htmx:afterRequest", function (event) {
+    var id = event.detail.elt && event.detail.elt.getAttribute && event.detail.elt.getAttribute("data-activity-id");
+    if (id) { delete pending[id]; setTimeout(poll, 50); }
+  });
+  document.addEventListener("DOMContentLoaded", function () {
+    readoutBox = document.getElementById("readout");
+    if (!readoutBox) return;
+    window.addEventListener("scroll", placeReadout, { passive: true });
+    window.addEventListener("resize", placeReadout);
+    poll();
   });
 })();

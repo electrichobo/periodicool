@@ -89,6 +89,15 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.2.0 tagged 2026-10-23** (REST API, docs, Unraid template, app icon); maintainer confirmed it on the server 2026-10-23.
 
+- **Feedback round, 2026-10-23 (maintainer: no pop-up for interactive search, searches not hitting indexers, no live feedback, no "from cache"):**
+  - **Live searches:** the search cache is gone, so every search is live. `search.search_queries` adds one query per wanted year (newest first, `MAX_YEAR_QUERIES` = 4); for a single issue it adds the year and the issue number. `automatic_search` passes `issue_keys`. The `search.cache_hours` setting is removed; the `search_cache` table stays unused (no migration). API limits, backoff and the daily cap still apply.
+    - **Inferred cause of "expected from the schedule":** the title-only query returned just the newest ~100 releases, and the 6-hour cache hid repeat clicks.
+  - **Interactive search:** `/magazines/{id}/interactive` returns a loading shell at once, which loads `/interactive/results`. app.js opens any `#modal-body` pop-up immediately with a loading panel.
+  - **Readout:** `activity_feed.py` keeps in-memory tasks per thread. `task()` and `say()` are called from `search_magazine`, `rss_sync`, the web search routes and `Scheduler._run` (the downloads and health jobs stay quiet). It is served at `GET /readout` (JSON) and drawn by app.js under the header, polling every 0.7 s while busy and every 4 s when idle. Buttons with `data-activity` show "Starting…" at once.
+  - **Confirms:** removed from Search missing (both pages) and Search monitored.
+  - **README:** no Sonarr or Radarr comparisons.
+  - **Checks:** browser-checked on the dev server (pop-up at once, readout steps, a failure shown red, Search missing with no confirm). 1554 tests pass.
+
 ## Next
 
 - **App icon, 2026-10-23:**

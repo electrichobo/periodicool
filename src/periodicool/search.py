@@ -30,7 +30,6 @@ from periodicool.models import (
     Magazine,
     Release,
     ReleaseSource,
-    SearchCache,
     SearchState,
 )
 from periodicool.prowlarr import (
@@ -46,7 +45,6 @@ log = logging.getLogger(__name__)
 
 API_KEY_ENV = "PROWLARR_API_KEY"
 CATEGORIES_KEY = "search.categories"
-CACHE_HOURS_KEY = "search.cache_hours"
 DAILY_CAP_KEY = "search.daily_cap"
 MIN_INTERVAL_KEY = "search.min_interval_s"
 
@@ -366,10 +364,13 @@ def rss_sync(session: Session, source, today: date, now: datetime | None = None)
     magazines = list(session.scalars(select(Magazine)))
     options = load_options(session)
     cats = _categories(session)
+    from periodicool import activity_feed
+
     for client in _clients(source, "rss"):
         if why := _backoff_reason(client, now):
             result.skipped[_name(client)] = why
             continue
+        activity_feed.say(f"{_name(client)}: reading the RSS feed")
         try:
             usable, skipped = _usable(session, client, now)
         except RateLimited:
@@ -439,6 +440,34 @@ def _searches_today(session: Session, now: datetime) -> int:
     )
 
 
+MAX_YEAR_QUERIES = 4  # extra queries per search, one per wanted year, newest first
+
+
+def search_queries(
+    session: Session, mag: Magazine, today: date, issue_keys: list[str] | None = None
+) -> list[str]:
+    """What to ask the indexers. A title alone only brings back the newest releases, so
+    each wanted year gets its own query ("Linux Magazine 2023"); a numbered issue asked
+    for by itself also gets "Linux Magazine 311"."""
+    terms = list(dict.fromkeys([mag.search_term or default_search_term(mag), *(mag.aliases or [])]))
+    if issue_keys:
+        issues = list(
+            session.scalars(
+                select(Issue).where(Issue.magazine_id == mag.id, Issue.key.in_(issue_keys))
+            )
+        )
+    else:
+        issues = wanted_issues(session, mag, today)
+    years = sorted({i.year for i in issues if i.year}, reverse=True)[:MAX_YEAR_QUERIES]
+    numbers = [i.issue_number for i in issues if i.issue_number] if issue_keys else []
+    queries = []
+    for term in terms:
+        queries.append(term)
+        queries += [f"{term} {year}" for year in years]
+        queries += [f"{term} {number}" for number in numbers[:MAX_YEAR_QUERIES]]
+    return list(dict.fromkeys(queries))
+
+
 def search_magazine(
     session: Session,
     source,
@@ -449,18 +478,22 @@ def search_magazine(
     scheduled: bool = False,
     now: datetime | None = None,
     mode: str = "automatic",
+    issue_keys: list[str] | None = None,
+    queries: list[str] | None = None,
 ) -> SearchResult:
-    """Search one magazine on every enabled indexer entry with `mode` (automatic or
-    interactive search) switched on. One search covers all of its issues; the cache is
-    per entry, so both modes share it. Raises Unavailable when no entry could search
-    and nothing was cached."""
+    """Search one magazine live on every enabled indexer entry with `mode` (automatic or
+    interactive search) switched on: the title, plus one query per wanted year (or for
+    the asked-for issues). Results are never served from an old search; the indexer
+    limits, backoff and daily cap still apply. Raises Unavailable when no entry could
+    search. `force` is accepted for older callers and changes nothing."""
+    from periodicool import activity_feed
+
     now = now or _now()
     result = SearchResult(magazine=mag)
     magazines = list(session.scalars(select(Magazine)))
     options = load_options(session)
     cats = _categories(session)
-    terms = list(dict.fromkeys([mag.search_term or default_search_term(mag), *(mag.aliases or [])]))
-    cache_age = timedelta(hours=get_setting(session, CACHE_HOURS_KEY, 6))
+    queries = queries or search_queries(session, mag, today, issue_keys)
     clients = _clients(source, mode)
     if not clients:
         if _clients(source):
@@ -475,32 +508,8 @@ def search_magazine(
             seen_ids.add(rel.id)
             result.candidates.append((rel, ev))
 
-    for term in terms:
+    for query in queries:
         for client in clients:
-            qkey = f"{client.source_id or 0}|{term.lower()}|{','.join(map(str, cats))}"
-            cache = session.scalars(
-                select(SearchCache).where(SearchCache.query_key == qkey)
-            ).one_or_none()
-            if cache and not force and _aware(cache.fetched_at) > now - cache_age:
-                result.from_cache = answered = True
-                for rel in session.scalars(select(Release).where(Release.guid.in_(cache.guids))):
-                    ev = _evaluate(
-                        session,
-                        rel.title,
-                        rel.size,
-                        rel.protocol,
-                        rel.publish_date,
-                        magazines,
-                        today,
-                        options,
-                        rel.guid,
-                        rel.seeders,
-                        min_seeders(client),
-                    )
-                    _apply_evaluation(rel, ev)
-                    session.flush()
-                    add(rel, ev)
-                continue
             if why := _backoff_reason(client, now):
                 result.skipped[_name(client)] = why
                 problems.append(why)
@@ -508,6 +517,7 @@ def search_magazine(
             cap = get_setting(session, DAILY_CAP_KEY)
             if cap is not None and _searches_today(session, now) >= cap:
                 raise Unavailable(f"daily search cap of {cap} reached")
+            activity_feed.say(f"{_name(client)}: searching \u201c{query}\u201d")
             try:
                 usable, skipped = _usable(session, client, now)
                 result.skipped.update(skipped)
@@ -521,7 +531,7 @@ def search_magazine(
                         )
                     )
                     continue
-                found = client.search(term, cats, [u.id for u in usable])
+                found = client.search(query, cats, [u.id for u in usable])
             except RateLimited:
                 _rate_limited(session, now, client)
                 problems.append(f"{_name(client)}: rate limited")
@@ -531,8 +541,9 @@ def search_magazine(
                 continue
             _clear_backoff(session, client)
             answered = True
-            guids = []
-            for f in found:
+            for i, f in enumerate(found, 1):
+                if i == 1 or i % 10 == 0 or i == len(found):
+                    activity_feed.say(f"Processing release {i}/{len(found)}")
                 ev = _evaluate(
                     session,
                     f.title,
@@ -548,19 +559,18 @@ def search_magazine(
                 )
                 rel, new = _upsert(session, f, ReleaseSource.SEARCH, ev, now, client.source_id)
                 session.flush()
-                guids.append(f.guid)
                 add(rel, ev)
                 if new and rel.accepted:
                     result.new_accepted += 1
-            if cache is None:
-                cache = SearchCache(query_key=qkey)
-                session.add(cache)
-            cache.fetched_at, cache.guids = now, list(dict.fromkeys(guids))
 
     if not answered:
         raise Unavailable("; ".join(dict.fromkeys(problems)) or "no indexer could search")
     for problem in problems:
         log.info("Search for %s: %s", mag.title, problem)
+    accepted = sum(1 for r, _ in result.candidates if r.accepted)
+    activity_feed.say(
+        f"Search for {mag.title} done: {len(result.candidates)} releases, {accepted} accepted"
+    )
     if scheduled:
         _update_backoff(session, mag, now, result)
     session.flush()
@@ -581,7 +591,6 @@ def _update_backoff(session: Session, mag: Magazine, now: datetime, result: Sear
     accepted = sum(1 for r, _ in result.candidates if r.accepted)
     state.last_result = (
         f"{len(result.candidates)} candidates, {accepted} accepted, {result.new_accepted} new"
-        + (" (cache)" if result.from_cache else "")
     )
 
 

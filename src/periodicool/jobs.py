@@ -53,6 +53,7 @@ LABELS = {
     "metadata": "Metadata lookups",
     "health": "Health check",
 }
+QUIET_JOBS = {"downloads", "health"}
 # One lock for every scheduler instance, so "Run now" never overlaps a scheduled run.
 RUN_LOCK = threading.Lock()
 TICK_SECONDS = 30
@@ -247,10 +248,19 @@ class Scheduler:
         return ran
 
     def _run(self, session: Session, name: str, runner, now: datetime) -> str:
+        from periodicool import activity_feed
+
         job = self._job(session, name)
         job.last_started_at = now
+        # Frequent quiet jobs stay out of the readout; the rest show while they run.
+        shown = name not in QUIET_JOBS
         try:
-            result = runner(session, self.settings, now)
+            if shown:
+                with activity_feed.task(LABELS.get(name, name)) as item:
+                    result = runner(session, self.settings, now)
+                    item.line = f"Done: {result}"
+            else:
+                result = runner(session, self.settings, now)
             session.commit()
         except Exception as exc:  # a failing job must not stop the others
             session.rollback()

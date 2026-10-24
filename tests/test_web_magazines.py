@@ -250,7 +250,7 @@ def test_scan_without_folder(client, mags):
 
 
 def test_search_without_prowlarr(client, mags):
-    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive").text
+    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive/results").text
     assert "No indexer is set up yet" in page
     assert toast(client.post(f"/magazines/{mags['Linux Magazine']}/search"))["kind"] == "warn"
     assert toast(client.post("/tasks/rss"))["kind"] == "warn"
@@ -277,7 +277,7 @@ def test_interactive_search_lists_reasons_and_grabs(client, mags, fakes):
         release_json(L311),
         release_json("People.Australia.TruePDF-08.April.2019", guid="g2"),
     ]
-    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive").text
+    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive/results").text
     assert L311 in page and "People.Australia" in page
     assert "Accept" in page and "Reject" in page and "Grab" in page
     with session(client) as s:
@@ -289,7 +289,7 @@ def test_interactive_search_lists_reasons_and_grabs(client, mags, fakes):
     with session(client) as s:
         assert s.scalars(select(History)).one().source_title == L311
     # Filtered to one issue: the other release is left out.
-    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive?issue=n311").text
+    page = client.get(f"/magazines/{mags['Linux Magazine']}/interactive/results?issue=n311").text
     assert L311 in page and "People.Australia" not in page
 
 
@@ -329,3 +329,41 @@ def test_mass_editor_changes_and_deletes(client, settings, mags):
     client.post("/magazines/editor", data={"ids": [str(ids[1])], "action": "delete"})
     with session(client) as s:
         assert s.get(Magazine, ids[1]) is None and s.get(Magazine, ids[0]) is not None
+
+
+def test_interactive_search_opens_at_once_then_loads_live(client, mags):
+    mag_id = mags["Linux Magazine"]
+    shell = client.get(f"/magazines/{mag_id}/interactive?issue=n311").text
+    assert "Asking the indexers" in shell
+    assert f'hx-get="/magazines/{mag_id}/interactive/results?issue=n311"' in shell
+    assert 'hx-trigger="load"' in shell
+
+
+def test_readout_lists_running_and_finished_tasks(client):
+    from periodicool import activity_feed
+
+    activity_feed.reset()
+    assert client.get("/readout").json() == {"running": [], "recent": []}
+    with activity_feed.task("Search: Wired"):
+        activity_feed.say("NZBgeek: searching")
+        now = client.get("/readout").json()
+        assert now["running"][0]["title"] == "Search: Wired"
+        assert now["running"][0]["line"] == "NZBgeek: searching"
+    done = client.get("/readout").json()
+    assert done["running"] == [] and done["recent"][0]["ok"] is True
+    try:
+        with activity_feed.task("RSS sync"):
+            raise RuntimeError("indexer down")
+    except RuntimeError:
+        pass
+    assert client.get("/readout").json()["recent"][-1]["line"] == "Failed: indexer down"
+    activity_feed.reset()
+
+
+def test_search_buttons_have_no_confirm(client, mags):
+    page = client.get("/").text
+    button = page[page.index('hx-post="/magazines/search-missing"') :][:300]
+    assert "hx-confirm" not in button and "data-activity" in button
+    detail = client.get(f"/magazines/{mags['Linux Magazine']}").text
+    button = detail[detail.index("Search monitored") - 300 :][:300]
+    assert "hx-confirm" not in button

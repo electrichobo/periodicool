@@ -60,7 +60,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
         "search__categories": "7010, 7020",
         "jobs__rss__interval_s": "30",
         "jobs__wanted__interval_s": "12",
-        "search__cache_hours": "6",
         "search__min_interval_s": "2.5",
         "search__daily_cap": "",
         "search__early_days": "45",
@@ -85,7 +84,6 @@ def test_save_indexers_converts_units_and_updates_jobs(client):
     ("field", "value", "message"),
     [
         ("search__categories", "magazines", "Numbers separated"),
-        ("search__cache_hours", "500", "At most 168"),
         ("jobs__rss__interval_s", "1", "At least 5"),
         ("search__early_days", "soon", "whole number"),
     ],
@@ -95,7 +93,6 @@ def test_bad_input_saves_nothing(client, field, value, message):
         "search__categories": "7010",
         "jobs__rss__interval_s": "15",
         "jobs__wanted__interval_s": "6",
-        "search__cache_hours": "6",
         "search__min_interval_s": "2",
         "search__early_days": "45",
         "release__min_size_mb": "1",

@@ -9,7 +9,7 @@
   <div class="toolbar">
     <div class="toolbar__group">
       <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/search-missing" hx-swap="none"
-              hx-confirm="Search for missing issues now? This uses indexer API hits (five magazines at most, oldest first).">Search all missing</button>
+              data-activity="Searching for missing issues">Search all missing</button>
       <span class="spinner" aria-hidden="true"></span>
     </div>
     <p class="on-chassis-muted toolbar__note">{{ result.total }} monitored issues without a file. Issues past their grace window show as missing.</p>

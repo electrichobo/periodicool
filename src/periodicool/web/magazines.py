@@ -157,8 +157,11 @@ def rss_now(request: Request) -> Response:
         client = prowlarr_client(request, session)
         if client is None:
             return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
+        from periodicool import activity_feed
+
         try:
-            result = search.rss_sync(session, client, _today(request))
+            with activity_feed.task("RSS sync"):
+                result = search.rss_sync(session, client, _today(request))
         except ProwlarrError as exc:
             return _toast(f"RSS sync failed: {exc}", "bad")
         session.commit()
@@ -171,9 +174,13 @@ def search_missing(request: Request) -> Response:
         client = prowlarr_client(request, session)
         if client is None:
             return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
-        results = search.wanted_search(session, client, _today(request))
+        from periodicool import activity_feed
+
+        with activity_feed.task("Search for missing issues") as item:
+            results = search.wanted_search(session, client, _today(request))
+            found = sum(r.new_accepted for r in results)
+            item.line = f"{len(results)} magazines searched, {found} new matches"
         session.commit()
-    found = sum(r.new_accepted for r in results)
     return _toast(
         f"Searched {len(results)} magazines (oldest first, five at most); {found} new matches."
     )
@@ -520,10 +527,14 @@ async def auto_search(request: Request, mag_id: int) -> Response:
         client = prowlarr_client(request, session)
         if client is None:
             return _toast("No indexer is set up yet (Settings, Indexers).", "warn")
+        from periodicool import activity_feed
+
         try:
-            result = magazines.automatic_search(
-                session, mag, _today(request), client, sab_client(request, session), key
-            )
+            with activity_feed.task(f"Search: {mag.title}" + (f" {key}" if key else "")) as item:
+                result = magazines.automatic_search(
+                    session, mag, _today(request), client, sab_client(request, session), key
+                )
+                item.line = f"{result.found} accepted, {len(result.grabbed)} grabbed"
         except (ProwlarrError, RateLimited) as exc:
             session.rollback()
             return _toast(f"Search stopped: {exc}", "bad")
@@ -553,22 +564,41 @@ def _age(published: datetime | None, now: datetime) -> str:
 
 
 @router.get("/magazines/{mag_id:int}/interactive", response_class=HTMLResponse)
-def interactive(request: Request, mag_id: int, issue: str = "", force: bool = False):
+def interactive(request: Request, mag_id: int, issue: str = ""):
+    """The pop-up opens at once with a searching panel, which then loads the results."""
+    with request.app.state.sessions() as session:
+        mag = _magazine(session, mag_id)
+        return _render(request, "magazines/_interactive_loading.html", mag=mag, issue=issue)
+
+
+@router.get("/magazines/{mag_id:int}/interactive/results", response_class=HTMLResponse)
+def interactive_results(request: Request, mag_id: int, issue: str = ""):
     from datetime import UTC
+
+    from periodicool import activity_feed
 
     with request.app.state.sessions() as session:
         mag = _magazine(session, mag_id)
         client = prowlarr_client(request, session)
-        error, rows, from_cache, skipped = None, [], False, {}
+        error, rows, skipped, queries = None, [], {}, []
         if client is None:
             error = NO_PROWLARR
         else:
             try:
-                result = search.search_magazine(
-                    session, client, mag, _today(request), force=force, mode="interactive"
+                queries = search.search_queries(
+                    session, mag, _today(request), [issue] if issue else None
                 )
+                with activity_feed.task(f"Interactive search: {mag.title}"):
+                    result = search.search_magazine(
+                        session,
+                        client,
+                        mag,
+                        _today(request),
+                        mode="interactive",
+                        queries=queries,
+                    )
                 session.commit()
-                from_cache, skipped = result.from_cache, result.skipped
+                skipped = result.skipped
                 now = datetime.now(UTC)
                 for rel, ev in result.candidates:
                     if issue and ev.issue_key != issue:
@@ -594,8 +624,8 @@ def interactive(request: Request, mag_id: int, issue: str = "", force: bool = Fa
             rows=rows,
             issue=issue,
             error=error,
-            from_cache=from_cache,
             skipped=skipped,
+            queries=queries,
         )
 
 

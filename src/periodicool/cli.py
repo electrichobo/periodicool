@@ -298,8 +298,7 @@ def cmd_search(session, settings, args, out) -> int:
         print(f"search not run: {exc}", file=out)
         return 1
     accepted = sum(1 for _, ev in result.candidates if ev.accepted)
-    note = " (from cache; --force to search again)" if result.from_cache else ""
-    print(f"{mag.title}: {len(result.candidates)} candidates, {accepted} accepted{note}", file=out)
+    print(f"{mag.title}: {len(result.candidates)} candidates, {accepted} accepted", file=out)
     for name, why in result.skipped.items():
         print(f"  indexer {name} left out: {why}", file=out)
     _print_candidates(result, out)

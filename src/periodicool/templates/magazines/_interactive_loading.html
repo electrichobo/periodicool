@@ -1,0 +1,10 @@
+{# Shown at once when Interactive search is pressed; loads the live results itself. #}
+{% import "_macros.html" as ui %}
+<div class="panel modal__panel" hx-get="/magazines/{{ mag.id }}/interactive/results{% if issue %}?issue={{ issue | urlencode }}{% endif %}"
+     hx-trigger="load" hx-target="#modal-body">
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">Interactive search · {{ mag.title }}{% if issue %} · {{ issue }}{% endif %}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <p class="searching" role="status">{{ ui.led("info", "Searching") }} Asking the indexers for {{ mag.title }}{% if issue %} {{ issue }}{% endif %}. Live results appear here; the readout at the top shows each step.</p>
+</div>

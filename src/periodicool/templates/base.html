@@ -43,6 +43,9 @@
     {% endif %}
     {% endif %}
   </header>
+  {% if nav is not defined or nav %}
+  <div class="readout" id="readout" role="status" aria-live="polite" aria-label="Activity" hidden></div>
+  {% endif %}
   <main id="main" tabindex="-1">
     {% for kind, text in flashes | default([]) %}
     <div class="crt flash" role="status"><span class="led led--{{ kind }}">{{ kind }}</span> {{ text }}</div>

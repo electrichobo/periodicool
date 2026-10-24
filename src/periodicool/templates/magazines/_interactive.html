@@ -9,9 +9,10 @@
   {% else %}
   <div class="toolbar toolbar--light">
     <div class="toolbar__group">
-      {% if from_cache %}<span class="tag tag--yellow">From cache</span>{% else %}<span class="tag tag--blue">Fresh results</span>{% endif %}
-      <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive?force=true{% if issue %}&issue={{ issue | urlencode }}{% endif %}" hx-target="#modal-body"
-              hx-confirm="Search the indexers again now? This uses API hits.">Search again</button>
+      <span class="tag tag--blue">Live results</span>
+      {% if queries %}<span class="muted small">Asked: {{ queries | join(" · ") }}</span>{% endif %}
+      <button class="btn btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive/results{% if issue %}?issue={{ issue | urlencode }}{% endif %}" hx-target="#modal-body"
+              data-activity="Searching the indexers again">Search again</button>
       <span class="spinner" aria-hidden="true"></span>
     </div>
     <div class="toolbar__group">

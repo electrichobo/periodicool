@@ -118,16 +118,6 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 unit="hours",
             ),
             Field(
-                "search.cache_hours",
-                "Keep search results for",
-                "int",
-                6,
-                "Searches repeated within this time use the saved results, not API hits.",
-                min=0,
-                max=168,
-                unit="hours",
-            ),
-            Field(
                 "search.min_interval_s",
                 "Wait between requests to an indexer",
                 "float",

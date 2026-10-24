@@ -110,7 +110,8 @@ def test_search_pick_and_add(client, fakes, fake):  # noqa: F811
     assert "3 releases" in results and "Wikidata" in results and ISSN in results
     searches = [c for c in fake_p.calls if c["path"] == "/api/v1/search"]
     client.post("/magazines/add/search", data={"term": T2600})
-    assert [c for c in fake_p.calls if c["path"] == "/api/v1/search"] == searches  # cached
+    # Every search asks the indexers live; nothing is served from an earlier search.
+    assert len([c for c in fake_p.calls if c["path"] == "/api/v1/search"]) > len(searches)
     form = client.post(
         "/magazines/add/pick", data={"term": T2600, "key": "2600 hacker quarterly"}
     ).text

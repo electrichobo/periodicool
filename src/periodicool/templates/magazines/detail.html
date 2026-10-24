@@ -8,8 +8,8 @@
     <a class="btn btn--small" href="/">&larr; Back</a>
     <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/scan" hx-target="#modal-body">Scan &amp; rename</button>
     <button class="btn btn--chassis btn--small" type="button" hx-post="/magazines/{{ mag.id }}/search" hx-swap="none"
-            hx-confirm="Search for {{ mag.title }} and grab the best release for each wanted issue?">Search monitored</button>
-    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive" hx-target="#modal-body">Interactive search</button>
+            data-activity="Searching for {{ mag.title }}">Search monitored</button>
+    <button class="btn btn--chassis btn--small" type="button" hx-get="/magazines/{{ mag.id }}/interactive" hx-target="#modal-body" data-activity="Interactive search for {{ mag.title }}">Interactive search</button>
     <span class="spinner" aria-hidden="true"></span>
   </div>
   <div class="toolbar__group">

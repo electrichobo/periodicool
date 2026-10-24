@@ -2158,3 +2158,79 @@ html[data-effects="off"] .brand__mark {
   align-self: flex-start;
   justify-self: start;
 }
+
+/* Activity readout: what PeriodiCool is doing, just under the nav (top middle). */
+.readout {
+  position: fixed;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  width: min(34rem, calc(100vw - 2rem));
+  display: grid;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+.readout[hidden] {
+  display: none;
+}
+.readout__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.6rem;
+  align-items: start;
+  padding: 0.55rem 0.8rem;
+  border-left: 4px solid var(--led-info);
+  border-radius: 0.35rem;
+  background: var(--crt-bg);
+  color: var(--crt-fg);
+  font-family: var(--font-data);
+  font-size: 0.85rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+.readout__item--done {
+  border-left-color: var(--led-ok);
+}
+.readout__item--failed {
+  border-left-color: var(--led-bad);
+}
+.readout__title {
+  font-weight: 700;
+}
+.readout__line {
+  grid-column: 2;
+  color: var(--crt-dim);
+  overflow-wrap: anywhere;
+}
+.readout__mark {
+  grid-row: span 2;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: 0.25rem;
+  border-radius: 50%;
+  background: var(--led-info);
+}
+.readout__item--running .readout__mark {
+  animation: readout-pulse 1s ease-in-out infinite;
+}
+.readout__item--done .readout__mark {
+  background: var(--led-ok);
+}
+.readout__item--failed .readout__mark {
+  background: var(--led-bad);
+}
+@keyframes readout-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .readout__item--running .readout__mark {
+    animation: none;
+  }
+}
+/* A pop-up opens at once with this, then fills in. */
+.modal-loading {
+  padding: 1.5rem;
+}
