@@ -42,6 +42,8 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **UI:** the form uses `_indexer_form.html` and `_indexer_categories.html`, with the advanced switch in app.js (remembered in localStorage only).
   - **Checks:** browser-checked the picker, a preset and the edit form at desktop and phone width. 1514 tests pass.
 
+- **v0.1.8 tagged 2026-10-23** (indexer forms the Sonarr way). To confirm on the server: see the note under Next.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
