@@ -56,7 +56,7 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **CLI:** `notify test ID` (CLI runs have no sender, so CLI-made changes send nothing).
   - **Checked live on VADER:** a local 127.0.0.1 listener received Test, MagazineAdd and MagazineDelete; the list showed Sent; phone width fine; listener and server stopped. 1525 tests pass.
 
-- **v0.1.9 tagged 2026-10-23** (webhook notifications). To confirm on the server: Settings, Connect, add a webhook to something real, Test.
+- **v0.1.9 tagged 2026-10-23** (webhook notifications); release workflow green, maintainer confirmed it on the server 2026-10-23.
 
 ## Next
 
