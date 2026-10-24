@@ -48,6 +48,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         from periodicool.web.system import apply_verbose
 
         apply_verbose(app)
+        from periodicool import notify
+
+        app.state.notify = notify.start(app.state.sessions)
         stop, task = asyncio.Event(), None
         if settings.jobs_enabled:
             from periodicool.jobs import Scheduler
@@ -59,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             stop.set()
             if task is not None:
                 await task
+            notify.stop()
             app.state.logs.detach()
             app.state.engine.dispose()
 

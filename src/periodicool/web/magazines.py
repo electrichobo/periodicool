@@ -364,6 +364,9 @@ async def add_submit(request: Request) -> Response:
         mag = magazines.apply_values(Magazine(issues=[]), parsed.values)
         session.add(mag)
         session.flush()
+        from periodicool import notify
+
+        notify.magazine_event(session, "MagazineAdd", mag)
         if form.get("pick_term") and form.get("pick_key"):
             # What the catalog said about the picked card becomes this magazine's
             # lookup answers, so its Metadata pop-up does not ask again.

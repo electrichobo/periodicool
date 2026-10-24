@@ -80,12 +80,15 @@ def known_secrets(config_dir: Path) -> list[str]:
 
 
 def stored_secrets(session) -> list[str]:
-    """Keys and passwords saved with the indexer and download client entries."""
-    from periodicool.models import DownloadClient, Indexer
+    """Keys and passwords saved with the indexer, download client and webhook entries
+    (a webhook's header values count: they often carry tokens)."""
+    from periodicool.models import DownloadClient, Indexer, Notification
 
     found = list(session.scalars(select(Indexer.api_key)))
     for key, password in session.execute(select(DownloadClient.api_key, DownloadClient.password)):
         found += [key, password]
+    for password, settings in session.execute(select(Notification.password, Notification.settings)):
+        found += [password, *(value for _, value in (settings or {}).get("headers") or [])]
     return [s for s in found if s]
 
 

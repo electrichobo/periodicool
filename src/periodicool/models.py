@@ -563,6 +563,28 @@ class Indexer(Base):
         self.enable_rss = self.enable_automatic_search = self.enable_interactive_search = on
 
 
+class Notification(Base):
+    """A connection under Settings, Connect: Sonarr's Webhook. `events` lists the
+    event types it wants (notify.EVENTS). The password is write-only in the UI."""
+
+    __tablename__ = "notifications"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    kind: Mapped[str] = mapped_column(String(20), default="webhook")
+    enabled: Mapped[bool] = mapped_column(default=True)
+    url: Mapped[str] = mapped_column(String(1000))
+    username: Mapped[str | None] = mapped_column(String(200))
+    password: Mapped[str | None] = mapped_column(String(500))
+    # method (POST or PUT), headers ([name, value] pairs), include_health_warnings
+    settings: Mapped[dict] = mapped_column(JSON, default=dict, server_default="{}")
+    events: Mapped[list] = mapped_column(JSON, default=list, server_default="[]")
+    last_status: Mapped[str | None] = mapped_column(String(20))  # sent, failed
+    last_error: Mapped[str | None] = mapped_column(String(500))
+    last_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class DownloadClient(Base):
     """A download client list entry. PeriodiCool only ever touches its own jobs in
     its own category on each client. Keys and passwords are write-only in the UI."""

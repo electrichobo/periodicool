@@ -9,7 +9,7 @@ from datetime import date, timedelta
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from periodicool import downloads
+from periodicool import downloads, notify
 from periodicool.library import TEMPLATE_KEY, get_setting
 from periodicool.models import FormatProfile, Frequency, Issue, Magazine, MonitorMode, Numbering
 from periodicool.naming import DEFAULT_TEMPLATE, UnsafePathError, render
@@ -245,6 +245,7 @@ def delete_magazines(session: Session, ids: list[int]) -> list[str]:
     titles = []
     for mag in session.scalars(select(Magazine).where(Magazine.id.in_(ids))):
         titles.append(mag.title)
+        notify.magazine_event(session, "MagazineDelete", mag)
         session.delete(mag)
     session.flush()
     return titles

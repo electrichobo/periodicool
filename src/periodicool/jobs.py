@@ -41,6 +41,7 @@ DEFAULT_INTERVALS = {
     "downloads": 60,
     "backup": 7 * 86400,
     "metadata": 30 * 86400,
+    "health": 5 * 60,
 }
 LABELS = {
     "rss": "RSS sync",
@@ -50,6 +51,7 @@ LABELS = {
     "downloads": "Check downloads",
     "backup": "Backup",
     "metadata": "Metadata lookups",
+    "health": "Health check",
 }
 # One lock for every scheduler instance, so "Run now" never overlaps a scheduled run.
 RUN_LOCK = threading.Lock()
@@ -153,6 +155,40 @@ def run_metadata(session: Session, settings: Settings, now: datetime) -> str:
     return f"{asked} magazines checked, {refreshed} lookups, {pruned} old answers removed"
 
 
+HEALTH_SEEN_KEY = "notify.health_seen"
+LEVELS = {"ok": 0, "info": 0, "warn": 1, "bad": 2}
+
+
+def run_health(session: Session, settings: Settings, now: datetime) -> str:
+    """Compare the health checks with the last run and tell the webhooks what started
+    or stopped warning (Sonarr's On Health Issue and On Health Restored). These checks
+    only read local state. The first run only records, so a restart sends nothing."""
+    from periodicool import health, notify
+    from periodicool.library import set_setting
+
+    checks = health.local_checks(session, settings, now) + health.source_checks(session, now)
+    current = {
+        c.name: {"name": c.name, "kind": c.kind, "message": c.message, "fix": c.fix}
+        for c in checks
+        if LEVELS.get(c.kind, 0) > 0
+    }
+    seen = get_setting(session, HEALTH_SEEN_KEY, None)
+    set_setting(session, HEALTH_SEEN_KEY, current)
+    if seen is None:
+        return f"{len(current)} issues noted"
+    new = [
+        c
+        for n, c in current.items()
+        if LEVELS[c["kind"]] > LEVELS[seen.get(n, {}).get("kind", "ok")]
+    ]
+    cleared = [c for n, c in seen.items() if n not in current]
+    for check in new:
+        notify.health_event(session, False, check)
+    for check in cleared:
+        notify.health_event(session, True, check)
+    return f"{len(current)} issues, {len(new)} new, {len(cleared)} cleared"
+
+
 RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "rss": run_rss,
     "wanted": run_wanted,
@@ -161,6 +197,7 @@ RUNNERS: dict[str, Callable[[Session, Settings, datetime], str]] = {
     "downloads": run_downloads,
     "backup": run_backup,
     "metadata": run_metadata,
+    "health": run_health,
 }
 
 
