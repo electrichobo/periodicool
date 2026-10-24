@@ -17,8 +17,16 @@ SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 router = APIRouter(include_in_schema=False)
 
 
+API_PREFIX = "/api/v1/"
+
+
+def is_api(path: str) -> bool:
+    return path.startswith(API_PREFIX)
+
+
 def is_public(path: str) -> bool:
-    return path in PUBLIC_PATHS or path.startswith("/static/")
+    """No login session needed. The API checks its own key on every call."""
+    return path in PUBLIC_PATHS or path.startswith("/static/") or is_api(path)
 
 
 def route_path(request: Request) -> str:
@@ -109,8 +117,8 @@ async def form_lists(request: Request) -> dict[str, list[str]]:
 
 async def csrf_guard(request: Request) -> None:
     """App-wide dependency: every POST, PUT, PATCH and DELETE needs a valid CSRF token."""
-    if request.method in SAFE_METHODS:
-        return
+    if request.method in SAFE_METHODS or is_api(route_path(request)):
+        return  # API calls carry the API key instead (checked by the API router)
     given = request.headers.get("x-csrf-token") or (await form_data(request)).get("csrf_token")
     basis = getattr(request.state, "csrf_basis", None)
     if not auth.csrf_ok(request.app.state.secret, basis, given):

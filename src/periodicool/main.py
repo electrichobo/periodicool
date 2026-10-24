@@ -51,6 +51,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         from periodicool import notify
 
         app.state.notify = notify.start(app.state.sessions)
+        from periodicool.web.api import start_commands
+
+        start_commands(app)
         stop, task = asyncio.Event(), None
         if settings.jobs_enabled:
             from periodicool.jobs import Scheduler
@@ -63,6 +66,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             if task is not None:
                 await task
             notify.stop()
+            app.state.api_commands.stop()
             app.state.logs.detach()
             app.state.engine.dispose()
 
@@ -73,6 +77,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=__version__,
         lifespan=lifespan,
         dependencies=[Depends(csrf_guard)],
+        # Swagger UI and ReDoc load scripts from a CDN; the schema is served as JSON
+        # at /api/v1/openapi.json instead (API key needed).
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
     )
     app.state.settings = settings
     app.state.started_at = datetime.now(UTC)
@@ -87,6 +96,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web import STATIC_DIR
     from periodicool.web import router as web_router
     from periodicool.web.activity import router as activity_router
+    from periodicool.web.api import ApiError, api_error
+    from periodicool.web.api import router as api_router
     from periodicool.web.connect import router as connect_router
     from periodicool.web.filesystem import router as filesystem_router
     from periodicool.web.magazines import router as magazines_router
@@ -104,6 +115,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(activity_router)
     app.include_router(sources_router)
     app.include_router(connect_router)
+    app.include_router(api_router)
+    app.add_exception_handler(ApiError, api_error)
     app.include_router(filesystem_router)
     app.include_router(settings_router)
     app.include_router(system_router)

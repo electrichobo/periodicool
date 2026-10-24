@@ -231,7 +231,11 @@ def _api_routes(routes):
 
 
 def _unsafe_routes(app):
+    """Web routes that change things. The REST API (/api/v1) uses its key instead of
+    CSRF; tests/test_api.py checks that every API route refuses a missing key."""
     for route in _api_routes(app.routes):
+        if route.path.startswith("/api/v1/"):
+            continue
         for method in route.methods - {"GET", "HEAD", "OPTIONS"}:
             yield method, re.sub(r"\{[^}]+\}", "1", route.path)
 
