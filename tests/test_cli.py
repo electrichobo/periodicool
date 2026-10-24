@@ -119,3 +119,20 @@ def test_client_add_splits_the_address_and_keeps_a_password(tmp_path, monkeypatc
     assert row.url == "https://deluge.example:8112/web"
     assert "key set" in run(settings, "client", "list")[1]
     session.close()
+
+
+def test_notify_test_sends_to_one_connection(tmp_path, monkeypatch):
+    from fake_webhook import HOOK_URL, FakeWebhook
+    from periodicool import cli, db
+    from periodicool.models import Notification
+
+    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config")})
+    assert run(settings, "notify", "test", "1") == (2, "no connection 1\n")
+    session = db.make_session_factory(db.make_engine(settings.db_url))()
+    session.add(Notification(name="Hook", url=HOOK_URL, events=["Grab"]))
+    session.commit()
+    session.close()
+    fake = FakeWebhook()
+    monkeypatch.setattr(cli, "WEBHOOK_TRANSPORT", fake)
+    code, out = run(settings, "notify", "test", "1")
+    assert code == 0 and "Hook: sent" in out and fake.events() == ["Test"]

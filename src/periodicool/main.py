@@ -87,6 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     from periodicool.web import STATIC_DIR
     from periodicool.web import router as web_router
     from periodicool.web.activity import router as activity_router
+    from periodicool.web.connect import router as connect_router
     from periodicool.web.filesystem import router as filesystem_router
     from periodicool.web.magazines import router as magazines_router
     from periodicool.web.metadata import router as metadata_router
@@ -102,6 +103,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(metadata_router)
     app.include_router(activity_router)
     app.include_router(sources_router)
+    app.include_router(connect_router)
     app.include_router(filesystem_router)
     app.include_router(settings_router)
     app.include_router(system_router)

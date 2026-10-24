@@ -1,0 +1,67 @@
+{# Webhook pop-up (Sonarr's Webhook connection). On errors the server returns this
+   again into #modal-body. #}
+{% import "_macros.html" as ui %}
+{% from "settings/_source_fields.html" import text, key_field, switch with context %}
+<form class="panel modal__panel stack" hx-post="/settings/connect/save" hx-target="#modal-body" data-advanced-form>
+  <div class="modal__head">
+    <h2 class="modal__title" id="modal-title">{{ "Edit " ~ values.get("name") if values.get("id") else "Add webhook" }}</h2>
+    <button class="btn btn--small" type="button" data-close-modal aria-label="Close">&#10005;</button>
+  </div>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  {% if values.get("id") %}<input type="hidden" name="id" value="{{ values.id }}">{% endif %}
+  {% if errors %}<p class="field__error" role="alert">Check the fields marked below.</p>{% endif %}
+  <p class="field__help">{{ kind_info }}</p>
+  {{ text("name", "Name") }}
+  {{ switch("enabled", "Enabled") }}
+  <fieldset class="form-section">
+    <legend>Notification triggers</legend>
+    {% for event, label in events.items() %}
+    <div class="field">
+      <label class="switch">{{ label }}
+        <input type="checkbox" role="switch" name="events" value="{{ event }}"{% if event in values.get("events", []) %} checked{% endif %}{% if event_help.get(event) %} aria-describedby="ev-{{ event }}-help"{% endif %}><span class="switch__state" aria-hidden="true"></span>
+      </label>
+      {% if event_help.get(event) %}<span class="field__help" id="ev-{{ event }}-help">{{ event_help[event] }}</span>{% endif %}
+    </div>
+    {% endfor %}
+    {{ switch("include_health_warnings", "Include health warnings", "Off: only health problems are sent. On: warnings too.") }}
+  </fieldset>
+  {{ text("url", "URL", "Where the events go. PeriodiCool posts JSON there and never follows a redirect.", "url", 'placeholder="https://" required autocomplete="off"') }}
+  <div class="field">
+    <label class="field__label" for="src-method">Method</label>
+    <select class="select" id="src-method" name="method" aria-describedby="src-method-help">
+      {% for m in ("POST", "PUT") %}<option value="{{ m }}"{% if values.get("method") == m %} selected{% endif %}>{{ m }}</option>{% endfor %}
+    </select>
+    <span class="field__help" id="src-method-help">Most receivers want POST.</span>
+  </div>
+  {{ text("username", "Username", "Optional. Sent with the password as basic authentication.", attrs='autocomplete="off"') }}
+  {{ key_field(has_password, false, password_help, "Password", "Password set", name="password") }}
+  <div class="advanced">
+    <fieldset class="form-section">
+      <legend>Headers</legend>
+      <p class="field__help">Extra headers sent with every event, for example a token. Values are kept out of the logs. Leave a row empty to drop it.</p>
+      {% for name, value in header_rows %}
+      <div class="form-row header-row">
+        <div class="field">
+          <label class="field__label" for="hdr-name-{{ loop.index }}">Name</label>
+          <input class="input input--mono" id="hdr-name-{{ loop.index }}" name="header_name" value="{{ name }}" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="field">
+          <label class="field__label" for="hdr-value-{{ loop.index }}">Value</label>
+          <input class="input input--mono" id="hdr-value-{{ loop.index }}" name="header_value" value="{{ value }}" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+      {% endfor %}
+      {% if errors.get("headers") %}<p class="field__error" role="alert">{{ errors.headers }}</p>{% endif %}
+      <p class="field__help">Save to get more empty rows (up to 10 headers).</p>
+    </fieldset>
+  </div>
+  <div class="modal__foot">
+    <label class="switch switch--small advanced-switch">Show advanced
+      <input type="checkbox" role="switch" data-advanced-switch><span class="switch__state" aria-hidden="true"></span>
+    </label>
+    <button class="btn" type="button" hx-post="/settings/connect/test" hx-include="closest form" hx-swap="none">Test</button>
+    <span class="spinner" aria-hidden="true"></span>
+    <button class="btn" type="button" data-close-modal>Cancel</button>
+    <button class="btn btn--primary" type="submit">Save</button>
+  </div>
+</form>

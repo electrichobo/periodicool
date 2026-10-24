@@ -86,6 +86,16 @@ def when(moment, fmt: str | None = None) -> str:
 
 
 templates.env.filters["when"] = when
+
+
+def urlhost(url: str) -> str:
+    """Only the host of an address, for lists (paths can carry tokens)."""
+    import urllib.parse
+
+    return urllib.parse.urlsplit(url or "").hostname or ""
+
+
+templates.env.filters["urlhost"] = urlhost
 templates.env.filters["shortdate"] = dates.short_date
 templates.env.filters["longdate"] = dates.long_date
 templates.env.filters["weekheader"] = dates.week_header

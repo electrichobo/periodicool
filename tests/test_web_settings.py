@@ -593,3 +593,59 @@ def test_indexer_categories_load_from_caps(client):
             7000,
             7010,
         ]
+
+
+def test_webhook_connection_add_edit_test_and_delete(client):
+    from fake_webhook import HOOK_URL, FakeWebhook
+    from periodicool.models import Notification
+
+    picker = client.get("/settings/connect/new").text
+    assert "kind=webhook" in picker
+    form = client.get("/settings/connect/new?kind=webhook").text
+    assert "On grab" in form and "On health issue" in form and "Show advanced" in form
+    base = (
+        "name=Hook&enabled=on&url="
+        + HOOK_URL.replace(":", "%3A").replace("/", "%2F")
+        + "&method=PUT&username=me&password=hook-pass-1"
+        "&events=Grab&events=Download&events=Bogus"
+        "&header_name=X-Token&header_value=tok-123&header_name=&header_value="
+    )
+    form_type = {"Content-Type": "application/x-www-form-urlencoded"}
+    bad = client.post(
+        "/settings/connect/save",
+        content=base + "&header_name=Host&header_value=x",
+        headers=form_type,
+    )
+    assert "sets Host itself" in bad.text
+    assert client.post("/settings/connect/save", content=base, headers=form_type).status_code == 204
+    with session(client) as s:
+        row = s.scalars(select(Notification)).one()
+        assert row.events == ["Grab", "Download"] and row.password == "hook-pass-1"
+        assert row.settings["method"] == "PUT" and row.settings["headers"] == [
+            ["X-Token", "tok-123"]
+        ]
+        row_id = row.id
+    page = client.get("/settings/connect").text
+    assert "hooks.test" in page and "Not sent yet" in page and "hook-pass-1" not in page
+    edit = client.get(f"/settings/connect/{row_id}/edit").text
+    assert "hook-pass-1" not in edit and "Password set" in edit and 'value="tok-123"' in edit
+    # An empty password keeps the saved one.
+    keep = base.replace("password=hook-pass-1", "password=") + f"&id={row_id}"
+    client.post("/settings/connect/save", content=keep, headers=form_type)
+    fake = FakeWebhook()
+    client.app.state.webhook_transport = fake
+    resp = client.post(f"/settings/connect/{row_id}/test")
+    assert "Test sent" in resp.headers["HX-Trigger"]
+    [call] = fake.calls
+    assert call["json"]["eventType"] == "Test" and call["method"] == "PUT"
+    with session(client) as s:
+        row = s.get(Notification, row_id)
+        assert row.password == "hook-pass-1" and row.last_status == "sent"
+    fake.status = 404
+    probe = client.post("/settings/connect/test", content=keep, headers=form_type)
+    assert "answered 404" in probe.headers["HX-Trigger"]
+    assert "hook-pass-1" in client.app.state.logs.redactor.secrets
+    assert "tok-123" in client.app.state.logs.redactor.secrets
+    client.post(f"/settings/connect/{row_id}/delete")
+    with session(client) as s:
+        assert s.scalars(select(Notification)).all() == []

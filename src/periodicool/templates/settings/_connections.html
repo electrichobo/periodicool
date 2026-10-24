@@ -1,0 +1,38 @@
+{# Settings, Connect: the webhook list. #}
+{% import "_macros.html" as ui %}
+<section class="panel stack sources" aria-labelledby="connect-title">
+  <h2 class="panel__label" id="connect-title">Connections</h2>
+  <div class="cluster"><button class="btn btn--primary" type="button" hx-get="/settings/connect/new" hx-target="#modal-body">Add connection</button></div>
+  {% if not connections %}
+  {{ ui.empty("No connections yet", "Add a webhook to get grabs, imports, failures and health issues posted as JSON to an address you choose.") }}
+  {% else %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">Kind</th><th scope="col">Last send</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for row in connections %}
+        <tr>
+          <td>{{ row.name }}<div class="muted small"><code>{{ row.url | urlhost }}</code> · {{ row.events | length }} triggers</div></td>
+          <td>Webhook</td>
+          <td>
+            {% if not row.enabled %}{{ ui.led("off", "Disabled") }}
+            {% elif row.last_status == "sent" %}{{ ui.led("ok", "Sent") }} <span class="muted small">{{ row.last_sent_at | when }}</span>
+            {% elif row.last_status == "failed" %}{{ ui.led("bad", "Failed") }} <span class="muted small">{{ row.last_error }}</span>
+            {% else %}{{ ui.led("off", "Not sent yet") }}{% endif %}
+          </td>
+          <td>
+            <div class="cluster row-actions">
+              <button class="btn btn--small" type="button" hx-post="/settings/connect/{{ row.id }}/test" hx-swap="none" aria-label="Test {{ row.name }}">Test</button>
+              <button class="btn btn--small" type="button" hx-get="/settings/connect/{{ row.id }}/edit" hx-target="#modal-body" aria-label="Edit {{ row.name }}">Edit</button>
+              <button class="btn btn--small btn--danger" type="button" hx-post="/settings/connect/{{ row.id }}/delete" hx-swap="none"
+                      hx-confirm="Delete the connection {{ row.name }}?" aria-label="Delete {{ row.name }}">Delete</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  <p class="muted small">Each event is posted as JSON with an <code>eventType</code>, in the shape Sonarr's Webhook uses. The README lists every field. Keys, passwords and download links are never included.</p>
+</section>

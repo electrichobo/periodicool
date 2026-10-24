@@ -445,6 +445,26 @@ def cmd_entries_add(session, settings, args, out) -> int:
     return 0
 
 
+# Tests replace this with a fake webhook receiver; None means real HTTP.
+WEBHOOK_TRANSPORT = None
+
+
+def cmd_notify_test(session, settings, args, out) -> int:
+    """Send a Test event to one webhook connection (they are added under Settings, Connect)."""
+    from periodicool import notify
+    from periodicool.models import Notification
+
+    row = session.get(Notification, args.id)
+    if row is None:
+        print(f"no connection {args.id}", file=out)
+        return 2
+    payload = notify.base(session, "Test") | {"message": "Test from PeriodiCool."}
+    sent, what = notify.deliver(row, "Test", payload, WEBHOOK_TRANSPORT)
+    notify.record_result(row, sent, what)
+    print(f"{row.name}: {'sent, the webhook ' if sent else 'not sent, '}{what}", file=out)
+    return 0 if sent else 1
+
+
 def cmd_entries_remove(session, settings, args, out) -> int:
     from periodicool.models import ACTIVE_GRAB
 
@@ -635,6 +655,10 @@ def build_parser() -> argparse.ArgumentParser:
         rm = entries.add_parser("remove")
         rm.add_argument("id", type=int)
         rm.set_defaults(func=cmd_entries_remove, noun=noun)
+    nt = sub.add_parser("notify").add_subparsers(dest="notify_command", required=True)
+    nt_test = nt.add_parser("test", help="send a Test event to a webhook connection")
+    nt_test.add_argument("id", type=int)
+    nt_test.set_defaults(func=cmd_notify_test)
     se = sub.add_parser("search")
     se.add_argument("magazine_id", type=int)
     se.add_argument("--force", action="store_true", help="ignore cached results")

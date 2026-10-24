@@ -74,6 +74,10 @@ def _page(request, session, section: str, *, errors=None, form=None, status_code
         context |= _profiles_context(session)
     if section == "tags":
         context["tags"] = _tag_counts(session)
+    if section == "connect":
+        from periodicool.web.connect import connect_context
+
+        context |= connect_context(session)
     response = _render(request, "settings/page.html", active="/settings", **context, **extra)
     response.status_code = status_code
     return response

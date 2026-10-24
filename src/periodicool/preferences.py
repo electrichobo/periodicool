@@ -334,6 +334,15 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 "Host names PeriodiCool answers to, comma separated (localhost always works). "
                 "Empty allows any. Takes effect after a restart.",
             ),
+            Field(
+                "general.application_url",
+                "Application URL",
+                "url",
+                "",
+                "The address you open PeriodiCool at, for example https://mags.example. "
+                "Sent with webhook events so receivers can link back. Optional.",
+                optional=True,
+            ),
         ],
     ),
     # Not settings tabs: these are edited on System, Backups and System, Log files.

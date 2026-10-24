@@ -139,9 +139,6 @@
 {% elif section == "tags" %}
 {% include "settings/_tags.html" %}
 {% elif section == "connect" %}
-<section class="panel">
-  <h2 class="panel__label">Connect</h2>
-  {{ ui.empty("Notifications come later", "A webhook that posts events (grab, import, failure, health) as JSON to an address you choose arrives in a later release.") }}
-</section>
+{% include "settings/_connections.html" %}
 {% endif %}
 {% endblock %}
