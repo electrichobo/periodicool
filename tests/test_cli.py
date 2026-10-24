@@ -79,6 +79,7 @@ def test_indexer_and_client_entries(tmp_path, monkeypatch):
     assert code == 0 and "added client 1" in out
     code, out = run(settings, "indexer", "list")
     assert "Direct (newznab) https://nzb.example/api" in out and "key set" in out
+    assert "on for RSS, automatic, interactive" in out
     assert "cli-key-from-env" not in out
     code, out = run(settings, "client", "list")
     assert "category 'mags'" in out and "typed-key-123" not in out

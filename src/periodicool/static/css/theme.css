@@ -2151,3 +2151,7 @@ html[data-effects="off"] .brand__mark {
 .category-picks__id {
   font-family: var(--font-data);
 }
+#indexer-categories > .btn {
+  align-self: flex-start;
+  justify-self: start;
+}

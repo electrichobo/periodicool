@@ -4,6 +4,21 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Indexer forms the Sonarr way:
+  - Enable RSS, Enable Automatic Search and Enable Interactive Search replace the single Enabled switch. Existing entries get all three set as they were.
+  - Each kind has its own fields, with advanced ones (API path, additional parameters, daily limits, torrent options) behind Show advanced.
+  - Load categories ticks the categories the indexer reports.
+  - An indexer can have its own download client.
+- Sonarr's usenet indexer presets in the Add picker. They fill in the address only.
+- Reject blocklisted torrent hashes, per indexer: torrent failures now record their info hash on the blocklist.
+
+### Fixed
+
+- Newznab capabilities now include subcategories, where indexers list 7010 Magazines.
+- Grabbing a torrent that was already sent once (same hash, another name) failed with a database error; it is now refused with a reason.
+
 ## [0.1.7] - 2026-10-23
 
 ### Added

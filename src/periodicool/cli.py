@@ -365,6 +365,17 @@ def cmd_entries_list(session, settings, args, out) -> int:
     getter = sources.indexer_key if args.noun == "indexer" else sources.client_key
     for row in rows:
         state = "enabled" if row.enabled else "disabled"
+        if args.noun == "indexer" and row.enabled:
+            modes = [
+                label
+                for on, label in (
+                    (row.enable_rss, "RSS"),
+                    (row.enable_automatic_search, "automatic"),
+                    (row.enable_interactive_search, "interactive"),
+                )
+                if on
+            ]
+            state = "on for " + ", ".join(modes)
         key = "key set" if getter(session, row) else "no key"
         extra = f", category {row.category!r}" if args.noun == "client" else ""
         print(

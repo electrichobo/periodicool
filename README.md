@@ -67,7 +67,16 @@ python -m periodicool monitor         # check downloads, import finished ones
 python -m periodicool downloads       # grabs and their status
 ```
 
-Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every usenet indexer you set up in it, or a single Newznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
+Indexers and download clients are lists, as in Sonarr and Radarr: add, test, enable, order and remove them in Settings, Indexers and Settings, Download clients (or with the `indexer` and `client` commands). An indexer is either a Prowlarr, which searches every indexer you set up in it, or a single Newznab or Torznab indexer added directly with its own daily limits. Searches run on every enabled indexer; one that is rate limited backs off on its own while the others carry on.
+
+The indexer form follows Sonarr's:
+
+- Enable RSS, Enable Automatic Search and Enable Interactive Search are separate switches. Automatic means scheduled, Wanted and Search-button searches. Interactive means the interactive search and the Add magazine search.
+- Load categories reads the categories the indexer reports and ticks Magazines (7010).
+- Show advanced reveals the API path, additional parameters, daily limits and the torrent options.
+- An indexer can name its own download client; its releases then go only there.
+- Add lists Sonarr's usenet indexer presets. A preset only fills in the address; you add your own key, and nothing is contacted until you test or save.
+- For torrents, "Reject blocklisted torrent hashes" refuses a torrent whose hash was blocklisted, under any name. The same torrent is never sent twice.
 
 ### Download clients
 

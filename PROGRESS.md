@@ -33,11 +33,21 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.1.7 tagged 2026-10-23** (download clients the Sonarr way); maintainer confirmed it on the server 2026-10-23.
 
+- **Indexer forms the Sonarr way, 2026-10-23:**
+  - **Migration `0013_indexer_fields`:** `indexers.enabled` becomes `enable_rss`, `enable_automatic_search` and `enable_interactive_search`. `Indexer.enabled` stays as a hybrid property: any of the three is on, and setting it sets all three. Also adds `indexers.download_client_id` (foreign key, set to null on delete) and `blocklist.info_hash`.
+  - **`indexer_kinds.py`:** the fields per kind, Sonarr's Newznab presets (from Sonarr's `Newznab.cs`), `parse_parameters`, and the builders.
+  - **Search:** `search._clients(source, mode)` filters by the switch (rss, automatic, interactive). The Add search and the interactive pop-up use interactive.
+  - **Indexer clients:** Newznab and Torznab take `api_path` and `extra_params`. `caps()` now reads `<subcat>`; it missed 7010 before.
+  - **Downloads:** `downloads._client_for` honors the entry's client and refuses rather than falling back. The blocklist gets the info hash; there is a hash check, and a torrent with a known job ID (hash) is refused before the unique constraint can fail.
+  - **UI:** the form uses `_indexer_form.html` and `_indexer_categories.html`, with the advanced switch in app.js (remembered in localStorage only).
+  - **Checks:** browser-checked the picker, a preset and the edit form at desktop and phone width. 1514 tests pass.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up (agreed order):** indexer forms the Sonarr way (separate plan), Usenet and Torrent Blackhole, step 10 (API, docs, Unraid template), Discord last. NZBGet is done.
+- **Next up (agreed order):** Usenet and Torrent Blackhole, step 10 (API, docs, Unraid template), Discord last. Indexer forms are done.
+- **After the next release, on the server:** the existing Prowlarr entry should show all three switches on; RSS and a search still run; Health green. Load categories against the real Prowlarr gives the book list (Prowlarr's combined endpoint has no caps).
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
 - **Lists follow-ups:** browser check of the new Settings lists on VADER (desktop and phone width); then a release (maintainer OK to tag) and on the server confirm the existing Prowlarr and SABnzbd show up as entries and a grab still works. Interactive search shows the release's indexer name only (not "entry / Prowlarr indexer" yet).
