@@ -87,7 +87,7 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **Unraid template:** `unraid/periodicool.xml` (CA v2), with the maintainer's app icon `unraid/periodicool.png` (512 px). `tests/test_unraid_template.py` checks the required fields, that it matches the Dockerfile's port and PUID, PGID and UMASK, that nothing personal is in it, and that the icon is a square PNG of at least 256 px.
   - **Tests:** 1547 pass.
 
-- **v0.2.0 tagged 2026-10-23** (REST API, docs, Unraid template, app icon). To confirm on the server: the icon shows, and `/api/v1/system/status` answers with the key.
+- **v0.2.0 tagged 2026-10-23** (REST API, docs, Unraid template, app icon); maintainer confirmed it on the server 2026-10-23.
 
 ## Next
 
