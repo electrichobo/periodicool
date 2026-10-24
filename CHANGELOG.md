@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-23
+
 ### Added
 
 - An activity readout under the menu, at the top middle:
@@ -217,7 +219,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/electrichobo/periodicool/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/electrichobo/periodicool/compare/v0.1.10...v0.2.0
 [0.1.10]: https://github.com/electrichobo/periodicool/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/electrichobo/periodicool/compare/v0.1.8...v0.1.9
