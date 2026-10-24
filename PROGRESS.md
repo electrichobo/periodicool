@@ -42,14 +42,13 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **UI:** the form uses `_indexer_form.html` and `_indexer_categories.html`, with the advanced switch in app.js (remembered in localStorage only).
   - **Checks:** browser-checked the picker, a preset and the edit form at desktop and phone width. 1514 tests pass.
 
-- **v0.1.8 tagged 2026-10-23** (indexer forms the Sonarr way). To confirm on the server: see the note under Next.
+- **v0.1.8 tagged 2026-10-23** (indexer forms the Sonarr way); maintainer confirmed it on the server 2026-10-23.
 
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
 - **Next up (agreed order):** Usenet and Torrent Blackhole, step 10 (API, docs, Unraid template), Discord last. Indexer forms are done.
-- **After the next release, on the server:** the existing Prowlarr entry should show all three switches on; RSS and a search still run; Health green. Load categories against the real Prowlarr gives the book list (Prowlarr's combined endpoint has no caps).
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
 - **Lists follow-ups:** browser check of the new Settings lists on VADER (desktop and phone width); then a release (maintainer OK to tag) and on the server confirm the existing Prowlarr and SABnzbd show up as entries and a grab still works. Interactive search shows the release's indexer name only (not "entry / Prowlarr indexer" yet).
