@@ -126,8 +126,13 @@ def health_connections(request: Request) -> HTMLResponse:
                 )
         clients = sab_client(request, session)
         for sab in clients.clients if clients else []:
-            hosts.append((sab.display_name, sab.url))
+            hosts.append((sab.display_name, getattr(sab, "url", "")))
             try:
+                if hasattr(sab, "downloads_dir"):  # a Blackhole: folders, not a service
+                    sab.downloads_dir = request.app.state.settings.downloads_dir
+                    sab.check()
+                    checks.append(health.Check(sab.display_name, "ok", "Both folders are ready."))
+                    continue
                 version = sab.check(sab.category)
                 checks.append(
                     health.Check(sab.display_name, "ok", f"Version {version}; category exists.")
@@ -140,7 +145,8 @@ def health_connections(request: Request) -> HTMLResponse:
                 )
     fetch = getattr(request.app.state, "clock_fetch", health.remote_date)
     for name, url in hosts:
-        checks.append(health.clock_check(name, url, fetch=fetch))
+        if url:  # folder clients (Blackhole) have no host to compare clocks with
+            checks.append(health.clock_check(name, url, fetch=fetch))
     return _render(request, "system/_checks.html", checks=checks)
 
 

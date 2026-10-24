@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import re
 import urllib.parse
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
@@ -529,11 +530,19 @@ def client_context(session: Session) -> dict:
         active = session.scalar(
             select(func.count()).select_from(Grab).where(Grab.client_id == row.id)
         )
+        kind = registry.KINDS.get(row.kind)
+        settings = row.settings or {}
+        where = row.url
+        if kind is not None and kind.local:
+            where = f"{settings.get('drop_folder', '')} → {settings.get('watch_folder', '')}"
         rows.append(
             {
                 "row": row,
                 "kind_label": sources.CLIENT_KINDS.get(row.kind, row.kind),
-                "has_key": bool(sources.client_key(session, row)),
+                # Only a kind that cannot work without its secret (SABnzbd) is flagged.
+                "missing_key": bool(kind and kind.required_secret)
+                and not sources.client_key(session, row),
+                "where": where,
                 "grabs": active,
             }
         )
@@ -591,7 +600,9 @@ def _client_form(request, session, values: dict, errors=None, row=None):
     )
 
 
-def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dict, dict, dict]:
+def _parse_client(
+    session, lists: dict, row: DownloadClient | None, downloads_dir: Path | None = None
+) -> tuple[dict, dict, dict]:
     """(errors, row values, secrets typed in). Fields come from the kind's registry entry;
     a single "url" (the command line, older forms) is split into host, port, SSL and base."""
     form = {k: v[-1] for k, v in lists.items()}
@@ -636,6 +647,8 @@ def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dic
             value = raw if raw in allowed else f.default
         else:
             value = (raw or "").strip()[:500]
+        if f.type == "folder" and value:
+            _check_folder(f, value, downloads_dir, errors)
         if f.required and value in ("", None):
             errors[f.name] = f"Enter the {f.label.lower()}."
         if f.store == "settings":
@@ -649,7 +662,7 @@ def _parse_client(session, lists: dict, row: DownloadClient | None) -> tuple[dic
         )
     if len(columns.get("category") or "") > 100:
         errors["category"] = "Keep it under 100 characters."
-    url = registry.compose_url(settings)
+    url = "" if kind.local else registry.compose_url(settings)
     if url and not errors.get("host"):
         _, problem = parse_url(url)
         if problem:
@@ -714,7 +727,9 @@ async def client_save(request: Request) -> Response:
             row = session.get(DownloadClient, int(form["id"])) if form["id"].isdigit() else None
             if row is None:
                 raise HTTPException(status_code=404)
-        errors, data, secrets = _parse_client(session, lists, row)
+        errors, data, secrets = _parse_client(
+            session, lists, row, request.app.state.settings.downloads_dir
+        )
         if errors:
             values = {**form, "enabled": form.get("enabled") == "on"}
             for f in (
@@ -760,13 +775,34 @@ def client_delete(request: Request, row_id: int) -> Response:
     return Response(status_code=204, headers={"HX-Redirect": "/settings/downloads?saved=1"})
 
 
+def _check_folder(f, value: str, downloads_dir: Path | None, errors: dict) -> None:
+    path = Path(value)
+    if not path.is_absolute():
+        errors[f.name] = "Use a full path, as PeriodiCool sees it, such as /downloads/blackhole."
+    elif not path.is_dir():
+        errors[f.name] = f"{value} does not exist (as PeriodiCool sees it)."
+    elif (
+        f.name == "watch_folder"
+        and downloads_dir is not None
+        and not path.resolve().is_relative_to(downloads_dir.resolve())
+    ):
+        errors[f.name] = (
+            f"Must be inside the downloads folder ({downloads_dir}); imports only read from there."
+        )
+
+
 def _check_client(request, session, row: DownloadClient) -> str:
     client = sources.build_client(session, row, sources.transports_from(request.app.state))
     if client is None:
         raise ClientError("the address and API key are both needed")
+    kind = registry.KINDS.get(row.kind)
+    if kind is not None and kind.local:
+        client.downloads_dir = request.app.state.settings.downloads_dir
+        client.check()
+        return f"{row.name}: both folders are ready."
     version = client.check(row.category)
-    kind = sources.CLIENT_KINDS.get(row.kind, row.kind)
-    return f"{row.name}: {kind} {version} answered, and the category {row.category!r} exists."
+    label = sources.CLIENT_KINDS.get(row.kind, row.kind)
+    return f"{row.name}: {label} {version} answered, and the category {row.category!r} exists."
 
 
 @router.post("/settings/downloads/test")
@@ -780,11 +816,13 @@ async def client_test_form(request: Request) -> Response:
             stored = session.get(DownloadClient, int(form["id"]))
         if form.get("kind") not in sources.CLIENT_KINDS:
             return _toast("Pick a kind first.", "warn")
-        errors, data, secrets = _parse_client(session, lists, stored)
+        errors, data, secrets = _parse_client(
+            session, lists, stored, request.app.state.settings.downloads_dir
+        )
         errors.pop("name", None)  # a test needs no unique name
         if errors:
             return _toast(next(iter(errors.values())), "warn")
-        if not data["url"]:
+        if not data["url"] and not registry.KINDS[data["kind"]].local:
             return _toast("Enter the host first.", "warn")
         probe = DownloadClient(
             id=stored.id if stored else None,

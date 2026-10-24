@@ -9,6 +9,8 @@ from periodicool.bencode import info_hash
 from periodicool.clients.base import ClientError, JobStatus
 from periodicool.clients.blackhole import BlackholeClient
 
+from test_downloads import env as env  # noqa: F401  (fixture)
+
 NOW = 1_800_000_000.0
 
 
@@ -119,3 +121,128 @@ def test_remove_only_our_waiting_drop_file(folders):
     assert not (drop / "Linux Magazine 311.nzb").exists()
     assert (watch / "Linux Magazine 311").exists()  # the watch folder is never touched
     assert bh.remove(job) is False
+
+
+# From grab to library
+
+
+def _blackhole_setup(e, kind):
+    from sqlalchemy import select
+
+    from periodicool.models import DownloadClient
+    from periodicool.sources import Sources
+    from test_torrents import ENV
+
+    drop = e.settings.downloads_dir / "blackhole"
+    watch = e.settings.downloads_dir / "done"
+    drop.mkdir()
+    watch.mkdir()
+    for row in e.session.scalars(select(DownloadClient)):
+        row.enabled = False
+    e.session.add(
+        DownloadClient(
+            name="Hole",
+            kind=kind,
+            protocol="usenet" if kind == "usenet_blackhole" else "torrent",
+            url="",
+            category="",
+            path_map=[],
+            settings={"drop_folder": str(drop), "watch_folder": str(watch), "wait_seconds": 30},
+        )
+    )
+    e.session.flush()
+    src = Sources(e.session, {"prowlarr": e.fake_p}, ENV)
+    for c in src.indexers:
+        c.min_interval = 0
+    return src, drop, watch
+
+
+def test_usenet_blackhole_from_grab_to_library(env):
+    from periodicool import downloads
+    from periodicool.models import GrabStatus
+
+    from test_downloads import L311, TARGET, TODAY, seen
+
+    e = env
+    src, drop, watch = _blackhole_setup(e, "usenet_blackhole")
+    res = downloads.grab(e.session, seen(e, L311)[L311], src, src, TODAY)
+    assert res.ok, res.reasons
+    g = res.grab
+    assert (drop / f"{g.job_id}.nzb").exists() and g.category == ""
+    downloads.monitor(e.session, src, e.settings, src, TODAY)
+    assert g.status is GrabStatus.QUEUED
+    (drop / f"{g.job_id}.nzb").unlink()  # the downloader took it
+    job_dir = watch / g.job_id
+    job_dir.mkdir()
+    (job_dir / "Linux311.pdf").write_bytes(b"magazine")
+    (job_dir / "Linux311.nfo").write_bytes(b"x")
+    settle(job_dir, when=__import__("time").time() - 120)
+    downloads.monitor(e.session, src, e.settings, src, TODAY)
+    assert g.status is GrabStatus.IMPORTED, g.error
+    assert (e.settings.library_dir / TARGET).read_bytes() == b"magazine"
+    assert not job_dir.exists() and watch.exists()  # leftovers go, the watch folder stays
+
+
+def test_torrent_blackhole_links_and_keeps_the_source(env):
+    from periodicool import downloads, search
+    from periodicool.models import GrabStatus, Magazine, Release
+
+    from fake_prowlarr import release_json
+    from test_downloads import L311, TARGET, TODAY
+
+    e = env
+    src, drop, watch = _blackhole_setup(e, "torrent_blackhole")
+    e.fake_p.search_results = [
+        release_json(L311, indexer_id=3) | {"protocol": "torrent", "seeders": 9, "leechers": 1}
+    ]
+    e.fake_p.nzb = make_torrent()
+    from sqlalchemy import select
+
+    mag = e.session.scalars(select(Magazine).where(Magazine.title == "Linux Magazine")).one()
+    search.search_magazine(e.session, src, mag, TODAY, force=True)
+    rel = e.session.scalars(select(Release).where(Release.title == L311)).one()
+    res = downloads.grab(e.session, rel, src, src, TODAY)
+    assert res.ok, res.reasons
+    g = res.grab
+    assert g.job_id == f"{info_hash(make_torrent())}|Linux Magazine 311"
+    assert (drop / "Linux Magazine 311.torrent").exists()
+    item = watch / "Linux Magazine 311"
+    item.mkdir()
+    (item / "Linux Magazine 311.pdf").write_bytes(b"magazine")
+    settle(item, when=__import__("time").time() - 120)
+    downloads.monitor(e.session, src, e.settings, src, TODAY)
+    assert g.status is GrabStatus.IMPORTED, g.error
+    target = e.settings.library_dir / TARGET
+    assert target.read_bytes() == b"magazine" and (item / "Linux Magazine 311.pdf").exists()
+    # The same torrent again, under another name: refused by its hash.
+    again = downloads.grab(e.session, rel, src, src, TODAY)
+    assert not again.ok
+
+
+def test_blackhole_form_checks_folders(client, tmp_path):
+    settings = client.app.state.settings
+    drop = settings.downloads_dir / "bh-drop"
+    watch = settings.downloads_dir / "bh-done"
+    drop.mkdir(parents=True)
+    watch.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    base = {
+        "kind": "usenet_blackhole",
+        "name": "Hole",
+        "enabled": "on",
+        "priority": "5",
+        "drop_folder": str(drop),
+        "watch_folder": str(outside),
+        "wait_seconds": "30",
+    }
+    bad = client.post("/settings/downloads/save", data=base)
+    assert "inside the downloads folder" in bad.text
+    rel = client.post("/settings/downloads/save", data=base | {"watch_folder": "done"})
+    assert "Use a full path" in rel.text
+    ok = client.post("/settings/downloads/test", data=base | {"watch_folder": str(watch)})
+    assert "both folders are ready" in ok.headers["HX-Trigger"]
+    saved = client.post("/settings/downloads/save", data=base | {"watch_folder": str(watch)})
+    assert saved.status_code == 204
+    page = client.get("/settings/downloads").text
+    assert "bh-drop" in page and "No API key" not in page

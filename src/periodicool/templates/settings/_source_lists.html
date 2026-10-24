@@ -55,13 +55,13 @@
       <tbody>
         {% for item in client_rows %}{% set row = item.row %}
         <tr>
-          <td>{{ row.name }}<div class="muted small"><code>{{ row.url }}</code></div></td>
+          <td>{{ row.name }}<div class="muted small"><code>{{ item.where }}</code></div></td>
           <td>{{ item.kind_label }}</td>
           <td><span class="tag">{{ row.protocol | upper }}</span></td>
-          <td><code>{{ row.category }}</code></td>
+          <td>{% if row.category %}<code>{{ row.category }}</code>{% else %}<span class="muted">None</span>{% endif %}</td>
           <td>
             {% if not row.enabled %}{{ ui.led("off", "Disabled") }}
-            {% elif not item.has_key and row.kind != "qbittorrent" %}{{ ui.led("bad", "No API key") }}
+            {% elif item.missing_key %}{{ ui.led("bad", "No API key") }}
             {% else %}{{ ui.led("ok", "Enabled") }}{% endif %}
           </td>
           <td>{{ row.priority }}</td>

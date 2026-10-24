@@ -84,7 +84,7 @@ def build_client(
 ):
     transports = transports or {}
     kind = KINDS.get(row.kind)
-    if kind is None or not row.url:
+    if kind is None or not (row.url or kind.local):
         return None
     secret = ""
     if kind.required_secret:

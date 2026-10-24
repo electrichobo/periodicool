@@ -22,12 +22,12 @@ from dataclasses import dataclass, field
 from datetime import UTC, date, datetime
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from periodicool import history, pdf_text
 from periodicool.clients.base import ClientError, JobStatus
-from periodicool.clients.registry import CLIENT_PROTOCOLS
+from periodicool.clients.registry import CLIENT_PROTOCOLS, KINDS
 from periodicool.config import Settings
 from periodicool.decisions import evaluate, format_rank, load_options
 from periodicool.library import (
@@ -251,8 +251,8 @@ def blocklist(
 
 
 def _grab_hash(g: Grab) -> str | None:
-    """A torrent grab's job ID is its info hash."""
-    return g.job_id if g.protocol == "torrent" and g.job_id else None
+    """A torrent grab's job ID is its info hash (a blackhole's is "hash|name")."""
+    return g.job_id.split("|", 1)[0] if g.protocol == "torrent" and g.job_id else None
 
 
 def blocked_hash(session: Session, info_hash: str) -> BlockedRelease | None:
@@ -361,7 +361,7 @@ def grab(
         result.reasons.append(
             f"the indexer's download client {client_label(target)} takes {takes}, not {protocol}"
         )
-    elif not category:
+    elif not category and getattr(KINDS.get(target.name), "has_category", True):
         result.reasons.append(
             f"no category set for {client_label(target)} (Settings, Download clients)"
         )
@@ -409,7 +409,8 @@ def grab(
             result.reasons.append(f"this torrent's hash is blocklisted ({hit.title})")
             return result
         # A torrent is tracked by its hash, so the same one is never sent twice.
-        if digest and (sent := session.scalars(select(Grab).where(Grab.job_id == digest)).first()):
+        same = or_(Grab.job_id == digest, Grab.job_id.like(f"{digest}|%"))
+        if digest and (sent := session.scalars(select(Grab).where(same)).first()):
             result.reasons.append(
                 f"this torrent was sent before, as {sent.title} ({sent.status.value})"
             )
