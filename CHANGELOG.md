@@ -4,6 +4,17 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Usenet Blackhole and Torrent Blackhole download clients, the way Sonarr has them:
+  - A drop folder and a watch folder, each with Browse.
+  - Torrent Blackhole can also save magnet links as files.
+  - A finished download is the item named after what PeriodiCool dropped, once it has not changed for 30 seconds (adjustable under Show advanced).
+
+### Fixed
+
+- The download clients list flagged "No API key" on clients that need none, such as Transmission or Deluge without a password.
+
 ## [0.1.9] - 2026-10-23
 
 ### Added

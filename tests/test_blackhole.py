@@ -246,3 +246,33 @@ def test_blackhole_form_checks_folders(client, tmp_path):
     assert saved.status_code == 204
     page = client.get("/settings/downloads").text
     assert "bh-drop" in page and "No API key" not in page
+
+
+def test_blackholes_need_no_path_mapping(client):
+    from sqlalchemy import select
+
+    from periodicool.models import DownloadClient
+
+    settings = client.app.state.settings
+    for name in ("m-drop", "m-done"):
+        (settings.downloads_dir / name).mkdir(parents=True)
+    client.post(
+        "/settings/downloads/save",
+        data={
+            "kind": "usenet_blackhole",
+            "name": "Hole",
+            "enabled": "on",
+            "priority": "5",
+            "drop_folder": str(settings.downloads_dir / "m-drop"),
+            "watch_folder": str(settings.downloads_dir / "m-done"),
+        },
+    )
+    with client.app.state.sessions() as s:
+        hole_id = s.scalars(select(DownloadClient.id).where(DownloadClient.name == "Hole")).one()
+    form = client.get("/settings/downloads/mappings/new").text
+    assert f'value="{hole_id}"' not in form
+    resp = client.post(
+        "/settings/downloads/mappings/save",
+        data={"client_id": str(hole_id), "remote": "/data", "local": "/downloads"},
+    )
+    assert "Pick the download client." in resp.text

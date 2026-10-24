@@ -58,11 +58,27 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.1.9 tagged 2026-10-23** (webhook notifications); release workflow green, maintainer confirmed it on the server 2026-10-23.
 
+- **Usenet and Torrent Blackhole, 2026-10-23:**
+  - **`clients/blackhole.py`** (`BlackholeClient`, one class with a protocol):
+    - drop files are written whole (temporary name, then rename) and never over an existing name;
+    - the job ID is the clean title for usenet, `hash|name` for torrents (the name from the torrent's info, or a magnet's `dn`);
+    - `jobs` reports queued while the drop file waits, downloading once it is picked up, and completed when the watch-folder item has been unchanged for `wait_seconds` and holds no partial file. It never reports failed.
+  - **Registry:** `ClientKind.local` and `has_category`, the `folder` field type with Browse, and Show advanced on the client form.
+  - **Wiring:**
+    - local kinds are built without an address;
+    - grab skips the category refusal for them;
+    - `_parse_client` checks the folders: absolute paths that exist, and the watch folder inside the downloads folder;
+    - Test and the connection test call `check()`, and the clock check skips them;
+    - the remote path mapping client list leaves them out;
+    - `downloads._grab_hash` and the "sent before" check understand `hash|name`.
+  - **Also fixed:** "No API key" showed for clients that need none.
+  - **Checked:** browser-checked the picker, the form with Browse, Test, save and the list at desktop and phone width. The dev entry was deleted afterwards. A real grab through a blackhole was only tested end to end in the suite (no downloader on VADER). 1537 tests pass.
+
 ## Next
 
 - **App icon:** when the maintainer sends it, it goes in `.brand__icon` in `base.html` plus `static/img/icon.svg` (favicon).
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up (agreed order):** Usenet and Torrent Blackhole, then step 10 (API, docs, Unraid template). Indexer forms and the webhook are done.
+- **Next up (agreed order):** step 10 (API, docs, Unraid template). Indexer forms, the webhook and the Blackholes are done.
 - **Notifications, decided 2026-10-23:** no Discord. One generic webhook the Sonarr way (URL, method POST or PUT, optional username/password and headers; events such as grab, import, download failure, health issue, test), posting JSON. Users point it at whatever they like.
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 

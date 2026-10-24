@@ -80,7 +80,7 @@ The indexer form follows Sonarr's:
 
 ### Download clients
 
-Settings, Download clients, Add lists the supported clients under Usenet (SABnzbd, NZBGet) and Torrents (qBittorrent, Transmission, Deluge, rTorrent). Each form has that client's own fields, as in Sonarr: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused, and where the client has them, a directory, a post-import category (our torrent moves there after import) and remove completed (our finished usenet job leaves the client's history; files are never touched). Recent means the issue's cover date is within the last 14 days.
+Settings, Download clients, Add lists the supported clients under Usenet (SABnzbd, NZBGet, Usenet Blackhole) and Torrents (qBittorrent, Transmission, Deluge, rTorrent, Torrent Blackhole). Each form has that client's own fields, as in Sonarr: host, port, SSL, URL base, credentials, category or label, recent and older priority, add paused, and where the client has them, a directory, a post-import category (our torrent moves there after import) and remove completed (our finished usenet job leaves the client's history; files are never touched). Recent means the issue's cover date is within the last 14 days.
 
 Only SABnzbd has been checked against a real install so far. The others follow each client's documented API and are tested against fakes; reports from real setups are welcome. Notes per client:
 
@@ -88,6 +88,12 @@ Only SABnzbd has been checked against a real install so far. The others follow e
 - Deluge needs its Label plugin turned on, and the label created in Deluge.
 - rTorrent's URL path is the XML-RPC path, usually `RPC2`.
 - Seed time goes to qBittorrent only; Transmission and Deluge take the seed ratio; rTorrent keeps its own ratio groups.
+- **Usenet and Torrent Blackhole**, for a downloader PeriodiCool cannot talk to:
+  - **How it works:** PeriodiCool writes the `.nzb` or `.torrent` into the drop folder. Your downloader picks it up and leaves the finished download in the watch folder. PeriodiCool imports it once it has not changed for 30 seconds.
+  - **Folders:** both are given as PeriodiCool sees them, so no path mapping is needed. The watch folder must be inside the downloads folder.
+  - **Matching:** only items named after what PeriodiCool dropped are looked at. Nothing in the watch folder is deleted except a usenet job's leftovers after import, as with SABnzbd.
+  - **What a blackhole can't report:** progress or failures; it has no category either.
+  - **Torrent Blackhole:** torrents are always hard-linked or copied, never moved. A magnet-only release needs "Save magnet files" turned on.
 
 ### Torrents
 

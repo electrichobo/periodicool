@@ -702,7 +702,7 @@ def client_new(request: Request, kind: str = "") -> HTMLResponse:
             base="/settings/downloads/new",
             groups=groups,
             intro="PeriodiCool supports these usenet and torrent download clients. Pick one, "
-            "then fill in its address and settings, as in Sonarr.",
+            "then fill in its settings, as in Sonarr.",
         )
     with request.app.state.sessions() as session:
         return _client_form(request, session, _client_values(None, kind))
@@ -856,9 +856,14 @@ def client_test_row(request: Request, row_id: int) -> Response:
 
 
 def _mapping_form(request, session, values: dict, errors=None):
-    clients = list(
-        session.scalars(select(DownloadClient).order_by(DownloadClient.priority, DownloadClient.id))
-    )
+    # Folder clients (Blackhole) use PeriodiCool's own paths, so they need no mapping.
+    clients = [
+        c
+        for c in session.scalars(
+            select(DownloadClient).order_by(DownloadClient.priority, DownloadClient.id)
+        )
+        if not getattr(registry.KINDS.get(c.kind), "local", False)
+    ]
     return _render(
         request,
         "settings/_mapping_form.html",
@@ -898,6 +903,8 @@ async def mapping_save(request: Request) -> Response:
         target = None
         if (form.get("client_id") or "").isdigit():
             target = session.get(DownloadClient, int(form["client_id"]))
+        if target is not None and getattr(registry.KINDS.get(target.kind), "local", False):
+            target = None
         if target is None:
             errors["client_id"] = "Pick the download client."
         remote = (form.get("remote") or "").strip()
