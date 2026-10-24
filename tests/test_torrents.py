@@ -270,3 +270,49 @@ def test_torrent_retry_import_keeps_the_source(env, tmp_path, monkeypatch):
     monkeypatch.setattr(library_module, "_move", real_move)
     assert downloads.retry_import(e.session, g.id, e.settings, src, src, TODAY) == "imported"
     assert (job_dir / "Linux Magazine 311.pdf").read_bytes() == b"magazine"
+
+
+def test_blocklisted_torrent_hash_is_refused_under_another_name(env, tmp_path):
+    from test_downloads import L311_ALT
+
+    e = env
+    downloads, src, fake_q, folder, rel = torrent_setup(e, tmp_path)
+    g = downloads.grab(e.session, rel, src, src, TODAY).grab
+    downloads.fail(e.session, g, "download failed: bad data", None, None, TODAY)
+    blocked = downloads.blocked_hash(e.session, g.job_id)
+    assert blocked is not None and blocked.info_hash == g.job_id
+    # The same torrent, another name and guid: found again through the same entry.
+    e.fake_p.search_results = [
+        release_json(L311_ALT, indexer_id=3) | {"protocol": "torrent", "seeders": 9, "leechers": 1}
+    ]
+    search.search_magazine(e.session, src, linux(e), TODAY, force=True)
+    again = e.session.scalars(select(Release).where(Release.title == L311_ALT)).one()
+    entry = e.session.scalars(select(Indexer).where(Indexer.kind == "prowlarr")).one()
+    entry.settings = {**entry.settings, "reject_blocklisted_hashes": True}
+    e.session.flush()
+    res = downloads.grab(e.session, again, src, src, TODAY)
+    assert not res.ok and any("hash is blocklisted" in r for r in res.reasons)
+    # With the option off it is still the same torrent, tracked by its hash, so it is
+    # not sent twice either; the reason says so.
+    entry.settings = {**entry.settings, "reject_blocklisted_hashes": False}
+    e.session.flush()
+    res = downloads.grab(e.session, again, src, src, TODAY)
+    assert not res.ok and any("was sent before" in r for r in res.reasons)
+    assert len(fake_q.added) == 1
+
+
+def test_usenet_failures_store_no_hash(env):
+    from test_downloads import seen
+
+    e = env
+    g = downloads_module().grab(e.session, seen(e, L311)[L311], e.prowlarr, e.sab, TODAY).grab
+    downloads_module().fail(e.session, g, "download failed: bad", None, None, TODAY)
+    from periodicool.models import BlockedRelease
+
+    assert e.session.scalars(select(BlockedRelease)).one().info_hash is None
+
+
+def downloads_module():
+    from periodicool import downloads
+
+    return downloads

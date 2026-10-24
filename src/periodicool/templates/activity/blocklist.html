@@ -34,7 +34,7 @@
           {% for b in rows %}
           <tr>
             <td><input type="checkbox" class="row-select" name="ids" value="{{ b.id }}" aria-label="Select {{ b.title }}"></td>
-            <td class="wrap">{{ b.title }}</td>
+            <td class="wrap">{{ b.title }}{% if b.info_hash %}<div class="muted small">Torrent hash <code>{{ b.info_hash }}</code></div>{% endif %}</td>
             <td>{{ titles.get(b.magazine_id, "") }}</td>
             <td>{{ b.issue_key or "" }}</td>
             <td class="wrap">{{ b.reason }}</td>

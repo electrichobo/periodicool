@@ -225,9 +225,11 @@ def blocklist(
     reason: str,
     indexer_id=None,
     record: bool = True,
+    info_hash: str | None = None,
 ) -> BlockedRelease:
     row = BlockedRelease(
         guid=release.guid if release else None,
+        info_hash=info_hash.lower() if info_hash else None,
         title=title,
         indexer_id=release.indexer_id if release else indexer_id,
         magazine_id=magazine_id,
@@ -246,6 +248,17 @@ def blocklist(
         )
     log.info("Blocklisted %s: %s", title, reason)
     return row
+
+
+def _grab_hash(g: Grab) -> str | None:
+    """A torrent grab's job ID is its info hash."""
+    return g.job_id if g.protocol == "torrent" and g.job_id else None
+
+
+def blocked_hash(session: Session, info_hash: str) -> BlockedRelease | None:
+    return session.scalars(
+        select(BlockedRelease).where(BlockedRelease.info_hash == info_hash.lower())
+    ).first()
 
 
 def blocked(session: Session, guid: str | None, title: str, magazine_id: int | None):
@@ -380,6 +393,27 @@ def grab(
         blocklist(session, release, release.title, mag.id, ev.issue_key, bad)
         result.reasons.append(bad)
         return result
+    if kind != "nzb":
+        from periodicool import bencode
+
+        try:
+            digest = (
+                bencode.info_hash(payload) if kind == "torrent" else bencode.magnet_hash(payload)
+            )
+        except bencode.BencodeError:
+            digest = None
+        # Sonarr's "reject blocklisted torrent hashes while grabbing": the same torrent
+        # under another name or from another indexer.
+        rejecting = digest and entry_settings.get("reject_blocklisted_hashes")
+        if rejecting and (hit := blocked_hash(session, digest)):
+            result.reasons.append(f"this torrent's hash is blocklisted ({hit.title})")
+            return result
+        # A torrent is tracked by its hash, so the same one is never sent twice.
+        if digest and (sent := session.scalars(select(Grab).where(Grab.job_id == digest)).first()):
+            result.reasons.append(
+                f"this torrent was sent before, as {sent.title} ({sent.status.value})"
+            )
+            return result
     extra = add_options(target, _cover_date(session, mag.id, ev), today)
     try:
         if kind == "nzb":
@@ -742,7 +776,15 @@ def fail(
 ) -> Grab | None:
     """Blocklist the release, free the issue, and grab the next best release once."""
     blocklist(
-        session, g.release, g.title, g.magazine_id, g.issue_key, reason, g.indexer_id, record=False
+        session,
+        g.release,
+        g.title,
+        g.magazine_id,
+        g.issue_key,
+        reason,
+        g.indexer_id,
+        record=False,
+        info_hash=_grab_hash(g),
     )
     g.status, g.error = GrabStatus.FAILED, reason[:2000]
     _issue_wanted(session, g)
@@ -949,6 +991,7 @@ def remove_grab(session: Session, grab_id: int, clients, add_to_blocklist: bool 
             "removed by user",
             g.indexer_id,
             record=False,
+            info_hash=_grab_hash(g),
         )
     history.record_grab(
         session,
