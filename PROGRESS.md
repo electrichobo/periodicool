@@ -98,7 +98,7 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **README:** no Sonarr or Radarr comparisons.
   - **Checks:** browser-checked on the dev server (pop-up at once, readout steps, a failure shown red, Search missing with no confirm). 1554 tests pass.
 
-- **v0.2.1 tagged 2026-10-23** (live searches, activity readout, instant pop-ups). To confirm on the server: interactive search opens at once and lists live results with the queries asked; the readout shows each step.
+- **v0.2.1 tagged 2026-10-23** (live searches, activity readout, instant pop-ups); maintainer confirmed it on the server 2026-10-25.
 
 ## Next
 
