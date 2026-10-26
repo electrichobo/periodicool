@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<CommunityApplications>
+  <Profile>
+**PeriodiCool** is a self-hosted manager for magazines, made to work alongside the *arr suite (Prowlarr, SABnzbd, qBittorrent and friends). Add the magazines you read; it works out which issues should exist, watches your indexers for new and back issues, sends them to your download client, and files them in your library under clean names.
+
+**Beta, in active development.** It runs on the maintainer's Unraid server with Prowlarr and SABnzbd. The other download clients follow their documented APIs and are tested against simulations, not real installs yet. Back up /config before updating, and run the library scan as a preview before letting it touch an existing collection: it never deletes library files, only moves and renames them.
+
+It ships no content and no indexers; you bring your own.
+
+Support, bug reports and ideas: GitHub issues. Contributions, forks and honest feedback (including "this is trash") are welcome.
+  </Profile>
+  <Icon>https://raw.githubusercontent.com/electrichobo/periodicool/main/unraid/periodicool.png</Icon>
+  <WebPage>https://github.com/electrichobo/periodicool</WebPage>
+  <Forum>https://github.com/electrichobo/periodicool/issues</Forum>
+</CommunityApplications>

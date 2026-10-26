@@ -62,6 +62,20 @@ def test_nothing_personal():
     assert chr(0x2014) not in text  # no em dashes
 
 
+def test_ca_profile():
+    """Community Apps wants ca_profile.xml at the repository root, with a Profile."""
+    root = ET.parse(ROOT / "ca_profile.xml").getroot()
+    assert root.tag == "CommunityApplications"
+    assert len((root.findtext("Profile") or "").strip()) > 100
+    assert "no content and no indexers" in root.findtext("Profile")
+    for tag in ("Icon", "WebPage", "Forum"):
+        assert (root.findtext(tag) or "").startswith("https://"), tag
+    text = (ROOT / "ca_profile.xml").read_text(encoding="utf-8")
+    for word in FORBIDDEN:
+        assert word not in text, word
+    assert chr(0x2014) not in text
+
+
 def test_icon_is_a_square_png():
     data = ICON.read_bytes()
     assert data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR"

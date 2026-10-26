@@ -68,7 +68,7 @@ Already have magazines on disk? Run the library scan first: it shows a preview o
 
 ## Contributing
 
-PeriodiCool is open source under the GPL, and help is welcome. Fork it, try it, break it, and send a pull request.
+PeriodiCool is open source under the GPL, and help is welcome in any form: fork it, modify it, make it your own, send a pull request, open an issue, or tell me it's trash. Honest feedback is useful too.
 
 Good places to start:
 - **Real download clients.** NZBGet, qBittorrent, Transmission, Deluge, rTorrent and the Blackholes have only been tested against fakes. A report from a real setup, working or not, is very useful.
@@ -77,6 +77,15 @@ Good places to start:
 - **Bugs and ideas.** Use the [bug report](.github/ISSUE_TEMPLATE/bug_report.yml) or [feature request](.github/ISSUE_TEMPLATE/feature_request.yml) forms.
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) first: it covers the setup and the safety rules that keep people's libraries and download clients safe. Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## How it was made
+
+PeriodiCool is a one-person project, made to work alongside the *arr suite (Prowlarr, SABnzbd, qBittorrent and friends).
+
+- **guy-who-wanted-a-thing-but-doesn't-code-well-so-he-vibecoded** (the maintainer): decided what it should do and how it should look, drew the UI mockups and the icon, tests every release on a real Unraid server, and approves every release.
+- **Claude** (Anthropic's AI coding assistant), working under that direction, wrote most of the code, the automated tests (over 1,500) and the documentation.
+
+Nothing ships without passing the tests and being tried on a real server first.
 
 ## No content, no indexers
 

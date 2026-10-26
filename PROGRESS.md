@@ -108,7 +108,7 @@ Handoff notes between sessions. Read at the start, update at the end.
   - The lamp placeholder `icon.svg` and `scripts/make_icon.py` are gone.
   - For other sizes later, keep the original WebP outside the repo.
 - **Torrents, real check (optional, the maintainer does not use torrents):** after a release, a qBittorrent container with a `mags` category and Prowlarr's Internet Archive indexer (legal public-domain magazines); grab one, confirm it keeps seeding and the library file is a hard link (or a copy across disks).
-- **Next up:** the build order is complete. Left for the maintainer: the CA submission (form plus a forum support thread, then point `Support` at it).
+- **Next up:** the build order is complete. Left for the maintainer: the CA submission at ca.unraid.net/submit (run Validate and Scan there). A forum support thread is not possible yet (new forum accounts cannot post in Application Support), so `<Support>` in the template and `<Forum>` in `ca_profile.xml` point at GitHub issues. `ca_profile.xml` (root `<CommunityApplications>`, format from Unraid's starter repository) is at the repository root. Possibly a Reddit post as well.
 - **Notifications, decided 2026-10-23:** no Discord. One generic webhook the Sonarr way (URL, method POST or PUT, optional username/password and headers; events such as grab, import, download failure, health issue, test), posting JSON. Users point it at whatever they like.
 - **Download clients, real check (optional):** none of NZBGet, Transmission, Deluge or rTorrent has been tried against a real install.
 
