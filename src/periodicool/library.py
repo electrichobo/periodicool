@@ -461,7 +461,12 @@ def _issue(session: Session, mag_id: int, key: str) -> Issue | None:
 def plan_scan(
     session: Session, root: Path, kind: ScanKind, library_root: Path | None = None
 ) -> Scan:
-    """Plan moves for every file under root. Writes database rows only."""
+    """Plan moves for every file under root. Writes database rows only.
+
+    The walk reads every file and can take minutes on a large library, so it runs
+    before anything is written: SQLite has one writer, and a write made first would hold
+    the lock for the whole walk (logins, settings and setup would fail meanwhile).
+    Callers commit their own pending changes before calling this."""
     root = Path(root).resolve()
     library_root = Path(library_root or root).resolve()
     template = get_setting(session, TEMPLATE_KEY, DEFAULT_TEMPLATE)
@@ -470,9 +475,7 @@ def plan_scan(
     from periodicool.lookups.service import extra_names
 
     extras = extra_names(session, magazines)  # from the cache only; no network
-    scan = Scan(kind=kind, root=str(root), counts={})
-    session.add(scan)
-    session.flush()
+    started = datetime.now(UTC)
 
     existing = {
         i.source_path: i
@@ -482,31 +485,39 @@ def plan_scan(
     files, ignored = walk(root)
     counts = {"move": 0, "keep": 0, "review": 0, "ignored": ignored, "unchanged": 0}
     decisions: list[tuple[str, Decision]] = []
+    unchanged: list[ImportItem] = []
     stats = {}
-    for path in files:
-        src = str(path)
-        st = path.stat()
-        stats[src] = st
-        item = existing.get(src)
-        if (
-            item
-            and item.size == st.st_size
-            and item.mtime == st.st_mtime
-            and (
-                item.status is ItemStatus.SKIPPED
-                or (item.status is ItemStatus.PENDING and item.parsed.get("resolved"))
-            )
-        ):
-            item.scan_id = scan.id
-            counts["unchanged"] += 1
-            continue
-        d = classify(path, library_root, root, magazines, template, pdf, extras)
-        if d.action is ItemAction.MOVE and _same_file(path, library_root / d.target):
-            d.action = ItemAction.KEEP
-        decisions.append((src, d))
+    with session.no_autoflush:
+        for path in files:
+            src = str(path)
+            st = path.stat()
+            stats[src] = st
+            item = existing.get(src)
+            if (
+                item
+                and item.size == st.st_size
+                and item.mtime == st.st_mtime
+                and (
+                    item.status is ItemStatus.SKIPPED
+                    or (item.status is ItemStatus.PENDING and item.parsed.get("resolved"))
+                )
+            ):
+                unchanged.append(item)
+                counts["unchanged"] += 1
+                continue
+            d = classify(path, library_root, root, magazines, template, pdf, extras)
+            if d.action is ItemAction.MOVE and _same_file(path, library_root / d.target):
+                d.action = ItemAction.KEEP
+            decisions.append((src, d))
 
-    _resolve_conflicts(session, decisions, library_root, template)
+        _resolve_conflicts(session, decisions, library_root, template)
 
+    # Writes start here and take moments, however long the walk was.
+    scan = Scan(kind=kind, root=str(root), counts={}, started_at=started)
+    session.add(scan)
+    session.flush()
+    for item in unchanged:
+        item.scan_id = scan.id
     for src, d in decisions:
         counts[d.action.value] += 1
         item = existing.get(src) or ImportItem(source_path=src)
@@ -649,10 +660,16 @@ def _link_issue(session: Session, item: ImportItem) -> bool:
     return changed
 
 
+APPLY_BATCH = 25
+
+
 def apply_scan(
     session: Session, scan_id: int, library_root: Path, item_ids: list[int] | None = None
 ) -> dict:
-    """Carry out a scan's pending move and keep items. Returns counts."""
+    """Carry out a scan's pending move and keep items. Returns counts.
+
+    Commits every APPLY_BATCH items: moves can't be undone, so they are recorded as
+    they happen, and SQLite's write lock is never held for the whole run."""
     library_root = Path(library_root).resolve()
     query = select(ImportItem).where(
         ImportItem.scan_id == scan_id,
@@ -662,8 +679,10 @@ def apply_scan(
     if item_ids is not None:
         query = query.where(ImportItem.id.in_(item_ids))
     result = {"moved": 0, "kept": 0, "failed": 0, "review": 0}
-    for item in session.scalars(query).all():
+    for n, item in enumerate(session.scalars(query).all(), 1):
         apply_item(session, item, library_root, result)
+        if n % APPLY_BATCH == 0:
+            session.commit()
     scan = session.get(Scan, scan_id)
     scan.applied_at = datetime.now(UTC)
     if scan.kind is ScanKind.LIBRARY and (result["moved"] or result["kept"]):

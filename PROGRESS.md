@@ -100,6 +100,19 @@ Handoff notes between sessions. Read at the start, update at the end.
 
 - **v0.2.1 tagged 2026-10-23** (live searches, activity readout, instant pop-ups); maintainer confirmed it on the server 2026-10-25.
 
+- **Bug fix, 2026-10-31: "database is locked" on /setup with a large library** (user report: about 3,400 files, fresh install, setup returned 500 until the first scan finished; each restart started the scan again, so setup could not get through).
+  - **Cause:** a write made before a long job (the job's `last_started_at`, the Scan row, `refresh_file_info`) stayed uncommitted for the whole run, so that connection held SQLite's only write lock for the full library walk. Every other write waited 5 s and failed.
+  - **Fix:**
+    - `Scheduler._run` commits the job's start before running it;
+    - `run_library` and the Library page's Scan commit after `refresh_file_info`;
+    - `plan_scan` walks and classifies with no writes (`no_autoflush`), then adds the Scan row and items at the end;
+    - `apply_scan` commits every `APPLY_BATCH` (25) items, which also records irreversible moves as they happen;
+    - the engine waits up to 30 s for the lock (`db.BUSY_TIMEOUT_S`, pysqlite `timeout`).
+    - Jobs are not held back until setup is done: with the lock fixed they no longer block setup, and the first scan's preview is ready afterwards.
+  - **Tests:** a second connection must get `BEGIN IMMEDIATE` during a running job, during the walk and between batched moves. All three fail on the old code.
+  - **Also fixed:** two web tests pinned to "new only" broke when the date reached 2026-10-31 (the October 2026 fixture issue left the monitored range). They now monitor all issues.
+  - **Not released yet.**
+
 ## Next
 
 - **App icon, 2026-10-23:**

@@ -16,8 +16,12 @@ class Base(DeclarativeBase):
     pass
 
 
+# How long a write waits for SQLite's lock before failing (pysqlite's default is 5 s).
+BUSY_TIMEOUT_S = 30
+
+
 def make_engine(db_url: str, foreign_keys: bool = True) -> Engine:
-    engine = create_engine(db_url)
+    engine = create_engine(db_url, connect_args={"timeout": BUSY_TIMEOUT_S})
 
     @event.listens_for(engine, "connect")
     def _sqlite_pragmas(dbapi_conn, _record):

@@ -429,6 +429,41 @@ def test_scheduler_runs_due_jobs_once(tmp_path):
     engine.dispose()
 
 
+def test_running_job_does_not_hold_the_write_lock(tmp_path):
+    """The job's start is committed before it runs, so a long job (the first library
+    scan) never blocks setup or logins with 'database is locked'."""
+    import sqlite3
+
+    from periodicool.models import Job
+
+    settings = load_settings({"PERIODICOOL_CONFIG_DIR": str(tmp_path / "config")})
+    settings.config_dir.mkdir()
+    db.upgrade(settings.db_url)
+    engine = db.make_engine(settings.db_url)
+    sessions = db.make_session_factory(engine)
+    seen = []
+
+    def long_job(session, settings, now):
+        other = sqlite3.connect(settings.config_dir / "periodicool.db", timeout=0)
+        try:
+            other.execute("BEGIN IMMEDIATE")
+            other.rollback()
+            seen.append("free")
+        except sqlite3.OperationalError:
+            seen.append("locked")
+        started = other.execute("SELECT last_started_at FROM jobs WHERE name='library'")
+        seen.append(started.fetchone()[0] is not None)
+        other.close()
+        return "ok"
+
+    sched = Scheduler(sessions, settings, clock=lambda: NOW, runners={"library": long_job})
+    assert sched.run_now("library") == "ok"
+    assert seen == ["free", True]
+    with sessions() as s:
+        assert s.get(Job, "library").last_result == "ok"
+    engine.dispose()
+
+
 def search_unconfigured(session, settings, now):
     from periodicool.jobs import run_rss
 

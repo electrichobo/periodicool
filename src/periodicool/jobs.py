@@ -106,6 +106,7 @@ def run_library(session: Session, settings: Settings, now: datetime) -> str:
     if not settings.library_dir.is_dir():
         return f"skipped: library folder {settings.library_dir} not found"
     refresh_file_info(session, settings.library_dir)
+    session.commit()  # so the long walk below starts with no write pending
     from periodicool.covers import refresh_covers
 
     refresh_covers(session, settings.library_dir, settings.config_dir)
@@ -252,6 +253,9 @@ class Scheduler:
 
         job = self._job(session, name)
         job.last_started_at = now
+        # Commit the start now: a write left pending would hold SQLite's write lock
+        # for the whole run, and every other write (setup, logins) would fail.
+        session.commit()
         # Frequent quiet jobs stay out of the readout; the rest show while they run.
         shown = name not in QUIET_JOBS
         try:

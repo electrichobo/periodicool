@@ -434,6 +434,7 @@ def library_scan(request: Request) -> Response:
         return _toast(f"The library folder {settings.library_dir} does not exist.", "bad")
     with request.app.state.sessions() as session:
         library.refresh_file_info(session, settings.library_dir)
+        session.commit()
         scan = library.plan_scan(session, settings.library_dir, ScanKind.LIBRARY)
         session.commit()
         scan_id = scan.id

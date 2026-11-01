@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from periodicool import library, search
 from periodicool.cli import magazine_from_dict
-from periodicool.models import History, Issue, IssueStatus, Magazine
+from periodicool.models import History, Issue, IssueStatus, Magazine, MonitorMode
 from rows import add_client, add_indexer
 
 from fake_prowlarr import KEY, URL, FakeProwlarr, release_json
@@ -271,8 +271,18 @@ def fakes(client, monkeypatch):
     return fake_p, fake_s
 
 
+def monitor_all(client, mag_id):
+    """Monitor every issue, so the October 2026 fixture issue stays wanted whatever
+    today's date is ("new only" moves its start with the calendar)."""
+    with session(client) as s:
+        s.get(Magazine, mag_id).monitor_mode = MonitorMode.ALL
+        s.commit()
+    client.post("/magazines/refresh-all")
+
+
 def test_interactive_search_lists_reasons_and_grabs(client, mags, fakes):
     fake_p, fake_s = fakes
+    monitor_all(client, mags["Linux Magazine"])
     fake_p.search_results = [
         release_json(L311),
         release_json("People.Australia.TruePDF-08.April.2019", guid="g2"),
@@ -295,6 +305,7 @@ def test_interactive_search_lists_reasons_and_grabs(client, mags, fakes):
 
 def test_automatic_search_grabs_wanted_issue(client, mags, fakes):
     fake_p, fake_s = fakes
+    monitor_all(client, mags["Linux Magazine"])
     fake_p.search_results = [release_json(L311)]
     resp = client.post(f"/magazines/{mags['Linux Magazine']}/search", data={"issue": "n311"})
     assert "grabbed n311" in toast(resp)["text"], toast(resp)

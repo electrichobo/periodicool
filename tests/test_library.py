@@ -3,6 +3,7 @@
 import errno
 import json
 import os
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -87,6 +88,55 @@ def test_preview_is_read_only(session, lib):
     assert tree(lib) == before
     assert scan.counts["move"] == 3 and scan.counts["ignored"] == 1
     assert session.scalars(select(FileMove)).all() == []
+
+
+def _can_write(db_path: Path) -> bool:
+    """True if another connection can take SQLite's write lock right now."""
+    other = sqlite3.connect(db_path, timeout=0)
+    try:
+        other.execute("BEGIN IMMEDIATE")
+        other.rollback()
+        return True
+    except sqlite3.OperationalError:
+        return False
+    finally:
+        other.close()
+
+
+def test_walk_does_not_hold_the_write_lock(session, lib, tmp_path, monkeypatch):
+    """A long scan must not block setup, logins or settings (bug: 'database is locked')."""
+    session.commit()
+    put(lib, "Fortean.Times.Issue.351.TruePDF-March.2017.pdf")
+    put(lib, "random/MAKE Magazine vol 05.pdf")
+    seen, real = [], library.classify
+
+    def classify(*args, **kwargs):
+        seen.append(_can_write(tmp_path / "test.db"))
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(library, "classify", classify)
+    scan = plan_scan(session, lib, ScanKind.LIBRARY)
+    assert seen == [True, True]
+    assert scan.counts["move"] == 2 and len(items(session, scan)) == 2
+
+
+def test_apply_commits_as_it_goes(session, lib, tmp_path, monkeypatch):
+    """Moves are recorded in batches, so the write lock is free between them."""
+    put(lib, "Fortean.Times.Issue.351.TruePDF-March.2017.pdf")
+    put(lib, "random/MAKE Magazine vol 05.pdf")
+    put(lib, "Fortean Times/2023/2023-11.pdf")
+    scan = plan_scan(session, lib, ScanKind.LIBRARY)
+    session.commit()
+    seen, real = [], library._move
+
+    def move(*args, **kwargs):
+        seen.append(_can_write(tmp_path / "test.db"))
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(library, "_move", move)
+    monkeypatch.setattr(library, "APPLY_BATCH", 1)
+    assert apply_scan(session, scan.id, lib)["moved"] == 3
+    assert seen == [True, True, True]
 
 
 def test_plan_targets_and_reasons(session, lib):

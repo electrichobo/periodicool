@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Fixed
+
+- A fresh install with a large library could not finish setup ("database is locked"): the first library scan held the database's write lock for the whole scan. Scans and other tasks now write in short steps, and writes wait up to 30 seconds for the lock instead of 5.
+
 ## [0.2.1] - 2026-10-23
 
 ### Added
