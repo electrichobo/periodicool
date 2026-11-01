@@ -111,7 +111,7 @@ Handoff notes between sessions. Read at the start, update at the end.
     - Jobs are not held back until setup is done: with the lock fixed they no longer block setup, and the first scan's preview is ready afterwards.
   - **Tests:** a second connection must get `BEGIN IMMEDIATE` during a running job, during the walk and between batched moves. All three fail on the old code.
   - **Also fixed:** two web tests pinned to "new only" broke when the date reached 2026-10-31 (the October 2026 fixture issue left the monitored range). They now monitor all issues.
-  - **Not released yet.**
+  - **v0.2.2 tagged 2026-10-31** with this fix.
 
 ## Next
 
