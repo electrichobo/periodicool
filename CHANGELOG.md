@@ -4,6 +4,8 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-02
+
 ### Added
 
 - A second look, **Plain** (Settings, UI, Style). It has the same pages and controls as Cassette, which stays the default:
@@ -233,7 +235,8 @@ First release.
 - File names PeriodiCool writes are read back correctly: tracked titles are recognized first, so "2600 - The Hacker Quarterly - 2026-Autumn" no longer loses its leading number, and year-first season labels parse. Agreeing clues in a name (an issue number that fits the month) are noted and preferred when ranking releases.
 - Migrations run with SQLite foreign keys off, so rebuilding a table can no longer cascade-delete rows in other tables.
 
-[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/electrichobo/periodicool/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/electrichobo/periodicool/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/electrichobo/periodicool/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/electrichobo/periodicool/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/electrichobo/periodicool/compare/v0.1.10...v0.2.0
