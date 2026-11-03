@@ -59,7 +59,7 @@ Already have magazines on disk? Run the library scan first: it shows a preview o
 - Covers from each magazine's newest issue.
 
 **Running it**
-- Web UI in a cassette-futurism look, with light and dark themes and keyboard navigation.
+- Web UI in a cassette-futurism look, or a quieter Plain style, each with light and dark themes and keyboard navigation.
 - Login (or local-network only), CSRF protection, write-only secrets that never reach the logs.
 - Health and status page, task list, live log, backups and restore.
 - A REST API, and webhook notifications for grabs, imports, failures and health.

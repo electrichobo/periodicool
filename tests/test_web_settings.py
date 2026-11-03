@@ -373,6 +373,7 @@ def test_first_weekday_changes_the_calendar(client):
         "ui__long_date": "day-mon-d-y",
         "ui__time_format": "24",
         "ui__theme": "auto",
+        "ui__style": "cassette",
     }
     assert client.post("/settings/ui", data=form, follow_redirects=False).status_code == 303
     page = client.get("/calendar").text

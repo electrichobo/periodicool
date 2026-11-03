@@ -1,0 +1,828 @@
+/* PeriodiCool, Plain style: a quieter look, like a printed page.
+   Loaded after theme.css only when Settings, UI, Style is Plain; it reuses the same
+   tokens and components and changes how they look, never what they do.
+   - Paper and ink neutrals, hairline rules, one radius.
+   - The brand orange is the one spot color: the main action per page, the current
+     page in the menu and the short rule under each page title. Green, amber, red and
+     blue only ever mean a status.
+   - System sans for words; IBM Plex Mono for numbers, dates and paths.
+   - No glow, gradients, scanlines or looping animation.
+   Spacing follows a 4 px scale (--s1 to --s8; the UI is set at 80%, so 1rem is 12.8 px). */
+
+:root[data-style="plain"] {
+  color-scheme: light;
+
+  --s1: 0.3125rem; /* 4 px */
+  --s2: 0.625rem; /* 8 px */
+  --s3: 0.9375rem; /* 12 px */
+  --s4: 1.25rem; /* 16 px */
+  --s5: 1.5625rem; /* 20 px */
+  --s6: 1.875rem; /* 24 px */
+  --s8: 2.5rem; /* 32 px */
+
+  --page: #f4f3ef;
+  --ink: #1c1b18;
+  --dark: #1c1b18; /* inverse strips: bulk bar, current page number */
+  --on-dark: #f4f3ef;
+  --on-dark-muted: #c9c6bd;
+
+  --panel: #fcfbf8;
+  --panel-recess: #ecebe6;
+  --input-bg: #ffffff;
+  --cal-other: #efeee9;
+  --row-selected: #f8e7da;
+
+  --panel-edge: #dedcd5;
+  --line-strong: #c9c6bd;
+  --line-row: #e7e5df;
+  --input-line: #8e8b82; /* 3:1 against the field, so the box is visible */
+  --divider: #dedcd5;
+  --seg-empty-dark: #dedcd5;
+
+  --ink-label: #55524a;
+  --ink-muted: #4a4740;
+  --counter-dim: #55524a;
+
+  --orange: #c4561a; /* the spot color */
+  --orange-bright: #c4561a;
+  --orange-ink: #a2440f; /* orange as text */
+  --green: #3d8b2a;
+  --green-deep: #2c6612;
+  --green-text: #2c6612;
+  --amber: #b57b06;
+  --grey: #8a877e;
+  --blue: #2f6fb0;
+
+  /* Red, not the spot orange, means missing or failed. */
+  --led-bad: var(--tape-red);
+
+  --tape-black: var(--panel-recess);
+  --tape-red: #b3261e;
+  --tape-blue: var(--panel-recess);
+  --tape-yellow: var(--panel-recess);
+  --on-tape: var(--ink);
+  --on-tape-yellow: var(--ink);
+
+  --crt-bg: var(--panel);
+  --crt-fg: var(--ink);
+  --crt-dim: var(--ink-muted);
+  --crt-glow: transparent;
+
+  /* Plain only */
+  --primary: #a8470f;
+  --primary-hover: #8f3c0c;
+  --on-primary: #ffffff;
+  --danger-ink: #b3261e;
+  --warn-ink: #8a5d00; /* amber as text */
+  --switch-on: #2c6612;
+  --switch-off: #8e8b82;
+  --knob: #ffffff;
+  --shadow-float: 0 4px 16px rgba(28, 27, 24, 0.14);
+
+  --focus: #1a6dff;
+  --focus-halo: #ffffff;
+
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-label: var(--font-ui);
+  --font-seg: var(--font-data);
+
+  --radius: 6px;
+  --radius-sm: 4px;
+  --gap: var(--s4);
+  --ease: 120ms ease-out;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-style="plain"]:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #151513;
+    --ink: #ecebe6;
+    --dark: #ecebe6;
+    --on-dark: #151513;
+    --on-dark-muted: #3e3c36;
+    --panel: #1d1d1a;
+    --panel-recess: #282824;
+    --input-bg: #121210;
+    --cal-other: #191916;
+    --row-selected: #3a2a1f;
+    --panel-edge: #302f2a;
+    --line-strong: #46443d;
+    --line-row: #2a2925;
+    --input-line: #7b786f;
+    --divider: #34332d;
+    --seg-empty-dark: #34332d;
+    --ink-label: #b3b0a6;
+    --ink-muted: #c2bfb5;
+    --counter-dim: #b3b0a6;
+    --orange: #e0753a;
+    --orange-bright: #e0753a;
+    --orange-ink: #f0915a;
+    --green: #6cb83a;
+    --green-text: #8fd25a;
+    --amber: #e0a530;
+    --blue: #5a9be0;
+    --tape-red: #ff7b6e;
+    --primary: #f0915a;
+    --primary-hover: #f5a678;
+    --on-primary: #151513;
+    --danger-ink: #ff7b6e;
+    --warn-ink: #e0a530;
+    --switch-on: #6cb83a;
+    --switch-off: #6b685f;
+    --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --focus: #6ea0ff;
+    --focus-halo: #151513;
+  }
+}
+:root[data-style="plain"][data-theme="dark"] {
+  color-scheme: dark;
+  --page: #151513;
+  --ink: #ecebe6;
+  --dark: #ecebe6;
+  --on-dark: #151513;
+  --on-dark-muted: #3e3c36;
+  --panel: #1d1d1a;
+  --panel-recess: #282824;
+  --input-bg: #121210;
+  --cal-other: #191916;
+  --row-selected: #3a2a1f;
+  --panel-edge: #302f2a;
+  --line-strong: #46443d;
+  --line-row: #2a2925;
+  --input-line: #7b786f;
+  --divider: #34332d;
+  --seg-empty-dark: #34332d;
+  --ink-label: #b3b0a6;
+  --ink-muted: #c2bfb5;
+  --counter-dim: #b3b0a6;
+  --orange: #e0753a;
+  --orange-bright: #e0753a;
+  --orange-ink: #f0915a;
+  --green: #6cb83a;
+  --green-text: #8fd25a;
+  --amber: #e0a530;
+  --blue: #5a9be0;
+  --tape-red: #ff7b6e;
+  --primary: #f0915a;
+  --primary-hover: #f5a678;
+  --on-primary: #151513;
+  --danger-ink: #ff7b6e;
+  --warn-ink: #e0a530;
+  --switch-on: #6cb83a;
+  --switch-off: #6b685f;
+  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --focus: #6ea0ff;
+  --focus-halo: #151513;
+}
+
+/* Words in sentence case at normal spacing; the cassette look's capitals, wide
+   tracking and embossed text shadows are all switched off here. */
+:root[data-style="plain"] *,
+:root[data-style="plain"] *::before,
+:root[data-style="plain"] *::after {
+  text-transform: none;
+  letter-spacing: normal;
+  text-shadow: none;
+}
+
+[data-style="plain"] body {
+  font-family: var(--font-ui);
+  font-size: 1.1rem; /* 14 px */
+  line-height: 1.5;
+}
+[data-style="plain"] a:hover {
+  color: var(--orange-ink);
+}
+
+/* Header and footer: paper, a hairline, no lamps. */
+
+[data-style="plain"] .deck-bar {
+  gap: var(--s2) var(--s6);
+  padding: var(--s3) var(--s6);
+  background: var(--panel);
+  color: var(--ink);
+  border-bottom: 1px solid var(--panel-edge);
+}
+[data-style="plain"] footer.deck-bar {
+  border-top: 1px solid var(--panel-edge);
+  border-bottom: 0;
+  color: var(--ink-muted);
+}
+[data-style="plain"] footer .switch {
+  display: none; /* nothing for the effects switch to switch here */
+}
+[data-style="plain"] .brand,
+[data-style="plain"] .brand:hover {
+  gap: var(--s2);
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+[data-style="plain"] .brand__icon {
+  width: 2rem;
+  height: 2rem;
+}
+[data-style="plain"] .brand__sub,
+[data-style="plain"] .brand__mark,
+[data-style="plain"] .page-eyebrow {
+  display: none;
+}
+
+[data-style="plain"] .nav {
+  gap: var(--s1) var(--s4);
+}
+[data-style="plain"] .nav a {
+  padding: var(--s1) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-image: none;
+  background: none;
+  color: var(--ink-label);
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: color var(--ease), border-color var(--ease);
+}
+[data-style="plain"] .nav a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
+[data-style="plain"] .nav a[aria-current="page"] {
+  background: none;
+  color: var(--ink);
+  border-bottom-color: var(--orange);
+}
+[data-style="plain"] .sysstate,
+[data-style="plain"] .sysstate:hover {
+  color: var(--ink-label);
+  font-size: 1rem;
+}
+
+/* Page titles: the short spot-color rule underneath is this style's one flourish. */
+
+[data-style="plain"] main {
+  padding: var(--s8) var(--s6) var(--s8);
+}
+[data-style="plain"] .page-title {
+  margin: 0 0 var(--s5);
+  font-size: 2.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+[data-style="plain"] .page-title::after {
+  content: "";
+  display: block;
+  width: var(--s8);
+  height: 3px;
+  margin-top: var(--s2);
+  background: var(--orange);
+}
+[data-style="plain"] .page-head {
+  align-items: flex-start;
+  margin-bottom: var(--s4);
+}
+[data-style="plain"] .section-title {
+  margin-top: var(--s8);
+  font-size: 1.6rem;
+}
+[data-style="plain"] .detail-head__title::after {
+  display: none; /* the magazine's name, not a page title */
+}
+
+/* Panels and cards: one radius, a hairline, no shadow. */
+
+[data-style="plain"] .panel {
+  padding: var(--s5) var(--s6) var(--s6);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+[data-style="plain"] .panel__label {
+  margin-bottom: var(--s3);
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+[data-style="plain"] .grid {
+  gap: var(--s4);
+}
+[data-style="plain"] .note-box {
+  border-style: solid;
+}
+
+/* Buttons: quiet by default. Primary (solid spot color) marks the main action;
+   danger is red text and outline. Row icon buttons stay square. */
+
+[data-style="plain"] .btn {
+  gap: var(--s2);
+  min-height: 2.6rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--line-strong);
+  border-image: none;
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.2;
+  transform: none;
+  transition: background-color var(--ease), border-color var(--ease), color var(--ease);
+}
+[data-style="plain"] .btn:hover {
+  filter: none;
+  background: var(--panel-recess);
+  border-color: var(--input-line);
+  color: var(--ink);
+}
+[data-style="plain"] .btn:active {
+  filter: none;
+  transform: none;
+  background: var(--line-strong);
+}
+[data-style="plain"] .btn--primary,
+[data-style="plain"] .btn--primary:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+[data-style="plain"] .btn--primary:hover {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+}
+[data-style="plain"] .btn--danger,
+[data-style="plain"] .btn--danger:hover {
+  border-color: var(--danger-ink);
+  background: var(--panel);
+  color: var(--danger-ink);
+}
+[data-style="plain"] .btn--danger:hover {
+  background: var(--panel-recess);
+}
+[data-style="plain"] .btn[aria-current="page"],
+[data-style="plain"] .btn[aria-current="true"],
+[data-style="plain"] .btn[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--page);
+}
+[data-style="plain"] .btn--big {
+  min-height: 3rem;
+  padding: 0 var(--s4);
+  font-size: 1.15rem;
+}
+[data-style="plain"] .btn--small {
+  min-height: 2.3rem;
+  padding: 0 var(--s2);
+  font-size: 1rem;
+}
+[data-style="plain"] .btn--icon {
+  min-width: 2.3rem;
+  padding: 0;
+}
+[data-style="plain"] .btn:disabled,
+[data-style="plain"] .btn[aria-disabled="true"] {
+  opacity: 0.45;
+  filter: none;
+}
+
+/* Joined choices (Cards, Table, Overview; Month, Week, Agenda). */
+
+[data-style="plain"] .segmented {
+  gap: 0;
+}
+[data-style="plain"] .segmented a,
+[data-style="plain"] .segmented button {
+  min-height: 2.3rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--line-strong);
+  border-image: none;
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color var(--ease), color var(--ease);
+}
+[data-style="plain"] .segmented > * + * {
+  margin-left: -1px;
+}
+[data-style="plain"] .segmented > :first-child {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+[data-style="plain"] .segmented > :last-child {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+[data-style="plain"] .segmented a:hover,
+[data-style="plain"] .segmented button:hover {
+  background: var(--panel-recess);
+  color: var(--ink);
+}
+[data-style="plain"] .segmented [aria-pressed="true"],
+[data-style="plain"] .segmented [aria-current="true"],
+[data-style="plain"] .segmented [aria-current="page"] {
+  position: relative;
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--page);
+}
+
+/* Tabs, in pop-ups and as page sections: an underline, like the menu. */
+
+[data-style="plain"] .tabs {
+  gap: var(--s4);
+  border-bottom: 1px solid var(--panel-edge);
+}
+[data-style="plain"] .tabs [role="tab"],
+[data-style="plain"] .tabs--nav a {
+  min-height: 0;
+  margin-bottom: -1px;
+  padding: var(--s2) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-image: none;
+  border-radius: 0;
+  background: none;
+  color: var(--ink-label);
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: color var(--ease), border-color var(--ease);
+}
+[data-style="plain"] .tabs [role="tab"]:hover,
+[data-style="plain"] .tabs--nav a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--line-strong);
+}
+[data-style="plain"] .tabs [role="tab"][aria-selected="true"],
+[data-style="plain"] .tabs--nav a[aria-current="page"] {
+  background: none;
+  color: var(--ink);
+  border-bottom-color: var(--orange);
+}
+[data-style="plain"] .tabs--nav {
+  row-gap: 0;
+  margin-bottom: var(--s6);
+  padding-bottom: 0;
+}
+
+/* Toolbar: a plain row under the title, not a recessed box. */
+
+[data-style="plain"] .toolbar,
+[data-style="plain"] .toolbar--light {
+  gap: var(--s3);
+  margin-bottom: var(--s6);
+  padding: 0 0 var(--s4);
+  background: none;
+  border-bottom: 1px solid var(--panel-edge);
+  border-radius: 0;
+}
+[data-style="plain"] .toolbar__group {
+  gap: var(--s2);
+}
+[data-style="plain"] .toolbar__title {
+  margin-left: var(--s3);
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* Switch: a track and knob; the knob's side says on or off, not only its color. */
+
+[data-style="plain"] .switch {
+  gap: var(--s2);
+}
+[data-style="plain"] .switch input {
+  width: 2.5rem;
+  height: 1.5625rem;
+  border-radius: 999px;
+  background: var(--switch-off);
+  transition: background-color var(--ease);
+}
+[data-style="plain"] .switch input::before {
+  content: "";
+  inset: 3px auto auto 3px;
+  width: calc(1.5625rem - 6px);
+  height: calc(1.5625rem - 6px);
+  border-radius: 50%;
+  background: var(--knob);
+  transition: transform var(--ease);
+}
+[data-style="plain"] .switch input:checked {
+  background: var(--switch-on);
+}
+[data-style="plain"] .switch input:checked::before {
+  content: "";
+  transform: translateX(0.9375rem);
+}
+[data-style="plain"] .switch input:active {
+  filter: none;
+}
+[data-style="plain"] .switch--compact input {
+  width: 2.5rem;
+  height: 1.5625rem;
+}
+
+/* Status: the LED keeps its shape per state; no glow. */
+
+[data-style="plain"] .led {
+  gap: var(--s2);
+}
+[data-style="plain"] .led::before {
+  width: 0.625rem;
+  height: 0.625rem;
+  box-shadow: none;
+}
+
+/* Tags: small labels in one neutral; only "Unmonitored" keeps its red. */
+
+[data-style="plain"] .tag {
+  padding: 0 var(--s2);
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+  background: var(--panel-recess);
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+[data-style="plain"] .tag--red {
+  border-color: var(--tape-red);
+  background: transparent;
+  color: var(--tape-red);
+}
+
+/* Messages, console, readout: printed panels instead of glowing screens. */
+
+[data-style="plain"] .crt {
+  border: 1px solid var(--panel-edge);
+  border-radius: var(--radius-sm);
+  background: var(--crt-bg);
+  color: var(--crt-fg);
+}
+[data-style="plain"] .crt::after {
+  display: none;
+}
+[data-style="plain"] .panel .crt {
+  color: var(--crt-fg);
+}
+[data-style="plain"] .console,
+[data-style="plain"] .log-view pre {
+  font-family: var(--font-data);
+}
+[data-style="plain"] .console__line--warning .console__level {
+  color: var(--warn-ink);
+}
+[data-style="plain"] .console__line--error .console__level,
+[data-style="plain"] .console__line--critical .console__level {
+  color: var(--danger-ink);
+}
+[data-style="plain"] .toast {
+  box-shadow: var(--shadow-float);
+}
+[data-style="plain"] .toast__close {
+  color: var(--ink-label);
+}
+[data-style="plain"] .readout__item {
+  border: 1px solid var(--panel-edge);
+  border-left: 3px solid var(--led-info);
+  border-radius: var(--radius-sm);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  box-shadow: var(--shadow-float);
+}
+[data-style="plain"] .readout__item--done {
+  border-left-color: var(--led-ok);
+}
+[data-style="plain"] .readout__item--failed {
+  border-left-color: var(--led-bad);
+}
+[data-style="plain"] .readout__title {
+  font-weight: 600;
+}
+[data-style="plain"] .readout__line {
+  color: var(--ink-muted);
+}
+[data-style="plain"] .readout__item--running .readout__mark {
+  animation: none; /* a steady light; the line under it shows progress */
+}
+
+/* Magazine cards: the cover leads, then the title, then the count. */
+
+[data-style="plain"] .cassette {
+  gap: var(--s3);
+  padding-bottom: var(--s4);
+  border-radius: var(--radius);
+  box-shadow: none;
+  transition: border-color var(--ease);
+}
+[data-style="plain"] .cassette:hover {
+  border-color: var(--input-line);
+}
+[data-style="plain"] .cassette__cover {
+  aspect-ratio: 3 / 2;
+  border-bottom: 1px solid var(--panel-edge);
+}
+[data-style="plain"] .cassette__label {
+  padding: var(--s4) var(--s4) 0;
+  border-bottom: 0;
+}
+[data-style="plain"] .cassette__title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+[data-style="plain"] .cassette__meta {
+  gap: var(--s1);
+  margin-top: var(--s2);
+}
+[data-style="plain"] .cassette__window {
+  justify-content: flex-start;
+  margin: 0 var(--s4);
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+[data-style="plain"] .cassette__window .lampdot {
+  display: none; /* the tags and status lines already say this */
+}
+[data-style="plain"] .cassette__bar,
+[data-style="plain"] .cassette__leds {
+  margin: 0 var(--s4);
+}
+[data-style="plain"] .cassette__leds {
+  gap: var(--s1) var(--s4);
+  font-size: 1rem;
+}
+[data-style="plain"] .cassette__count {
+  color: var(--ink-label);
+}
+
+/* The issue count, set like a folio: tabular figures, the total muted. */
+
+[data-style="plain"] .counter {
+  color: var(--ink);
+  font-family: var(--font-data);
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+[data-style="plain"] .counter__ghost {
+  display: none;
+}
+[data-style="plain"] .counter-total {
+  color: var(--ink-label);
+  font-size: 1.15rem;
+}
+[data-style="plain"] .lampdot,
+[data-style="plain"] .lampdot--on {
+  box-shadow: none;
+}
+
+/* Progress: one solid bar instead of ticks. */
+
+[data-style="plain"] .segbar,
+[data-style="plain"] .segbar--dark {
+  height: var(--s2);
+  padding: 0;
+  border-radius: 2px;
+  background: var(--divider);
+  overflow: hidden;
+}
+[data-style="plain"] .segbar__fill,
+[data-style="plain"] .segbar--plain .segbar__fill {
+  border-radius: 2px;
+  background: var(--green);
+}
+[data-style="plain"] .segbar--amber .segbar__fill {
+  background: var(--amber);
+}
+
+[data-style="plain"] .vu {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+}
+[data-style="plain"] .spinner {
+  background: none;
+  border: 2px solid var(--divider);
+  border-top-color: var(--ink-label);
+  box-shadow: none;
+}
+
+/* Tables and forms */
+
+[data-style="plain"] .table {
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+[data-style="plain"] .table th {
+  padding: var(--s2) var(--s3);
+  color: var(--ink-label);
+  font-size: 1rem;
+  font-weight: 600;
+}
+[data-style="plain"] .table td {
+  padding: var(--s2) var(--s3);
+}
+[data-style="plain"] .field {
+  gap: var(--s1);
+}
+[data-style="plain"] .field__label {
+  font-weight: 500;
+}
+[data-style="plain"] .input,
+[data-style="plain"] .select {
+  min-height: 2.6rem;
+  padding: var(--s1) var(--s3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 1.05rem;
+}
+[data-style="plain"] .input--mono {
+  font-family: var(--font-data);
+}
+[data-style="plain"] .form-section > legend,
+[data-style="plain"] .subhead,
+[data-style="plain"] .kind-card__name,
+[data-style="plain"] .indexer__name,
+[data-style="plain"] .empty__title,
+[data-style="plain"] .overview-row__title {
+  font-weight: 600;
+}
+[data-style="plain"] .summary {
+  gap: var(--s3) var(--s5);
+}
+[data-style="plain"] .cluster + .summary {
+  margin-top: var(--s4);
+}
+[data-style="plain"] .summary dt {
+  font-size: 0.95rem;
+}
+[data-style="plain"] .footer-stats dd {
+  font-family: var(--font-data);
+  font-size: 1.6rem;
+}
+
+/* Years and calendar */
+
+[data-style="plain"] .fold {
+  border-radius: var(--radius);
+}
+[data-style="plain"] .fold + .fold {
+  margin-top: var(--s2);
+}
+[data-style="plain"] .fold > summary {
+  padding: var(--s3) var(--s5);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+[data-style="plain"] .fold > summary::marker {
+  color: var(--ink-label);
+}
+[data-style="plain"] .fold__body {
+  padding: 0 var(--s5) var(--s4);
+}
+[data-style="plain"] .cal {
+  border-radius: var(--radius);
+}
+[data-style="plain"] .cal th {
+  font-weight: 600;
+}
+[data-style="plain"] .cal-entry {
+  border-radius: var(--radius-sm);
+}
+[data-style="plain"] .chart-missing {
+  stroke: var(--led-bad);
+}
+[data-style="plain"] .issue-grid__head {
+  font-weight: 600;
+}
+
+/* Floating things: one soft shadow, so they read as above the page. */
+
+[data-style="plain"] .menu__list {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-float);
+}
+[data-style="plain"] .detail-head__cover {
+  border: 1px solid var(--panel-edge);
+  box-shadow: none;
+}
+[data-style="plain"] .overview-row__cover {
+  border: 1px solid var(--panel-edge);
+}
+[data-style="plain"] .bulkbar {
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 40rem) {
+  [data-style="plain"] .deck-bar {
+    padding: var(--s3) var(--s4);
+  }
+  [data-style="plain"] main {
+    padding: var(--s5) var(--s4) var(--s8);
+  }
+  [data-style="plain"] .panel {
+    padding: var(--s4);
+  }
+  [data-style="plain"] .page-title {
+    font-size: 1.85rem;
+  }
+}

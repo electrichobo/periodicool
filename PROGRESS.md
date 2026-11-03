@@ -113,6 +113,35 @@ Handoff notes between sessions. Read at the start, update at the end.
   - **Also fixed:** two web tests pinned to "new only" broke when the date reached 2026-10-31 (the October 2026 fixture issue left the monitored range). They now monitor all issues.
   - **v0.2.2 tagged 2026-10-31** with this fix.
 
+- **Plain style, 2026-11-02 (maintainer asked for a second theme, following a one-time design audit brief):**
+  - **Setting:** `ui.style` (`cassette` default, `plain`) in Settings, UI. `apply_display` loads it into `web.DISPLAY_THEME["style"]`. `base.html` sets `data-style` and loads `static/css/plain.css` only for Plain, so Cassette is untouched.
+  - **plain.css** overrides tokens and component looks only; no template or logic changes:
+    - paper and ink neutrals with their own dark mode;
+    - orange (`--primary`) as the one spot color: `btn--primary`, the current menu item or tab underline, and a short rule under page titles;
+    - red for bad statuses (`--led-bad`), so orange never means "missing";
+    - system sans for words, Plex Mono for counts;
+    - one 4 px radius, a 4 px spacing scale (`--s1` to `--s8`);
+    - quiet buttons, joined view switches, a track-and-knob switch, solid progress bars;
+    - no lamp images, glow, scanlines or readout pulse;
+    - the Effects switch, "Sector" labels and "Magazine deck" are hidden.
+  - **Audit findings this answers (Cassette left as is):**
+    - every button looked the same;
+    - spaced-out uppercase everywhere;
+    - decorative "Sector" copy;
+    - too many competing accents;
+    - glow effects;
+    - 12 different corner radii;
+    - three display fonts;
+    - the phone toolbar taking a whole screen.
+  - **Planned versus built:** the proposal had a "More" menu on phones. It wasn't needed: Plain's compact buttons fit the Magazines toolbar in two rows at 375 px, with the first card on the first screen.
+  - **Checks:**
+    - contrast tests for every Plain text and control pair in light and dark (`test_theme.py`);
+    - dark auto equals dark forced;
+    - no gradients, images or loops in `plain.css`;
+    - the setting switches the stylesheet.
+    - Browser-checked Magazines, the magazine page, Settings, Calendar, Activity, Console and the Edit pop-up in light and dark, at desktop and 375 px (no sideways scroll), plus the keyboard focus ring.
+  - **Not released yet.**
+
 ## Next
 
 - **App icon, 2026-10-23:**

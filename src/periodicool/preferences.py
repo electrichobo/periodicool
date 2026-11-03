@@ -410,6 +410,14 @@ SECTIONS: dict[str, tuple[str, list[Field]]] = {
                 "Auto follows your device's light or dark setting.",
                 choices=(("auto", "Auto"), ("light", "Light"), ("dark", "Dark")),
             ),
+            Field(
+                "ui.style",
+                "Style",
+                "choice",
+                "cassette",
+                "Cassette is the hardware-panel look; Plain is quieter, like a printed page.",
+                choices=(("cassette", "Cassette"), ("plain", "Plain")),
+            ),
         ],
     ),
 }
@@ -549,6 +557,7 @@ def apply_display(session: Session) -> None:
 
     dates.load(session)
     web.DISPLAY_THEME["name"] = get_setting(session, "ui.theme", "auto")
+    web.DISPLAY_THEME["style"] = get_setting(session, "ui.style", "cassette")
 
 
 def job_names(session: Session) -> list[str]:

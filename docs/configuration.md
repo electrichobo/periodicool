@@ -45,7 +45,7 @@ Only paths, process settings and secrets come from the environment. Everything e
   - login mode (required, local network, off), trust the reverse proxy, log level;
   - port, URL base, allowed hosts, Application URL;
   - the API key.
-- **UI:** date and time formats, theme (light, dark, system), effects.
+- **UI:** date and time formats, theme (light, dark, system), style (Cassette, the hardware-panel look, or Plain, a quieter print-style look), effects (Cassette only).
 
 ## Backups and logs
 

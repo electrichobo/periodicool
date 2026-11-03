@@ -60,6 +60,7 @@ def test_ui_tab_applies_formats_and_theme(client):
         "ui__long_date": "day-iso",
         "ui__time_format": "12",
         "ui__theme": "dark",
+        "ui__style": "cassette",
     }
     assert client.post("/settings/ui", data=form, follow_redirects=False).status_code == 303
     assert dates.DISPLAY["short"] == "d/m/y" and dates.DISPLAY["time"] == "12"

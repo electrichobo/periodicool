@@ -1,6 +1,6 @@
 <!doctype html>
 {% import "_macros.html" as ui %}
-<html lang="en" data-effects="on" data-theme="{{ ui_theme | default('auto') }}">
+<html lang="en" data-effects="on" data-theme="{{ ui_theme | default('auto') }}" data-style="{{ ui_style | default('cassette') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,6 +10,7 @@
   <link rel="icon" href="{{ static('img/icon-32.png') }}" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="{{ static('img/icon-180.png') }}">
   <link rel="stylesheet" href="{{ static('css/theme.css') }}">
+  {% if ui_style | default('cassette') == "plain" %}<link rel="stylesheet" href="{{ static('css/plain.css') }}">{% endif %}
   <script src="{{ static('js/app.js') }}"></script>
   <script src="{{ static('vendor/htmx/htmx.min.js') }}" defer></script>
 </head>

@@ -57,8 +57,9 @@ templates.env.filters["relative_to"] = relative_to
 
 # Times are stored in UTC and shown in the TZ setting; create_app sets this.
 DISPLAY_TZ = {"name": "UTC"}
-# Light, dark or auto (follow the system); loaded at start and when Settings, UI is saved.
-DISPLAY_THEME = {"name": "auto"}
+# Light, dark or auto (follow the system), and the style (cassette or plain); loaded at
+# start and when Settings, UI is saved.
+DISPLAY_THEME = {"name": "auto", "style": "cassette"}
 
 
 def local(moment):
@@ -141,6 +142,7 @@ def render(request: Request, name: str, /, **context) -> HTMLResponse:
     if context.get("nav", True):
         context.setdefault("sys_state", system_state(request))
     context.setdefault("ui_theme", DISPLAY_THEME["name"])
+    context.setdefault("ui_style", DISPLAY_THEME["style"])
     return templates.TemplateResponse(request, name, context)
 
 

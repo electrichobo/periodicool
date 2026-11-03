@@ -4,6 +4,14 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- A second look, **Plain** (Settings, UI, Style). It has the same pages and controls as Cassette, which stays the default:
+  - paper and ink colors;
+  - one spot color for the main action and the current page;
+  - sentence case and the system font, with numbers in IBM Plex Mono;
+  - no glow, textures or looping animation.
+
 ## [0.2.2] - 2026-10-31
 
 ### Fixed

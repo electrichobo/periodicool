@@ -150,6 +150,7 @@ def test_wheel_contains_templates_and_static(tmp_path):
         "periodicool/templates/base.html",
         "periodicool/templates/ui_kit.html",
         "periodicool/static/css/theme.css",
+        "periodicool/static/css/plain.css",
         "periodicool/static/js/app.js",
         "periodicool/static/vendor/htmx/htmx.min.js",
         "periodicool/static/vendor/dseg/DSEG7Classic-Regular.woff2",
@@ -201,3 +202,105 @@ def test_ui_kit_modal_and_toast(client):
     )
     toast = client.post("/ui-kit/toast")
     assert json.loads(toast.headers["HX-Trigger"])["toast"]["kind"] == "ok"
+
+
+# Plain style (Settings, UI, Style): its own tokens over the same components.
+
+PLAIN = ROOT / "src" / "periodicool" / "static" / "css" / "plain.css"
+
+
+def plain_tokens(mode: str = "light") -> dict[str, str]:
+    """Plain's colors: the base tokens, then Plain's block, then Plain's dark block."""
+    css = PLAIN.read_text(encoding="utf-8")
+    found = tokens("light")
+    blocks = [re.search(r':root\[data-style="plain"\]\s*{(.*?)}', css, re.S).group(1)]
+    if mode == "dark":
+        dark = r':root\[data-style="plain"\]\[data-theme="dark"\]\s*{(.*?)}'
+        blocks.append(re.search(dark, css, re.S).group(1))
+    for block in blocks:
+        found |= dict(re.findall(r"--([\w-]+):\s*(#[0-9a-fA-F]{6})\s*;", block))
+    return found
+
+
+PLAIN_PAIRS = [
+    ("ink", "page", TEXT),
+    ("ink", "panel", TEXT),
+    ("ink", "panel-recess", TEXT),  # tags, button hover
+    ("ink", "input-bg", TEXT),
+    ("ink", "row-selected", TEXT),
+    ("ink", "cal-other", TEXT),
+    ("ink-label", "page", TEXT),  # menu, tabs
+    ("ink-label", "panel", TEXT),  # table heads, counts
+    ("ink-muted", "page", TEXT),
+    ("ink-muted", "panel", TEXT),
+    ("ink-muted", "panel-recess", TEXT),
+    ("orange-ink", "page", TEXT),  # link hover
+    ("orange-ink", "panel", TEXT),
+    ("on-primary", "primary", TEXT),  # the main action
+    ("on-primary", "primary-hover", TEXT),
+    ("danger-ink", "panel", TEXT),  # delete buttons
+    ("danger-ink", "panel-recess", TEXT),
+    ("tape-red", "panel", TEXT),  # Unmonitored tag, field errors
+    ("warn-ink", "panel", TEXT),  # console warnings
+    ("page", "ink", TEXT),  # chosen view, current page button
+    ("on-dark", "dark", TEXT),  # bulk bar
+    ("input-line", "input-bg", UI),  # field borders
+    ("orange", "page", UI),  # current menu item underline, title rule
+    ("green", "panel", UI),  # LEDs and bars
+    ("amber", "panel", UI),
+    ("tape-red", "page", UI),
+    ("blue", "panel", UI),
+    ("switch-on", "panel", UI),
+    ("switch-off", "panel", UI),
+    ("focus", "panel", UI),
+    ("focus", "page", UI),
+]
+
+
+@pytest.mark.parametrize("mode", ["light", "dark"])
+@pytest.mark.parametrize(("fg", "bg", "minimum"), PLAIN_PAIRS, ids=lambda v: str(v))
+def test_plain_contrast(fg, bg, minimum, mode):
+    t = plain_tokens(mode)
+    ratio = contrast(t[fg], t[bg])
+    assert ratio >= minimum, f"plain {mode}: {fg} on {bg}: {ratio:.2f} < {minimum}"
+
+
+def test_plain_dark_mode_follows_the_system_and_the_setting():
+    css = PLAIN.read_text(encoding="utf-8")
+    auto = re.search(
+        r"@media \(prefers-color-scheme: dark\)\s*{\s*"
+        r':root\[data-style="plain"\]:not\(\[data-theme="light"\]\)\s*{(.*?)}',
+        css,
+        re.S,
+    ).group(1)
+    forced = re.search(r':root\[data-style="plain"\]\[data-theme="dark"\]\s*{(.*?)}', css, re.S)
+    assert auto.split() == forced.group(1).split()
+
+
+def test_plain_has_no_glow_or_loops():
+    """Plain stays quiet: no gradients, glows, lamp images or looping animation."""
+    css = re.sub(r"/\*.*?\*/", "", PLAIN.read_text(encoding="utf-8"), flags=re.S)
+    for banned in ("gradient", "url(", "@keyframes", "infinite", "text-shadow: 0"):
+        assert banned not in css, banned
+
+
+def test_style_setting_switches_the_stylesheet(client):
+    form = {
+        "ui__first_weekday": "0",
+        "ui__week_header": "ddd",
+        "ui__short_date": "iso",
+        "ui__long_date": "day-iso",
+        "ui__time_format": "24",
+        "ui__theme": "auto",
+    }
+    page = client.get("/").text
+    assert 'data-style="cassette"' in page and "plain.css" not in page
+    try:
+        resp = client.post("/settings/ui", data=form | {"ui__style": "plain"})
+        assert resp.status_code in (200, 303)
+        page = client.get("/").text
+        assert 'data-style="plain"' in page and "/static/css/plain.css?v=" in page
+        assert client.get("/static/css/plain.css").status_code == 200
+    finally:
+        client.post("/settings/ui", data=form | {"ui__style": "cassette"})
+    assert "plain.css" not in client.get("/").text
