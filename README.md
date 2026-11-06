@@ -4,7 +4,7 @@
 
 Self-hosted manager for magazines. PeriodiCool tracks titles, works out which issues should exist, finds releases through your indexers, sends them to your download client, and keeps your library organized.
 
-> **Status:** young but working (v0.2.0): the web UI, the background jobs, the REST API and the Docker image are all in place. It runs on the maintainer's Unraid server with Prowlarr and SABnzbd; the other download clients follow their documented APIs and are waiting for real-world reports. See [CHANGELOG.md](CHANGELOG.md).
+> **Status:** young but working (v0.3.0): the web UI, the background jobs, the REST API and the Docker image are all in place. It runs on the maintainer's Unraid server with Prowlarr and SABnzbd; the other download clients follow their documented APIs and are waiting for real-world reports. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Getting started, the short version
 
@@ -21,6 +21,90 @@ You need three things it does not include: a place to look (an indexer, usually 
 That's it. PeriodiCool checks RSS every 15 minutes and looks for wanted issues on a schedule. Press Search monitored on a magazine's page to look right away.
 
 Already have magazines on disk? Run the library scan first: it shows a preview of where everything would go, and nothing moves until you say so.
+
+## A tour
+
+The screenshots use made-up demo data: placeholder covers, example hosts and a handful of the dev test magazines. Click any image to see it full size.
+
+### 1. Connect an indexer
+
+Settings, Indexers holds your list of places to search. Add a Prowlarr entry and it searches every indexer you set up in Prowlarr, or add a single Newznab or Torznab indexer directly. Each entry has its own switches for RSS, automatic search and interactive search, and a priority that breaks ties. Test checks the connection before you save.
+
+| Your indexers | Editing one |
+| - | - |
+| [![Indexer list](docs/images/indexers.png)](docs/images/indexers.png) | [![Editing a Prowlarr entry](docs/images/indexer-edit.png)](docs/images/indexer-edit.png) |
+
+### 2. Connect a download client
+
+Settings, Download clients works the same way. Give each client a category of its own (create it in the client first). PeriodiCool only adds jobs in that category and only reads or removes jobs it created, so a client that also serves your other apps is left alone. If the client sees its download folder at a different path than PeriodiCool does, add a remote path mapping on the same page.
+
+| Your download clients | Editing one |
+| - | - |
+| [![Download client list](docs/images/download-clients.png)](docs/images/download-clients.png) | [![Editing a SABnzbd entry](docs/images/download-client-edit.png)](docs/images/download-client-edit.png) |
+
+Automatic grabbing (Grab automatically, lower on this page) is off until you turn it on. Until then nothing is sent without you: pick a release yourself with Interactive search.
+
+### 3. Set up the library
+
+Settings, Media management sets the file naming. The examples on the right update as you type, so you can see where a weekly, a seasonal or a numbered issue will land before anything moves.
+
+[![Media management settings](docs/images/media-management.png)](docs/images/media-management.png)
+
+Already have files? Magazines, Scan for changes walks the library and shows a preview: what would move, what is already in place, and what needs your review, with the reason for each. Nothing moves until you press Apply. Files PeriodiCool can't match with confidence wait in the manual import queue for you to match or skip. Files are moved and renamed, never deleted or overwritten.
+
+[![Library scan preview](docs/images/library-scan.png)](docs/images/library-scan.png)
+
+### 4. Add a magazine
+
+Add magazine searches your indexers and groups what they find by title. Pick a match, or add it by hand: set the frequency and numbering, choose what to monitor (new issues only, from a year on, or all), and the issues PeriodiCool expects to see are listed before you save.
+
+[![Adding a magazine by hand](docs/images/add-magazine.png)](docs/images/add-magazine.png)
+
+### 5. The magazines page
+
+Every magazine you track, as cards, a table or an overview. Each card shows how many issues you have against how many should exist, with what is wanted and what is missing. The buttons along the top run an RSS sync, search for everything missing, edit several magazines at once, or open the manual import queue.
+
+[![Magazines page](docs/images/magazines.png)](docs/images/magazines.png)
+
+### 6. A magazine's page
+
+One magazine: its details, a chart of issues per year, and every issue grouped by year with its status, format and size. Switch monitoring on or off for the whole magazine, a year, or a single issue. Search monitored looks for everything wanted right away; Interactive search lists every release found, each with the reason it was accepted or rejected.
+
+| A magazine | One issue |
+| - | - |
+| [![A magazine's page](docs/images/magazine-page.png)](docs/images/magazine-page.png) | [![Issue details](docs/images/issue-details.png)](docs/images/issue-details.png) |
+
+### 7. Wanted, Calendar and Activity
+
+Wanted lists every monitored issue without a file. An issue is "wanted" until its grace window passes, then "missing", since issues often reach the shelf before their cover date. Calendar shows when issues are due (with an iCal feed), and Activity shows PeriodiCool's own downloads as they run, plus the history and the blocklist.
+
+| Wanted | Calendar |
+| - | - |
+| [![Wanted page](docs/images/wanted.png)](docs/images/wanted.png) | [![Calendar](docs/images/calendar.png)](docs/images/calendar.png) |
+
+[![Activity queue](docs/images/activity.png)](docs/images/activity.png)
+
+### 8. Metadata lookups
+
+Settings, Metadata has a switch for each public catalog PeriodiCool can ask, all off by default. Turning them on helps it recognize magazines and editions, check frequencies and find past issues. Nothing about a magazine changes until you apply a suggestion. See [Metadata lookups](#metadata-lookups-off-by-default) below.
+
+[![Metadata settings](docs/images/metadata.png)](docs/images/metadata.png)
+
+## Looks
+
+PeriodiCool has two styles, and each one comes in light and dark. Pick them in Settings, UI: Style sets the look, and Theme follows your system or stays light or dark. Both styles have the same pages and controls, and both work on a phone.
+
+- **Cassette** (the default) is a hardware panel: segment-display counters, LED status lights and chunky buttons. Glow and scanlines can be turned off with the Effects switch at the bottom of every page, and they stay off when your system asks for reduced motion.
+- **Plain** is quieter, like a printed page: paper and ink, one orange accent for the main action, and no glow or animation.
+
+| | Light | Dark |
+| - | - | - |
+| **Cassette** | [![Cassette, light](docs/images/theme-cassette-light.png)](docs/images/theme-cassette-light.png) | [![Cassette, dark](docs/images/theme-cassette-dark.png)](docs/images/theme-cassette-dark.png) |
+| **Plain** | [![Plain, light](docs/images/theme-plain-light.png)](docs/images/theme-plain-light.png) | [![Plain, dark](docs/images/theme-plain-dark.png)](docs/images/theme-plain-dark.png) |
+
+| On a phone: Cassette | On a phone: Plain | Settings, UI |
+| - | - | - |
+| <img src="docs/images/theme-cassette-phone.png" alt="Cassette on a phone" width="240"> | <img src="docs/images/theme-plain-phone.png" alt="Plain on a phone" width="240"> | [![UI settings](docs/images/ui-settings.png)](docs/images/ui-settings.png) |
 
 ## Documentation
 

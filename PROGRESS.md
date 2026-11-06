@@ -141,6 +141,9 @@ Handoff notes between sessions. Read at the start, update at the end.
     - the setting switches the stylesheet.
     - Browser-checked Magazines, the magazine page, Settings, Calendar, Activity, Console and the Edit pop-up in light and dark, at desktop and 375 px (no sideways scroll), plus the keyboard focus ring.
   - **v0.3.0 tagged 2026-11-02** with this style.
+- **README tour, 2026-11-06 (docs only):**
+  - "A tour" (indexers, download clients, media management, library scan, add, magazines, a magazine, Wanted, Calendar, Activity, Metadata) and "Looks" (Cassette and Plain, light and dark, phone). Images in `docs/images/`.
+  - Taken from a copy of the dev database under `dev-data/demo/` (gitignored), with example hosts and local paths cleared, served on port 8585 and captured with headless Edge at 1440×900. To redo them after a UI change, repeat that: never shoot a real install.
 
 ## Next
 
