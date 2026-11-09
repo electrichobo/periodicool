@@ -65,6 +65,13 @@ PEOPLE = _mag(
     anchor_date=date(2023, 7, 10),  # a Monday issue
     publish_weekday=0,
 )
+NEW_YORK_MAGAZINE = _mag(
+    "New York Magazine",
+    Frequency.BIWEEKLY,
+    Numbering.DATE,
+    anchor_date=date(2026, 10, 5),  # October 5th-October 18th 2026, a Monday
+    publish_weekday=0,
+)
 
 BY_FIXTURE = {
     "american-cinematographer": AMERICAN_CINEMATOGRAPHER,
@@ -76,4 +83,5 @@ BY_FIXTURE = {
     "fortean-times": FORTEAN_TIMES,
     "tabletop-gaming": TABLETOP_GAMING,
     "people": PEOPLE,
+    "new-york-magazine": NEW_YORK_MAGAZINE,
 }

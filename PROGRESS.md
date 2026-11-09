@@ -144,6 +144,15 @@ Handoff notes between sessions. Read at the start, update at the end.
 - **README tour, 2026-11-06 (docs only):**
   - "A tour" (indexers, download clients, media management, library scan, add, magazines, a magazine, Wanted, Calendar, Activity, Metadata) and "Looks" (Cassette and Plain, light and dark, phone). Images in `docs/images/`.
   - Taken from a copy of the dev database under `dev-data/demo/` (gitignored), with example hosts and local paths cleared, served on port 8585 and captured with headless Edge at 1440×900. To redo them after a UI change, repeat that: never shoot a real install.
+- **Date ranges and month-first dates, 2026-11-08 (from a GitHub parser report):**
+  - `parse_release` reads one issue named by a date range, each end month first or day first, with a tag allowed in the middle (masked text). The issue date is the first day. The year comes from the start, or else the end (minus one when the range crosses New Year). Longer than `MAX_RANGE_DAYS` (35), backwards or impossible: a reason and no date. Also reads single month-first dates, and flags impossible dates.
+  - Fixture `new-york-magazine` (biweekly, added to `tests/dev_magazines.py`). Its dated issues sit on one 14-day Monday cycle, so `identify` needed no change; a day typed wrong by up to 3 days lands on the schedule date, and further off goes to review.
+  - **Not a range:** `Issue 7991-19 August 2023` is issue 7991 dated the 19th. The dash after an issue number separates it from the date (real People's Friend names). `No 10-12 January 2026` reads the same way, on purpose.
+  - **Not done:**
+    - A range covering two expected issues (a weekly's double issue) marks only the first; the second stays Missing.
+    - `text_clues` (PDF text) still has no month-first dates; a free-text date on a first page is not always the cover date.
+    - `23.30.December.2013` and `May.1.4.TruePDF-2017` stay low confidence.
+  - Not released yet.
 
 ## Next
 

@@ -1,0 +1,1682 @@
+{
+  "magazine": "New York Magazine",
+  "query": "New York Magazine",
+  "category": 7010,
+  "collected": "2026-11-08",
+  "releases": [
+    {
+      "title": "- [MAGAZINE] New.York.Magazine.TruePDF-8.August.2016",
+      "size": 42508000,
+      "publish_date": "2025-06-18T02:11:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.York.Review.of.Books.TruePDF-29.September.2016",
+      "size": 31207000,
+      "publish_date": "2025-06-17T06:29:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.York.Times.Magazine.TruePDF-11.September.2016",
+      "size": 27051000,
+      "publish_date": "2025-06-17T20:23:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.Yorker-12.September.2016",
+      "size": 20905000,
+      "publish_date": "2025-06-14T11:03:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.Yorker-19.September.2016",
+      "size": 25342000,
+      "publish_date": "2025-06-11T11:41:38Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.Yorker.TruePDF-12.September.2016",
+      "size": 20901000,
+      "publish_date": "2025-06-11T04:02:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "- [MAGAZINE].The.New.Yorker.TruePDF-19.September.2016",
+      "size": 25357000,
+      "publish_date": "2025-06-15T22:11:42Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] IN.New.York.TruePDF-September.2016",
+      "size": 61588000,
+      "publish_date": "2025-06-14T13:52:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.York.Review.of.Books.TruePDF-13.October.2016",
+      "size": 18422000,
+      "publish_date": "2025-06-15T19:30:40Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.York.Times.Magazine-14.August.2016",
+      "size": 12862000,
+      "publish_date": "2025-06-14T05:11:25Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.York.Times.Magazine-8.August.2016",
+      "size": 12861000,
+      "publish_date": "2025-06-13T14:31:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.York.Times.Magazine.TruePDF-14.August.2016",
+      "size": 12862000,
+      "publish_date": "2025-06-17T19:30:37Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.York.Times.Magazine.TruePDF-25.September.2016",
+      "size": 51124000,
+      "publish_date": "2025-06-15T00:50:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker-10.October.2016",
+      "size": 27799000,
+      "publish_date": "2025-06-11T07:57:24Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker-26.September.2016",
+      "size": 19597000,
+      "publish_date": "2025-06-15T18:16:51Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker.TruePDF-10.October.2016",
+      "size": 27800000,
+      "publish_date": "2025-06-11T11:30:40Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker.TruePDF-22.August.2016",
+      "size": 17714000,
+      "publish_date": "2025-06-13T20:26:31Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker.TruePDF-26.September.2016",
+      "size": 20726000,
+      "publish_date": "2025-06-11T14:06:15Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] The.New.Yorker.TruePDF-3.October.2016",
+      "size": 22074000,
+      "publish_date": "2025-06-20T11:03:59Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[MAGAZINE] Where.New.York.TruePDF-September.2016",
+      "size": 25875000,
+      "publish_date": "2025-06-11T09:40:14Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "[The.New.York.Times.Magazine.TruePDF-09.October.2016] - The.New.York.Times.Magazine.TruePDF-09.October.2016",
+      "size": 350564,
+      "publish_date": "2026-06-13T21:13:58Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Central New York Magazine July-August",
+      "size": 99849528,
+      "publish_date": "2025-08-03T08:35:20Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Luxe.Interior.and.Design.Magazine.New.York.Edition-Summer.2013",
+      "size": 215951716,
+      "publish_date": "2025-07-14T07:03:34Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Magazine - The New York Review of Science Fiction - 291 - 2012-11 - vol 25 no 03 (epub)",
+      "size": 4680050,
+      "publish_date": "2025-07-13T03:12:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Magazine - The New York Review of Science Fiction - 292 - 2012-12 - vol 25 no 04 (v5.0) (epub)",
+      "size": 23534236,
+      "publish_date": "2025-07-28T06:44:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "Magazine - The New York Review of Science Fiction - 296 - 2013-04 - vol 25 no 08 (epub)",
+      "size": 17158302,
+      "publish_date": "2025-07-12T03:36:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine - Vol. 52 No. 10 13 May 2019 2 of 7 New York Magazine - Vol. 52 No. 10 13 May 2019.pdf",
+      "size": 52936136,
+      "publish_date": "2019-05-26T14:05:38Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine - Vol. 52 No. 11 27 May 2019 1 of 7 New York Magazine - Vol. 52 No. 11 27 May 2019.jpg",
+      "size": 50260762,
+      "publish_date": "2019-05-26T14:05:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine - Vol. 52 No. 12 10 Jun 2019 1 of 7 New York Magazine - Vol. 52 No. 12 10 Jun 2019.jpg",
+      "size": 38953641,
+      "publish_date": "2019-06-09T15:52:41Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine - Vol. 52 No. 13 24 Jun 2019 1 of 9 New York Magazine - Vol. 52 No. 13 24 Jun 2019.jpg",
+      "size": 125428828,
+      "publish_date": "2019-06-24T15:53:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine-19 October 2023",
+      "size": 6423000,
+      "publish_date": "2023-10-15T23:09:51Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New York Magazine-9 October 2023",
+      "size": 6423000,
+      "publish_date": "2023-10-15T23:09:53Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Lifestyles.Magazine-September.2023",
+      "size": 428039000,
+      "publish_date": "2023-09-11T08:13:58Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-01.September.2023",
+      "size": 54708000,
+      "publish_date": "2023-09-15T12:28:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-14-27.August.2023",
+      "size": 77849000,
+      "publish_date": "2023-08-20T22:35:14Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-17.July.2023",
+      "size": 110695000,
+      "publish_date": "2023-07-25T18:34:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-19",
+      "size": 34412285,
+      "publish_date": "2025-06-16T13:56:03Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-19.October.2023",
+      "size": 92852000,
+      "publish_date": "2023-10-14T18:49:23Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.magazine-23.30.December.2013",
+      "size": 109097213,
+      "publish_date": "2025-07-14T05:43:48Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-25.September.2023",
+      "size": 84596000,
+      "publish_date": "2023-10-01T01:57:01Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-28.August.2023",
+      "size": 134190000,
+      "publish_date": "2023-09-03T00:03:52Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-30.December.2024-12.January.2025.[NulledPremium]",
+      "size": 63532000,
+      "publish_date": "2025-01-29T10:51:43Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-31.July.2023",
+      "size": 60518000,
+      "publish_date": "2023-08-05T23:48:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine-9.October.2023",
+      "size": 119569000,
+      "publish_date": "2023-10-11T09:46:47Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.30.October.TruePDF-12.November.2017",
+      "size": 43113927,
+      "publish_date": "2017-11-03T21:49:53Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.magazine.6.TruePDF-19.October.2014",
+      "size": 64985224,
+      "publish_date": "2025-07-13T22:55:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.August.21.TruePDF-3.September.2017",
+      "size": 41164959,
+      "publish_date": "2017-08-21T11:59:34Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.July.24.TruePDF-6.August.2017",
+      "size": 22806117,
+      "publish_date": "2017-07-24T02:17:40Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.June.26.TruePDF-9.July.2017",
+      "size": 38546356,
+      "publish_date": "2017-06-28T12:24:08Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.May.1.4.TruePDF-2017",
+      "size": 37445509,
+      "publish_date": "2017-05-01T20:31:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.May.29.TruePDF-11.June.2017",
+      "size": 37163067,
+      "publish_date": "2017-05-29T04:10:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.A.Special.Issue.The.Cut.Autumn.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 154373925,
+      "publish_date": "2026-10-07T06:30:28Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.April.20th-May.3rd.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 151741259,
+      "publish_date": "2026-05-22T10:28:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.April.6th-April.19th.2026.HYBRiD.MAGAZiNE",
+      "size": 79916000,
+      "publish_date": "2026-04-06T21:41:00Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.April.6th-April.19th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 106535732,
+      "publish_date": "2026-04-16T14:21:49Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.August.11th-August.24th.2025.HYBRiD.MAGAZiNE",
+      "size": 85526000,
+      "publish_date": "2025-08-12T16:36:42Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.August.24th-September.6th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 93213599,
+      "publish_date": "2026-08-26T08:56:10Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.August.8th-August.23rd.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 102063564,
+      "publish_date": "2026-08-13T07:58:34Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.January.15-28.2024.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 99657000,
+      "publish_date": "2024-01-31T02:14:15Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.July.13th-July.26th.2026.HYBRiD.MAGAZiNE",
+      "size": 73871000,
+      "publish_date": "2026-08-17T21:29:55Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.July.14th-July.27th.2025.HYBRiD.MAGAZiNE",
+      "size": 85088000,
+      "publish_date": "2025-07-20T16:58:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.July.27th-August.9th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 115300826,
+      "publish_date": "2026-07-30T08:40:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.July.28th-August.10th.2025.HYBRiD.MAGAZiNE",
+      "size": 76420000,
+      "publish_date": "2025-08-03T08:51:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.15th-June.28th.2026.HYBRiD.MAGAZiNE",
+      "size": 73584000,
+      "publish_date": "2026-06-20T21:35:08Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.15th-June.28th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 101681404,
+      "publish_date": "2026-06-16T00:51:47Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.16th-June.29th.2025.HYBRiD.MAGAZiNE",
+      "size": 92835000,
+      "publish_date": "2025-07-01T01:45:21Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.1st-June.14th.2026.HYBRiD.MAGAZiNE",
+      "size": 80570000,
+      "publish_date": "2026-06-11T09:20:14Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.1st-June.14th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 104468666,
+      "publish_date": "2026-06-04T12:34:02Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.29th-July.12th.2026.HYBRiD.MAGAZiNE",
+      "size": 90656000,
+      "publish_date": "2026-08-16T21:10:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.2nd-June.15th.2025.HYBRiD.MAGAZiNE",
+      "size": 95409000,
+      "publish_date": "2025-07-01T01:45:26Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.June.30th-July.13th.2025.HYBRiD.MAGAZiNE",
+      "size": 88812000,
+      "publish_date": "2025-07-02T03:28:19Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.March.9th-March.22nd.2026.HYBRiD.MAGAZiNE",
+      "size": 96541000,
+      "publish_date": "2026-03-14T18:15:24Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.May.18th-May.31st.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 119583765,
+      "publish_date": "2026-05-22T10:28:15Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.May.4th-May.17th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 110830132,
+      "publish_date": "2026-05-22T10:28:16Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.Mens.Style.A.Special.Issue.Autumn.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 149723565,
+      "publish_date": "2026-10-07T06:30:38Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.November.2nd-November.15th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 111541981,
+      "publish_date": "2026-11-06T11:37:38Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.October.19th-November.1st.2026.HYBRiD.MAGAZiNE",
+      "size": 80227000,
+      "publish_date": "2026-10-24T10:29:58Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.October.19th-November.1st.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 108254637,
+      "publish_date": "2026-10-21T07:09:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.October.5th-October.18th.2026.HYBRiD.MAGAZiNE",
+      "size": 83247000,
+      "publish_date": "2026-10-15T11:20:14Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.October.5th-October.18th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 108162292,
+      "publish_date": "2026-10-13T09:04:12Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.September.21st-October.4th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 107149987,
+      "publish_date": "2026-10-07T06:30:32Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.September.7th-September.20th.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 159997041,
+      "publish_date": "2026-10-07T06:30:40Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.No.The.Hamptons.Issue.Summer.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+      "size": 143510205,
+      "publish_date": "2026-06-24T08:42:34Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.October.23-5.November.2023",
+      "size": 120458000,
+      "publish_date": "2023-11-04T02:01:56Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-01.April.2019",
+      "size": 36489551,
+      "publish_date": "2019-04-04T20:25:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-08.January.2018",
+      "size": 24673544,
+      "publish_date": "2018-01-08T02:17:06Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-10-23.July.2017",
+      "size": 32630921,
+      "publish_date": "2017-07-09T09:05:42Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-12-25.June.2017",
+      "size": 37036831,
+      "publish_date": "2017-06-11T19:07:27Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-15-28.May.2017",
+      "size": 35138966,
+      "publish_date": "2017-05-15T06:11:42Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-15.April.2019",
+      "size": 56548057,
+      "publish_date": "2019-04-14T20:30:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-16.October.2017",
+      "size": 52617166,
+      "publish_date": "2017-10-17T22:57:14Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-17-30.April.2017",
+      "size": 48935321,
+      "publish_date": "2017-04-16T03:49:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-17.November.2014",
+      "size": 28298085,
+      "publish_date": "2025-07-08T10:48:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-19",
+      "size": 35846050,
+      "publish_date": "2025-06-15T03:26:00Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-25.December.2017",
+      "size": 24107520,
+      "publish_date": "2017-12-24T21:48:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-25.October.2017",
+      "size": 80240696,
+      "publish_date": "2017-10-24T06:43:46Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-27.November.2017",
+      "size": 42084268,
+      "publish_date": "2017-11-27T12:10:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-28.November.2017",
+      "size": 54559176,
+      "publish_date": "2017-11-27T09:22:17Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-29.April.2019",
+      "size": 35378534,
+      "publish_date": "2019-04-28T22:03:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-3",
+      "size": 34688437,
+      "publish_date": "2025-06-13T17:20:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-3-16.April.2017",
+      "size": 27560488,
+      "publish_date": "2017-04-03T03:26:55Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.magazine.TruePDF-3.November.2014",
+      "size": 52920045,
+      "publish_date": "2025-07-12T19:17:04Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-30.October.2017",
+      "size": 34571159,
+      "publish_date": "2017-10-30T13:56:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-4-17.September.2017",
+      "size": 44233860,
+      "publish_date": "2017-09-05T14:25:43Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-5.September.2017",
+      "size": 58829765,
+      "publish_date": "2017-09-20T11:43:36Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-7-20.August.2017",
+      "size": 33070323,
+      "publish_date": "2017-08-07T07:50:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New.York.Magazine.TruePDF-8.January.2018",
+      "size": 24675413,
+      "publish_date": "2018-01-09T19:11:56Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "New_York_Magazine_-_CUT_Spring_2026_(2026-02-16)",
+      "size": 189204855,
+      "publish_date": "2026-02-17T12:32:36Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Magazine - August 30, 2026",
+      "size": 19554634,
+      "publish_date": "2026-08-30T19:45:49Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Magazine-01 October 2023",
+      "size": 5356000,
+      "publish_date": "2023-10-15T23:50:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Magazine-03 September 2023",
+      "size": 6424000,
+      "publish_date": "2023-10-15T23:50:25Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Magazine-10 September 2023",
+      "size": 7491000,
+      "publish_date": "2023-10-15T23:50:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Style Magazine-10 September 2023",
+      "size": 5356000,
+      "publish_date": "2023-10-15T23:50:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The New York Times Style Magazine-24 September 2023",
+      "size": 5356000,
+      "publish_date": "2023-10-15T23:50:32Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.Editors.Of.New.York.Magazine.Take.Up.Space.The.Unprecedented.AOC.2022.RETAIL.EPUB.eBook-CTO",
+      "size": 21474622,
+      "publish_date": "2026-10-07T06:33:57Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-01.October.2023",
+      "size": 48302000,
+      "publish_date": "2023-10-13T22:56:22Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-02.July.2023",
+      "size": 36587000,
+      "publish_date": "2023-07-12T08:21:35Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-03.September.2023",
+      "size": 38318000,
+      "publish_date": "2023-10-08T00:13:29Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-06.August.2023",
+      "size": 43034000,
+      "publish_date": "2023-08-10T08:24:36Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-08.October.2023",
+      "size": 58746000,
+      "publish_date": "2023-10-19T01:10:11Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-09.July.2023",
+      "size": 48398000,
+      "publish_date": "2023-07-15T17:43:26Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-10.September.2023",
+      "size": 53203000,
+      "publish_date": "2023-10-04T03:01:18Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-13.August.2023",
+      "size": 50270000,
+      "publish_date": "2023-08-21T09:26:30Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-14",
+      "size": 38887395,
+      "publish_date": "2025-06-14T05:11:25Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-15.October.2023",
+      "size": 54670000,
+      "publish_date": "2023-10-23T05:51:07Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-16.July.2023",
+      "size": 37975000,
+      "publish_date": "2023-07-21T09:47:35Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-17.September.2023",
+      "size": 45193000,
+      "publish_date": "2023-10-01T21:38:17Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-20.August.2023",
+      "size": 43212000,
+      "publish_date": "2023-08-25T11:49:03Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-22.October.2023",
+      "size": 42551000,
+      "publish_date": "2023-10-28T06:08:34Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-23.July.2023",
+      "size": 38746000,
+      "publish_date": "2023-07-29T20:01:34Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-24.September.2023",
+      "size": 46727000,
+      "publish_date": "2023-10-02T16:32:16Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-30.July.2023",
+      "size": 40236000,
+      "publish_date": "2023-08-11T09:41:35Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine-8",
+      "size": 38889216,
+      "publish_date": "2025-06-13T14:31:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.08.13.2023",
+      "size": 52363698,
+      "publish_date": "2023-08-13T18:46:48Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.08.27.2023",
+      "size": 43336342,
+      "publish_date": "2023-08-27T23:01:07Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-03.June.2017",
+      "size": 40659600,
+      "publish_date": "2017-06-04T20:00:33Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-03.September.2017",
+      "size": 14550868,
+      "publish_date": "2017-09-03T18:11:39Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-06.August.2017",
+      "size": 12362924,
+      "publish_date": "2017-08-05T16:37:01Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-06.May.2017",
+      "size": 34030109,
+      "publish_date": "2017-05-07T00:05:26Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-08.October.2017",
+      "size": 16302976,
+      "publish_date": "2017-10-08T18:26:30Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-09.April.2017",
+      "size": 19892488,
+      "publish_date": "2017-04-08T15:51:42Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-09.July.2017",
+      "size": 13121947,
+      "publish_date": "2017-07-09T04:23:32Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-10.December.2017",
+      "size": 28827551,
+      "publish_date": "2017-12-12T16:48:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-10.September.2017",
+      "size": 23579988,
+      "publish_date": "2017-09-11T15:50:33Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-11",
+      "size": 54526608,
+      "publish_date": "2025-06-17T20:23:28Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-13.May.2017",
+      "size": 15087337,
+      "publish_date": "2017-05-13T22:59:42Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-14",
+      "size": 38891427,
+      "publish_date": "2025-06-17T19:30:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-16.April.2017",
+      "size": 10888122,
+      "publish_date": "2017-04-16T01:51:45Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-16.July.2017",
+      "size": 18589316,
+      "publish_date": "2017-07-15T16:13:43Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-17.September.2017",
+      "size": 18731426,
+      "publish_date": "2017-09-16T16:59:49Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-19.November.2017",
+      "size": 20675176,
+      "publish_date": "2017-11-18T14:19:18Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-20.August.2017",
+      "size": 17091467,
+      "publish_date": "2017-08-22T21:33:06Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-21.May.2017",
+      "size": 20283445,
+      "publish_date": "2017-05-20T23:59:37Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-23.April.2017",
+      "size": 22898350,
+      "publish_date": "2017-04-23T04:03:44Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-23.July.2017",
+      "size": 13573420,
+      "publish_date": "2017-07-22T08:26:58Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-25",
+      "size": 51523536,
+      "publish_date": "2025-06-15T00:50:16Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-26.November.2017",
+      "size": 12750274,
+      "publish_date": "2017-11-25T19:24:22Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-27.August.2017",
+      "size": 10841639,
+      "publish_date": "2017-08-26T18:11:50Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-28.May.2017",
+      "size": 15694360,
+      "publish_date": "2017-05-29T04:11:52Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-29.October.2017",
+      "size": 19764072,
+      "publish_date": "2017-10-27T21:36:42Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-30.April.2017",
+      "size": 17551456,
+      "publish_date": "2017-04-30T11:54:17Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-4.June.2017",
+      "size": 40659722,
+      "publish_date": "2017-06-04T20:00:47Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-6.August.2017",
+      "size": 12115299,
+      "publish_date": "2017-08-06T12:39:41Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Magazine.TruePDF-8.October.2017",
+      "size": 16301788,
+      "publish_date": "2017-10-09T17:21:10Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Style.Magazine-10.September.2023",
+      "size": 69680000,
+      "publish_date": "2023-10-08T00:30:33Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Style.Magazine-22.October.2023",
+      "size": 83660000,
+      "publish_date": "2023-10-30T17:19:26Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Style.Magazine-24.September.2023",
+      "size": 110577000,
+      "publish_date": "2023-10-04T10:13:06Z",
+      "categories": [
+        7000,
+        7010,
+        107000,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.TImes.Style.Magazine.08.20.2023",
+      "size": 107382304,
+      "publish_date": "2023-08-18T18:19:18Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Style.Magazine.Germany.No.02.2026.GERMAN.HYBRID.eBook-LORENZ",
+      "size": 147914765,
+      "publish_date": "2026-09-18T03:58:29Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    },
+    {
+      "title": "The.New.York.Times.Style.Magazine.Germany.No.03.2026.GERMAN.HYBRID.eBook-LORENZ",
+      "size": 156069739,
+      "publish_date": "2026-09-18T03:58:27Z",
+      "categories": [
+        7010,
+        107010
+      ]
+    }
+  ]
+}

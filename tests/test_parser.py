@@ -401,3 +401,98 @@ def test_every_fixture_parses_without_error(name):
         assert 1 <= parsed.day <= 31
     if parsed.year is not None:
         assert 1900 <= parsed.year <= 2099
+
+
+# Real names from fixtures/releases/new-york-magazine.json. The issue date is the
+# first day of the range, whichever order or tags the name uses.
+@pytest.mark.parametrize(
+    ("name", "year", "month", "day"),
+    [
+        # Month first at both ends.
+        ("New.York.Magazine.No.October.5th-October.18th.2026.HYBRiD.MAGAZiNE", 2026, 10, 5),
+        ("New.York.Magazine.No.October.19th-November.1st.2026.HYBRiD.MAGAZiNE", 2026, 10, 19),
+        ("New.York.Magazine.No.April.6th-April.19th.2026.HYBRiD.MAGAZiNE", 2026, 4, 6),
+        # One month, two days, in both orders.
+        ("New.York.Magazine.No.January.15-28.2024.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE", 2024, 1, 15),
+        ("New.York.Magazine-14-27.August.2023", 2023, 8, 14),
+        ("New.York.Magazine.TruePDF-10-23.July.2017", 2017, 7, 10),
+        # A year at each end.
+        ("New.York.Magazine-30.December.2024-12.January.2025.[NulledPremium]", 2024, 12, 30),
+        # Mixed orders, and a tag in the middle of the range.
+        ("New.York.Magazine.October.23-5.November.2023", 2023, 10, 23),
+        ("New.York.Magazine.30.October.TruePDF-12.November.2017", 2017, 10, 30),
+        ("New.York.Magazine.August.21.TruePDF-3.September.2017", 2017, 8, 21),
+        ("New.York.magazine.6.TruePDF-19.October.2014", 2014, 10, 6),
+        # Only the end has a year, and the range crosses New Year.
+        ("Foo December 29th-January 11th 2026", 2025, 12, 29),
+        ("Foo December 29th 2025-January 11th 2026", 2025, 12, 29),
+        # Commas and en dashes.
+        ("Foo October 5–18, 2026", 2026, 10, 5),
+        ("Foo Oct. 5-18, 2026", 2026, 10, 5),
+    ],
+)
+def test_date_range_uses_the_first_day(name, year, month, day):
+    parsed = parse_release(name)
+    assert (parsed.year, parsed.month, parsed.day) == (year, month, day)
+    assert parsed.confidence == HIGH, parsed.reasons
+    assert parsed.issue is None and not parsed.pack
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Foo 1 January 2020-31 December 2025",  # far too long for one issue
+        "Foo 5 October 2026-1 October 2026",  # ends before it starts
+        "Foo February 20-31 2026",  # no such day
+    ],
+)
+def test_date_range_that_makes_no_sense_is_not_guessed(name):
+    parsed = parse_release(name)
+    assert parsed.confidence == LOW
+    assert parsed.day is None
+
+
+@pytest.mark.parametrize(
+    ("name", "month", "day"),
+    [
+        ("The New York Times Magazine - August 30, 2026", 8, 30),
+        ("People October 6 2025", 10, 6),
+        ("People October 6th 2025", 10, 6),
+        ("People Oct-06-2025", 10, 6),
+    ],
+)
+def test_month_first_date(name, month, day):
+    parsed = parse_release(name)
+    assert (parsed.month, parsed.day) == (month, day)
+    assert parsed.year in (2025, 2026)
+    assert parsed.confidence == HIGH, parsed.reasons
+    assert "October" not in parsed.title and "Oct" not in parsed.title
+
+
+@pytest.mark.parametrize(
+    ("name", "issue", "day", "month", "year"),
+    [
+        # The dash after an issue number separates it from the date: not a range.
+        ("The.Peoples.Friend.Issue.7991-19.August.2023", 7991, 19, 8, 2023),
+        ("Foo No 10-12 January 2026", 10, 12, 1, 2026),
+        ("Foo Issue 10-12 January 2026", 10, 12, 1, 2026),
+    ],
+)
+def test_issue_number_then_date_is_not_a_range(name, issue, day, month, year):
+    parsed = parse_release(name)
+    assert (parsed.issue, parsed.day, parsed.month, parsed.year) == (issue, day, month, year)
+    assert parsed.issue_end is None
+
+
+def test_issue_number_and_day_both_read():
+    parsed = parse_release("New York Magazine - Vol. 52 No. 10 13 May 2019")
+    assert (parsed.volume, parsed.issue) == (52, 10)
+    assert (parsed.year, parsed.month, parsed.day) == (2019, 5, 13)
+
+
+@pytest.mark.parametrize("name", ["Foo 31 February 2026", "Foo February 31 2026"])
+def test_impossible_date_is_low_confidence(name):
+    parsed = parse_release(name)
+    assert parsed.confidence == LOW
+    assert any("impossible date" in r for r in parsed.reasons), parsed.reasons
+    assert parsed.day is None

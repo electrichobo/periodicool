@@ -319,7 +319,13 @@ def test_identify_flags(mag, name, reason):
 
 def test_every_confident_fixture_name_identifies():
     """Confident matched names map to a key, except known date-only and number-only cases."""
-    allowed = ("no issue number", "number without a month", "does not fit")
+    allowed = (
+        "no issue number",
+        "number without a month",
+        "does not fit",
+        "from the schedule",
+        "special without a month",
+    )
     for path in sorted((Path(__file__).parent / "fixtures" / "releases").glob("*.json")):
         mag = BY_FIXTURE[path.stem]
         for r in json.loads(path.read_text(encoding="utf-8"))["releases"]:
@@ -329,3 +335,38 @@ def test_every_confident_fixture_name_identifies():
             result = identify(parsed, mag)
             if not result.confident:
                 assert any(a in x for x in result.reasons for a in allowed), (r["title"], result)
+
+
+@pytest.mark.parametrize(
+    ("name", "key"),
+    [
+        ("New.York.Magazine.No.October.5th-October.18th.2026.HYBRiD.MAGAZiNE", "2026-10-05"),
+        ("New.York.Magazine.No.October.19th-November.1st.2026.HYBRiD.MAGAZiNE", "2026-10-19"),
+        ("New.York.Magazine-30.December.2024-12.January.2025.[NulledPremium]", "2024-12-30"),
+        ("New.York.Magazine.No.January.15-28.2024.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE", "2024-01-15"),
+        ("New.York.Magazine-14-27.August.2023", "2023-08-14"),
+        # A slip in the name (the 8th for the 10th) lands on the schedule date.
+        (
+            "New.York.Magazine.No.August.8th-August.23rd.2026.HYBRiD.MAGAZiNE.eBook-LiBRiCiDE",
+            "2026-08-10",
+        ),
+    ],
+)
+def test_biweekly_date_range_names_the_scheduled_issue(name, key):
+    result = identify(parse_release(name), BY_FIXTURE["new-york-magazine"])
+    assert result.key == key
+    assert result.confident, result.reasons
+
+
+def test_date_off_the_biweekly_schedule_is_not_confident():
+    result = identify(
+        parse_release("New York Magazine-19 October 2023"), BY_FIXTURE["new-york-magazine"]
+    )
+    assert not result.confident
+    assert any("from the schedule" in r for r in result.reasons)
+
+
+def test_impossible_date_on_a_weekly_does_not_raise():
+    result = identify(parse_release("People USA 31 February 2026"), BY_FIXTURE["people"])
+    assert result.key is None
+    assert not result.confident

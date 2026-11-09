@@ -13,6 +13,7 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass
+from datetime import date
 
 HIGH = "high"
 LOW = "low"
@@ -68,6 +69,7 @@ REGIONS = {
 FORMATS = ("pdf", "epub", "cbz", "cbr")
 
 _I = re.IGNORECASE
+_MASK = "\x00"
 _MONTH = "(?:" + "|".join(sorted(MONTHS, key=len, reverse=True)) + ")"
 _SEASON = "(?:" + "|".join(SEASONS) + ")"
 _YEAR = r"(?:19|20)\d{2}"
@@ -113,9 +115,33 @@ _YEAR_SEASON = re.compile(rf"\b({_YEAR})[\s\-]+({_SEASON})\b", _I)
 _DAY_MONTH_YEAR = re.compile(
     rf"\b(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?[\s\-]+({_MONTH})\b\.?[\s\-,]+({_YEAR})\b", _I
 )
+_MONTH_DAY_YEAR = re.compile(
+    rf"\b({_MONTH})\b\.?[\s\-]+(0?[1-9]|[12]\d|3[01])(?:st|nd|rd|th)?[\s\-,]+({_YEAR})\b", _I
+)
 _MONTH_RANGE_YEAR = re.compile(
     rf"\b({_MONTH})\b\.?\s*[\-/&]?\s*({_MONTH})\b\.?[\s\-,]+({_YEAR})\b", _I
 )
+# One issue dated by a range, each end month first or day first: "October 5th-October
+# 18th 2026", "14-27 August 2023", "August 21 TruePDF-3 September 2017". A tag taken
+# earlier may sit in the middle, as masked text. The end always carries the year.
+_ORDINAL = r"(?:st|nd|rd|th)?"
+_DAY_NUM = r"0?[1-9]|[12]\d|3[01]"
+_NOT_A_NUMBER = (
+    r"(?<!\bno\s)(?<!\bnr\s)(?<!\bissue\s)(?<!\bnumber\s)"
+    r"(?<!\bvol\s)(?<!\bvolume\s)(?<!#)(?<!#\s)"
+)
+_DATE_RANGE = re.compile(
+    rf"\b(?:(?P<sm>{_MONTH})\b\.?[\s\-]+(?P<sd>{_DAY_NUM}){_ORDINAL}"
+    rf"|{_NOT_A_NUMBER}(?P<sd2>{_DAY_NUM}){_ORDINAL}(?:[\s\-]+(?P<sm2>{_MONTH})\b\.?)?)"
+    rf"(?:[\s,]+(?P<sy>{_YEAR}))?"
+    rf"[\s{_MASK}]*[\-\u2013\u2014][\s{_MASK}]*"
+    rf"(?:(?P<em>{_MONTH})\b\.?[\s\-]+(?P<ed>{_DAY_NUM}){_ORDINAL}"
+    rf"|(?P<ed2>{_DAY_NUM}){_ORDINAL}(?:[\s\-]+(?P<em2>{_MONTH})\b\.?)?)"
+    rf"[\s\-,]+(?P<ey>{_YEAR})\b",
+    _I,
+)
+# The longest range still read as one issue; longer ones are collections.
+MAX_RANGE_DAYS = 35
 _MONTH_YEAR = re.compile(rf"\b({_MONTH})\b\.?[\s\-,]+({_YEAR})\b", _I)
 _ISO_YMD = re.compile(rf"\b({_YEAR})[\s\-](0[1-9]|1[0-2])[\s\-](0[1-9]|[12]\d|3[01])\b")
 _ISO_YM = re.compile(rf"\b({_YEAR})[\s\-](0[1-9]|1[0-2])\b(?![\s\-]\d)")
@@ -136,8 +162,6 @@ _ANY_YEAR = re.compile(rf"\b({_YEAR})\b")
 _DIGITS = re.compile(r"\d+")
 _DANGLING = re.compile(r"(?:\s+(?:vol(?:ume)?|issue|no|nr|number))+$", _I)
 _EDGE_JUNK = re.compile(r"^[\W_]+|[\W_]+$")
-
-_MASK = "\x00"
 
 
 @dataclass(frozen=True)
@@ -222,16 +246,47 @@ class _Scanner:
     def take(self, pattern: re.Pattern[str]) -> re.Match[str] | None:
         m = pattern.search(self.text)
         if m:
-            self.starts.append(m.start())
-            masked = _MASK * (m.end() - m.start())
-            self.text = self.text[: m.start()] + masked + self.text[m.end() :]
+            self.mask(m)
         return m
+
+    def mask(self, m: re.Match[str]) -> None:
+        self.starts.append(m.start())
+        masked = _MASK * (m.end() - m.start())
+        self.text = self.text[: m.start()] + masked + self.text[m.end() :]
 
     def take_all(self, pattern: re.Pattern[str]) -> list[re.Match[str]]:
         found = []
         while m := self.take(pattern):
             found.append(m)
         return found
+
+
+def _take_date_range(sc: _Scanner) -> tuple[date | None, str | None] | None:
+    """The start of a date range in the name and what is wrong with it, or None
+    when there is no range. A range that makes no sense gives no date: never guess."""
+    for m in _DATE_RANGE.finditer(sc.text):
+        start_name, end_name = m["sm"] or m["sm2"], m["em"] or m["em2"]
+        start_day, end_day = int(m["sd"] or m["sd2"]), int(m["ed"] or m["ed2"])
+        if not (start_name or end_name):
+            continue
+        # With one month named, both days are in it, so they must go up.
+        if not (start_name and end_name) and end_day <= start_day:
+            continue
+        sc.mask(m)
+        start_month = MONTHS[(start_name or end_name).lower()]
+        end_month = MONTHS[(end_name or start_name).lower()]
+        end_year = int(m["ey"])
+        start_year = int(m["sy"]) if m["sy"] else end_year - (start_month > end_month)
+        text = m.group(0).replace(_MASK, "")
+        try:
+            start = date(start_year, start_month, start_day)
+            end = date(end_year, end_month, end_day)
+        except ValueError:
+            return None, f"impossible date {text!r}"
+        if not 0 < (end - start).days <= MAX_RANGE_DAYS:
+            return None, f"date range is not one issue {text!r}"
+        return start, None
+    return None
 
 
 def _split_region(title: str, protect: int = 1) -> tuple[str, str | None]:
@@ -302,8 +357,17 @@ def parse_release(raw: str, titles=None) -> ParsedRelease:
         year = int(m.group(2))
     elif m := sc.take(_YEAR_SEASON):
         year, found["season"] = int(m.group(1)), SEASONS[m.group(2).lower()]
+    elif taken := _take_date_range(sc):
+        start, problem = taken
+        if start:
+            year, found["month"], found["day"] = start.year, start.month, start.day
+        else:
+            reasons.append(problem)
     elif m := sc.take(_DAY_MONTH_YEAR):
         found["day"], found["month"] = int(m.group(1)), MONTHS[m.group(2).lower()]
+        year = int(m.group(3))
+    elif m := sc.take(_MONTH_DAY_YEAR):
+        found["month"], found["day"] = MONTHS[m.group(1).lower()], int(m.group(2))
         year = int(m.group(3))
     elif m := sc.take(_MONTH_RANGE_YEAR):
         found["month"] = MONTHS[m.group(1).lower()]
@@ -356,6 +420,13 @@ def parse_release(raw: str, titles=None) -> ParsedRelease:
         year = next(iter(years))
     elif len(years) > 1:
         reasons.append("conflicting years " + ", ".join(str(y) for y in sorted(years)))
+
+    if year and "month" in found and "day" in found:
+        try:
+            date(year, found["month"], found["day"])
+        except ValueError:
+            reasons.append(f"impossible date {year}-{found['month']}-{found['day']}")
+            del found["day"]
 
     # The title runs up to the first marker, date or bracket, or the first
     # number after the first word.

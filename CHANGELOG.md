@@ -4,6 +4,12 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Fixed
+
+- Names with month-first dates (`October 6 2025`, `August 30, 2026`) are now read. Before, the day could be taken for the month and the title picked up the month's name.
+- One issue named by a date range is now read, and its issue date is the first day of the range. For example `October 5th-October 18th 2026`, `January 15-28 2024`, `14-27 August 2023`, `30 December 2024-12 January 2025`. A range too long to be one issue, or one that ends before it starts, waits for review.
+- A date that does not exist (`31 February 2026`) is now low confidence, instead of being accepted.
+
 ## [0.3.0] - 2026-11-02
 
 ### Added

@@ -33,6 +33,7 @@ QUERIES = [
     ("fortean-times", "Fortean Times", "Fortean Times"),
     ("tabletop-gaming", "Tabletop Gaming Magazine", "Tabletop Gaming"),
     ("people", "People", "People"),
+    ("new-york-magazine", "New York Magazine", "New York Magazine"),
 ]
 
 ROOT = Path(__file__).resolve().parent.parent
