@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- Each version tag now also publishes a GitHub release, with that version's notes from this file. Use Watch, Custom, Releases on GitHub to hear about new versions.
+
 ## [0.3.1] - 2026-11-08
 
 ### Fixed

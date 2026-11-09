@@ -153,6 +153,7 @@ Handoff notes between sessions. Read at the start, update at the end.
     - `text_clues` (PDF text) still has no month-first dates; a free-text date on a first page is not always the cover date.
     - `23.30.December.2013` and `May.1.4.TruePDF-2017` stay low confidence.
   - **v0.3.1 tagged 2026-11-08** with this fix.
+- **GitHub releases, 2026-11-08:** `release.yml` gains a `github-release` job after the image: it publishes a release for the tag, with notes from `scripts/release_notes.py` (that version's CHANGELOG section; it fails if there is none, so date the section before tagging). Run by hand from the Actions tab on main with a tag, it only publishes that release and builds no image; older tags have no release unless run this way. Rerunning edits the existing release. The workflow itself has not run yet.
 
 ## Next
 

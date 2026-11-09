@@ -1,18 +1,31 @@
 name: Release image
 
 # On a version tag (v1.2.3), build for amd64 and arm64 and push to GHCR
-# with the version tag and `latest`.
+# with the version tag and `latest`, then publish a GitHub release with that
+# version's notes from CHANGELOG.md.
+#
+# Run by hand from the Actions tab (on main), it only publishes the release for a
+# tag that already exists; no image is built.
 on:
   push:
     tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to publish a release for, for example v1.2.3"
+        required: true
+        type: string
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   image:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
@@ -36,3 +49,26 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  github-release:
+    needs: image
+    # Runs after a good image, so a failed build never announces a release. By
+    # hand the image job is skipped, and this runs anyway.
+    if: ${{ !cancelled() && (needs.image.result == 'success' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish the release
+        run: |
+          notes="$RUNNER_TEMP/notes.md"
+          python3 scripts/release_notes.py "$TAG" > "$notes"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file "$notes"
+          else
+            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$notes"
+          fi
