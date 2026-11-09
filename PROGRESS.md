@@ -152,7 +152,7 @@ Handoff notes between sessions. Read at the start, update at the end.
     - A range covering two expected issues (a weekly's double issue) marks only the first; the second stays Missing.
     - `text_clues` (PDF text) still has no month-first dates; a free-text date on a first page is not always the cover date.
     - `23.30.December.2013` and `May.1.4.TruePDF-2017` stay low confidence.
-  - Not released yet.
+  - **v0.3.1 tagged 2026-11-08** with this fix.
 
 ## Next
 

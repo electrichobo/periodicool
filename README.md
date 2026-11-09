@@ -4,7 +4,7 @@
 
 Self-hosted manager for magazines. PeriodiCool tracks titles, works out which issues should exist, finds releases through your indexers, sends them to your download client, and keeps your library organized.
 
-> **Status:** young but working (v0.3.0): the web UI, the background jobs, the REST API and the Docker image are all in place. It runs on the maintainer's Unraid server with Prowlarr and SABnzbd; the other download clients follow their documented APIs and are waiting for real-world reports. See [CHANGELOG.md](CHANGELOG.md).
+> **Status:** young but working (v0.3.1): the web UI, the background jobs, the REST API and the Docker image are all in place. It runs on the maintainer's Unraid server with Prowlarr and SABnzbd; the other download clients follow their documented APIs and are waiting for real-world reports. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Getting started, the short version
 
